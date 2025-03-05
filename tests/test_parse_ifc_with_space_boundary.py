@@ -6,6 +6,7 @@ import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.shape
 import ifcopenshell.util.shape
+import numpy as np
 from pydantic import BaseModel, Field
 
 import ifctrano.base
@@ -14,6 +15,7 @@ from ifctrano.base import GlobalId
 from ifctrano.bounding_box import BoundingBox
 from ifctrano.space_boundary import get_spaces, initialize_tree, SpaceBoundaries
 import ifcopenshell.util.geolocation
+
 SPACE_BOUNDARY_IFC = Path(__file__).parent / "models" / "space_boundary"
 settings = ifcopenshell.geom.settings()
 
@@ -206,7 +208,10 @@ def test_get_space_boundaries():
         (27.66, "2OBrcmyk58NupXoVOHUtgP", "IfcSlab"),
     ]
 
+
 from ifctrano.base import Point
+
+
 def test_orientation_vector():
     point_1 = Point(x=0, y=0, z=0)
     point_2 = Point(x=1, y=0, z=0)
@@ -217,4 +222,60 @@ def test_orientation_vector():
     vector_1 = point_2 - point_1
     vector_2 = point_3 - point_1
     normal_vector = vector_1 * vector_2
-    vector_centroid.project(normal_vector)
+    vector_direction = vector_centroid.project(normal_vector)
+    assert all(vector_direction.to_array() == np.array([0, 0, -1]))
+    #see: https://blender.stackexchange.com/questions/261049/how-to-get-an-objects-oriented-bounding-box-obb-using-script
+
+
+def test_compute_obb():
+    vertices = [
+        [2.6, -0.417, 0.019],
+        [2.6, -0.417, 2.6],
+        [2.6, -5.2, 2.6],
+        [2.6, -5.2, 0.019],
+        [8.383, -5.2, 2.6],
+        [8.383, -5.2, 0.019],
+        [8.383, -0.417, 2.6],
+        [8.383, -0.417, 0.019]
+    ]
+
+    # Convert to NumPy array
+    vertices_np = np.array(vertices)
+    points = np.asarray(vertices_np)
+    means = np.mean(points, axis=1)
+
+    cov = np.cov(points, y=None, rowvar=0, bias=1)
+
+    v, vect = np.linalg.eig(cov)
+
+    tvect = np.transpose(vect)
+    points_r = np.dot(points, np.linalg.inv(tvect))
+
+    co_min = np.min(points_r, axis=0)
+    co_max = np.max(points_r, axis=0)
+
+    xmin, xmax = co_min[0], co_max[0]
+    ymin, ymax = co_min[1], co_max[1]
+    zmin, zmax = co_min[2], co_max[2]
+
+    xdif = (xmax - xmin) * 0.5
+    ydif = (ymax - ymin) * 0.5
+    zdif = (zmax - zmin) * 0.5
+
+    cx = xmin + xdif
+    cy = ymin + ydif
+    cz = zmin + zdif
+
+    corners = np.array([
+        [cx - xdif, cy - ydif, cz - zdif],
+        [cx - xdif, cy + ydif, cz - zdif],
+        [cx - xdif, cy + ydif, cz + zdif],
+        [cx - xdif, cy - ydif, cz + zdif],
+        [cx + xdif, cy + ydif, cz + zdif],
+        [cx + xdif, cy + ydif, cz - zdif],
+        [cx + xdif, cy - ydif, cz + zdif],
+        [cx + xdif, cy - ydif, cz - zdif],
+    ])
+
+    corners = np.dot(corners, tvect)
+    center = np.dot([cx, cy, cz], tvect)
