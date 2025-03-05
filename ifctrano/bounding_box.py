@@ -1,30 +1,25 @@
-from typing import Tuple, Annotated, List, get_args
+from typing import List, Optional
 
-import ifcopenshell.geom
-import ifcopenshell.util.shape
 import numpy as np
-from ifcopenshell import entity_instance
 from pydantic import (
     BaseModel,
-    computed_field,
-    model_validator,
-    BeforeValidator,
     ConfigDict,
 )
 from shapely import Polygon
-from shapely.lib import intersection
 
 from ifctrano.base import (
     Point,
-    settings,
     Vector,
-    Coordinate,
     P,
     Sign,
     CoordinateSystem,
     Vertices,
 )
-from ifctrano.exceptions import NoIntersectionAreaFoundError, BoundingBoxFaceError
+from ifctrano.exceptions import BoundingBoxFaceError
+
+
+class BaseBoundingBox(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 def get_normal(
@@ -42,7 +37,13 @@ def get_normal(
     return Vector.from_array(array)
 
 
-class BoundingBoxFace(BaseModel):
+class Polygon2D(BaseBoundingBox):
+    polygon: Polygon
+    normal: Vector
+    length: float
+
+
+class BoundingBoxFace(BaseBoundingBox):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     vertices: Vertices
     normal: Vector
@@ -68,16 +69,22 @@ class BoundingBoxFace(BaseModel):
             vertices=vertices, normal=normal, coordinate_system=coordinate_system
         )
 
-    def get_2d_polygon(self, coordinate_system: CoordinateSystem) -> Polygon:
+    def get_2d_polygon(self, coordinate_system: CoordinateSystem) -> Polygon2D:
         projected_vertices = coordinate_system.inverse(self.vertices.to_array())
         projected_normal_index = Vector.from_array(
             coordinate_system.inverse(self.normal.to_array())
         ).get_normal_index()
-        return Polygon(
+        polygon = Polygon(
             [
                 [v_ for i, v_ in enumerate(v) if i != projected_normal_index]
                 for v in projected_vertices.tolist()
             ]
+        )
+
+        return Polygon2D(
+            polygon=polygon,
+            normal=self.normal,
+            length=projected_vertices.tolist()[0][projected_normal_index],
         )
 
 
@@ -126,14 +133,58 @@ class BoundingBoxFaces(BaseModel):
         return cls(faces=faces)
 
 
+class CommonSurface(BaseModel):
+    area: float
+    orientation: Vector
+
+
+class ExtendCommonSurface(CommonSurface):
+    distance: float
+
+    def to_common_surface(self):
+        return CommonSurface(area=self.area, orientation=self.orientation)
+
+
 class OrientedBoundingBox(BaseModel):
     faces: BoundingBoxFaces
     centroid: Point
 
+    def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
+        extend_surfaces = []
+        for face in self.faces.faces:
+
+            for other_face in other.faces.faces:
+                vector = face.normal * other_face.normal
+                if vector.is_a_zero():
+                    polygon_1 = other_face.get_2d_polygon(face.coordinate_system)
+                    polygon_2 = face.get_2d_polygon(face.coordinate_system)
+                    intersection = polygon_2.polygon.intersection(polygon_1.polygon)
+
+                    if intersection.area > 0:
+                        distance = abs(polygon_1.length - polygon_2.length)
+                        area = intersection.area
+                        direction_vector = (other.centroid - self.centroid).norm()
+                        orientation = direction_vector.project(face.normal)
+                        extend_surfaces.append(
+                            ExtendCommonSurface(
+                                distance=distance, area=area, orientation=orientation
+                            )
+                        )
+        if extend_surfaces:
+            if not [
+                e.orientation == extend_surfaces[0].orientation for e in extend_surfaces
+            ]:
+                raise ValueError("All extend surfaces must have the same orientation")
+            extend_surface = sorted(
+                extend_surfaces, key=lambda x: x.distance, reverse=True
+            )[-1]
+            return extend_surface.to_common_surface()
+        return None
+
     @classmethod
     def from_vertices(cls, vertices: List[List[float]]):
         vertices_np = np.array(vertices)
-        points = np.asarray(vertices_np)
+        points = np.round(np.asarray(vertices_np), 2)
         means = np.mean(points, axis=1)
 
         cov = np.cov(points, y=None, rowvar=0, bias=1)
@@ -157,113 +208,11 @@ class OrientedBoundingBox(BaseModel):
         cx = xmin + xdif
         cy = ymin + ydif
         cz = zmin + zdif
-        corners = np.array(
-            [
-                [cx - xdif, cy - ydif, cz - zdif],
-                [cx - xdif, cy + ydif, cz - zdif],
-                [cx - xdif, cy + ydif, cz + zdif],
-                [cx - xdif, cy - ydif, cz + zdif],
-                [cx + xdif, cy + ydif, cz + zdif],
-                [cx + xdif, cy + ydif, cz - zdif],
-                [cx + xdif, cy - ydif, cz + zdif],
-                [cx + xdif, cy - ydif, cz - zdif],
-            ]
-        )
-        corners = np.dot(corners, tvect)
-        # center = np.dot([cx, cy, cz], tvect)
         coordinate_system = CoordinateSystem.from_array(tvect)
         c = P(x=cx, y=cy, z=cz)
         d = P(x=xdif, y=ydif, z=zdif)
         faces = BoundingBoxFaces.build(c, d, coordinate_system)
-        return cls(faces=faces, centroid=c)
-
-
-#
-#
-# class BoundingBoxIntersectionSurface(BaseModel):
-#     x_surface: Annotated[float, BeforeValidator(round_two_decimals)]
-#     y_surface: Annotated[float, BeforeValidator(round_two_decimals)]
-#     z_surface: Annotated[float, BeforeValidator(round_two_decimals)]
-#
-#     @computed_field
-#     def area(self) -> float:
-#         return max([self.x_surface, self.y_surface, self.z_surface])
-#
-#
-#
-#
-#
-#
-#
-# class BoundingBox(BaseModel):
-#     min_corner: Point
-#     max_corner: Point
-#     centroid: Point
-#     faces: List[BoundingBoxFace]
-#
-#     @classmethod
-#     def from_element(cls, element: entity_instance):
-#         element_2_shape = ifcopenshell.geom.create_shape(settings, element)
-#         points = ifcopenshell.util.shape.get_bbox(
-#             ifcopenshell.util.shape.get_shape_vertices(
-#                 element_2_shape, element_2_shape.geometry
-#             )
-#         )
-#         centroid = ifcopenshell.util.shape.get_element_bbox_centroid(
-#             element, element_2_shape.geometry
-#         )
-#         return cls.from_coordinate((*points, centroid))
-#
-#     @classmethod
-#     def from_coordinate(
-#         cls,
-#         points: Tuple[
-#             Tuple[float, float, float],
-#             Tuple[float, float, float],
-#             Tuple[float, float, float],
-#         ],
-#     ):
-#         min_corner = Point.from_coordinate(points[0])
-#         max_corner = Point.from_coordinate(points[1])
-#         centroid = Point.from_coordinate(points[1])
-#         return cls(min_corner=min_corner, max_corner=max_corner, centroid=centroid)
-#
-#     def intersection_surface(
-#         self, other: "BoundingBox"
-#     ) -> BoundingBoxIntersectionSurface:
-#         x_surface = intersection(self.x_face(), other.x_face()).area
-#         y_surface = intersection(self.y_face(), other.y_face()).area
-#         z_surface = intersection(self.z_face(), other.z_face()).area
-#         return BoundingBoxIntersectionSurface(
-#             x_surface=x_surface, y_surface=y_surface, z_surface=z_surface
-#         )
-#
-#     def x_face(self) -> Polygon:
-#         lines = [
-#             (self.min_corner.y, self.min_corner.z),
-#             (self.max_corner.y, self.min_corner.z),
-#             (self.max_corner.y, self.max_corner.z),
-#             (self.min_corner.y, self.max_corner.z),
-#             (self.min_corner.y, self.min_corner.z),
-#         ]
-#         return Polygon(lines)
-#
-#     def y_face(self) -> Polygon:
-#         lines = [
-#             (self.min_corner.x, self.min_corner.z),
-#             (self.max_corner.x, self.min_corner.z),
-#             (self.max_corner.x, self.max_corner.z),
-#             (self.min_corner.x, self.max_corner.z),
-#             (self.min_corner.x, self.min_corner.z),
-#         ]
-#         return Polygon(lines)
-#
-#     def z_face(self) -> Polygon:
-#         lines = [
-#             (self.min_corner.x, self.min_corner.y),
-#             (self.max_corner.x, self.min_corner.y),
-#             (self.max_corner.x, self.max_corner.y),
-#             (self.min_corner.x, self.max_corner.y),
-#             (self.min_corner.x, self.min_corner.y),
-#         ]
-#         return Polygon(lines)
+        return cls(
+            faces=faces,
+            centroid=Point.from_array(coordinate_system.project(c.to_array())),
+        )

@@ -63,7 +63,7 @@ def test_oriented_bounding_box_not_aligned_with_coordinate() -> None:
         [4.91934955, -8.72066511, 2.0],
         [0.4472136, 0.2236068, 2.0],
     ]
-    Vector(x=-0.45, y=0.89, z=0.0).to_array()*10
+    Vector(x=-0.45, y=0.89, z=0.0).to_array() * 10
 
     obb = OrientedBoundingBox.from_vertices(vertices=vertices)
     face = obb.faces.faces[4]
@@ -172,8 +172,33 @@ def test_oriented_bounding_box_compare_faces() -> None:
         [0.4472136, 0.2236068, 2.0],
     ]
 
-    vertices_ = (np.array(vertices) + Vector(x=-0.45, y=0.89, z=0.0).to_array()*10).tolist()
+    vertices_ = (
+        np.array(vertices) + Vector(x=-0.45, y=0.89, z=0.0).to_array() * 20
+    ).tolist()
 
     obb_1 = OrientedBoundingBox.from_vertices(vertices=vertices)
-    obb_2   = OrientedBoundingBox.from_vertices(vertices=vertices_)
-    a = 12
+    obb_2 = OrientedBoundingBox.from_vertices(vertices=vertices_)
+    common_surface = obb_2.intersect_faces(obb_1)
+    assert common_surface.area == 0.82
+
+
+def test_oriented_bounding_box_compare_faces_another_direction() -> None:
+    vertices = [
+        [0.0, 0.0, 0.0],
+        [4.47213595, -8.94427191, 0.0],
+        [4.91934955, -8.72066511, 0.0],
+        [0.4472136, 0.2236068, 0.0],
+        [0.0, 0.0, 2.0],
+        [4.47213595, -8.94427191, 2.0],
+        [4.91934955, -8.72066511, 2.0],
+        [0.4472136, 0.2236068, 2.0],
+    ]
+
+    vertices_ = (
+        np.array(vertices) + Vector(x=-0.89, y=-0.45, z=0.0).to_array() * 20
+    ).tolist()
+
+    obb_1 = OrientedBoundingBox.from_vertices(vertices=vertices)
+    obb_2 = OrientedBoundingBox.from_vertices(vertices=vertices_)
+    common_surface = obb_2.intersect_faces(obb_1)
+    assert common_surface.area == 19.82

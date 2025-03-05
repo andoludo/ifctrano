@@ -2,7 +2,7 @@ from typing import Tuple, Literal, List, Annotated
 
 import ifcopenshell.geom
 import numpy as np
-from pydantic import BaseModel, Field, BeforeValidator
+from pydantic import BaseModel, BeforeValidator
 
 Coordinate = Literal["x", "y", "z"]
 
@@ -34,6 +34,9 @@ class BasePoint(BaseModel):
     @classmethod
     def from_array(cls, array: np.ndarray):
         return cls(x=array[0], y=array[1], z=array[2])
+
+    def __eq__(self, other):
+        return all([self.x == other.x, self.y == other.y, self.z == other.z])
 
 Signs = Literal[-1, 1]
 
@@ -76,6 +79,9 @@ class Vector(BasePoint):
         else:
             raise ValueError("No normal index found")
 
+    def is_a_zero(self) -> bool:
+        return all([value == 0 for value in self.to_list()])
+
 
 class Point(BasePoint):
     def __sub__(self, other: "Point") -> Vector:
@@ -108,10 +114,10 @@ class CoordinateSystem(BaseModel):
         return np.array([self.x.to_array(), self.y.to_array(), self.z.to_array()])
 
     def project(self, array: np.array) -> np.array:
-        return np.dot(array, self.to_array())
+        return np.round(np.dot(array, self.to_array()),2)
 
     def inverse(self, array: np.array) -> np.array:
-        return np.dot(array, np.linalg.inv(self.to_array()))
+        return np.round(np.dot(array, np.linalg.inv(self.to_array())),2)
 
 settings = ifcopenshell.geom.settings()
 
