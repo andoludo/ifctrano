@@ -198,3 +198,12 @@ def test_get_space_boundaries_two_zones(two_zones: file) -> None:
             "IfcWallStandardCase",
         ),
     ]
+
+
+def test_to_trano_space(two_zones: file) -> None:
+
+    tree = initialize_tree(two_zones)
+    space = two_zones.by_guid("0t8Y4TnjqtGRnTw6NPeuj9")
+    boundaries = SpaceBoundaries.from_space_entity(two_zones, tree, space)
+
+    boundaries.to_trano_space()

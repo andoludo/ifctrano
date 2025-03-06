@@ -1,22 +1,28 @@
 import multiprocessing
-from typing import Optional, List, Tuple, Any
+import re
+from typing import Optional, List, Tuple, Any, Literal
 
 import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.shape
-from ifcopenshell import entity_instance
-from pydantic import BaseModel, Field
+from ifcopenshell import entity_instance, file
+from pydantic import BaseModel, Field, field_validator, model_validator
+from trano.elements import Space as TranoSpace, ExternalWall, Window
+from trano.elements.construction import Construction, Layer, Material
+from trano.elements.system import Occupancy
+from trano.elements.types import Azimuth, Tilt
+from trano.topology import Network
 
 from ifctrano.base import GlobalId, settings, BaseModelConfig, CommonSurface
 from ifctrano.bounding_box import OrientedBoundingBox
 
 
-def initialize_tree(ifcopenshell_file) -> ifcopenshell.geom.tree:
+def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
 
     tree = ifcopenshell.geom.tree()
 
     iterator = ifcopenshell.geom.iterator(
-        settings, ifcopenshell_file, multiprocessing.cpu_count()
+        settings, ifc_file, multiprocessing.cpu_count()
     )
     if iterator.initialize():
         while True:
@@ -26,8 +32,8 @@ def initialize_tree(ifcopenshell_file) -> ifcopenshell.geom.tree:
     return tree
 
 
-def get_spaces(ifcopenshell_file) -> List[ifcopenshell.entity_instance]:
-    return ifcopenshell_file.by_type("IfcSpace")
+def remove_non_alphanumeric(text):
+    return re.sub(r"[^a-zA-Z0-9]", "", text).lower()
 
 
 class Space(GlobalId):
@@ -35,11 +41,52 @@ class Space(GlobalId):
     bounding_box: OrientedBoundingBox
     entity: entity_instance
 
+    def space_name(self) -> str:
+        main_name = (
+            remove_non_alphanumeric(self.name)
+            if self.name
+            else remove_non_alphanumeric(self.entity.GlobalId)
+        )
+        return f"space_{main_name}"
+
+
+material_1 = Material(
+    name="material_1",
+    thermal_conductivity=0.046,
+    specific_heat_capacity=940,
+    density=80,
+)
+construction = Construction(
+    name="construction_4",
+    layers=[
+        Layer(material=material_1, thickness=0.18),
+    ],
+)
+
 
 class SpaceBoundary(BaseModelConfig):
     bounding_box: OrientedBoundingBox
     entity: entity_instance
     common_surface: CommonSurface
+    adjacent_space: Optional[Space] = None
+
+    def model_element(self):
+        if "wall" in self.entity.is_a().lower():
+            return ExternalWall(
+                surface=6.44,
+                azimuth=Azimuth.south,
+                tilt=Tilt.wall,
+                construction=construction,
+            )
+        if "window" in self.entity.is_a().lower():
+            return Window(
+                surface=6.44,
+                azimuth=Azimuth.south,
+                tilt=Tilt.wall,
+                construction=construction,
+            )
+
+        return None
 
     @classmethod
     def from_space_and_element(
@@ -65,6 +112,17 @@ class SpaceBoundary(BaseModelConfig):
 class SpaceBoundaries(BaseModel):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
+
+    def model(self) -> TranoSpace:
+        return TranoSpace(
+            name=self.space.space_name(),
+            occupancy=Occupancy(),
+            external_boundaries=[
+                boundary.model_element()
+                for boundary in self.boundaries
+                if boundary.model_element()
+            ],
+        )
 
     @classmethod
     def from_space_entity(

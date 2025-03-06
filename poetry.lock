@@ -4123,14 +4123,14 @@ test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,
 
 [[package]]
 name = "trano"
-version = "0.1.47"
+version = "0.1.48"
 description = ""
 category = "main"
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "trano-0.1.47-py3-none-any.whl", hash = "sha256:4a6b2deed9229d0252bdf60b9d66f448fac93201676101113055977ee502c944"},
-    {file = "trano-0.1.47.tar.gz", hash = "sha256:08307b9f878f4926213b59bb446b032eada26db8c4b71cbec45b6c86bc1870ee"},
+    {file = "trano-0.1.48-py3-none-any.whl", hash = "sha256:ce8b8890478529e5cd0b46432323d96e9216387ff5d122ac5a23563410039586"},
+    {file = "trano-0.1.48.tar.gz", hash = "sha256:b150489a02260adcf7db2907318610e86dd291be5357406e57dc305c4c07bf1c"},
 ]
 
 [package.dependencies]
@@ -4508,4 +4508,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "ebcdad02391fe4298dd5233e9033965e2c6ca3d6fbe6314368af4eb92b76ad15"
+content-hash = "02a9524d40738fc46e5d8a3842278e2bc9dd3a14ff47165446471d16a083e711"
