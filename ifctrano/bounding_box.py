@@ -1,9 +1,13 @@
+from logging import getLogger
 from typing import List, Optional
 
+import ifcopenshell
 import numpy as np
+from ifcopenshell.ifcopenshell_wrapper import entity_instance
+import ifcopenshell.geom
+import ifcopenshell.util.shape
 from pydantic import (
-    BaseModel,
-    ConfigDict,
+    BaseModel, Field,
 )
 from shapely import Polygon
 
@@ -13,14 +17,11 @@ from ifctrano.base import (
     P,
     Sign,
     CoordinateSystem,
-    Vertices,
+    Vertices, BaseModelConfig, settings, CommonSurface, AREA_TOLERANCE,
 )
 from ifctrano.exceptions import BoundingBoxFaceError
 
-
-class BaseBoundingBox(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
+logger = getLogger(__name__)
 
 def get_normal(
     centroid: Point,
@@ -31,20 +32,19 @@ def get_normal(
     point_0 = centroid + difference.s(face_signs[0])
     point_1 = centroid + difference.s(face_signs[1])
     point_2 = centroid + difference.s(face_signs[2])
-    vector_1 = point_1 - point_0
-    vector_2 = point_2 - point_0
-    array = coordinate_system.project((vector_1 * vector_2).norm().to_array())
+    vector_1 = coordinate_system.project((point_1 - point_0).to_array())
+    vector_2 = coordinate_system.project((point_2 - point_0).to_array())
+    array = (Vector.from_array(vector_1) * Vector.from_array(vector_2)).norm().to_array()
     return Vector.from_array(array)
 
 
-class Polygon2D(BaseBoundingBox):
+class Polygon2D(BaseModelConfig):
     polygon: Polygon
     normal: Vector
     length: float
 
 
-class BoundingBoxFace(BaseBoundingBox):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class BoundingBoxFace(BaseModelConfig):
     vertices: Vertices
     normal: Vector
     coordinate_system: CoordinateSystem
@@ -133,11 +133,6 @@ class BoundingBoxFaces(BaseModel):
         return cls(faces=faces)
 
 
-class CommonSurface(BaseModel):
-    area: float
-    orientation: Vector
-
-
 class ExtendCommonSurface(CommonSurface):
     distance: float
 
@@ -148,6 +143,7 @@ class ExtendCommonSurface(CommonSurface):
 class OrientedBoundingBox(BaseModel):
     faces: BoundingBoxFaces
     centroid: Point
+    area_tolerance: float = Field(default=AREA_TOLERANCE)
 
     def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
         extend_surfaces = []
@@ -156,25 +152,28 @@ class OrientedBoundingBox(BaseModel):
             for other_face in other.faces.faces:
                 vector = face.normal * other_face.normal
                 if vector.is_a_zero():
+
                     polygon_1 = other_face.get_2d_polygon(face.coordinate_system)
                     polygon_2 = face.get_2d_polygon(face.coordinate_system)
                     intersection = polygon_2.polygon.intersection(polygon_1.polygon)
 
-                    if intersection.area > 0:
+                    if intersection.area > self.area_tolerance:
                         distance = abs(polygon_1.length - polygon_2.length)
                         area = intersection.area
                         direction_vector = (other.centroid - self.centroid).norm()
-                        orientation = direction_vector.project(face.normal)
+                        orientation = direction_vector.project(face.normal).norm()
                         extend_surfaces.append(
                             ExtendCommonSurface(
                                 distance=distance, area=area, orientation=orientation
                             )
                         )
         if extend_surfaces:
-            if not [
+            if not all([
                 e.orientation == extend_surfaces[0].orientation for e in extend_surfaces
-            ]:
-                raise ValueError("All extend surfaces must have the same orientation")
+            ]):
+                logger.warning("Different orientations found. taking the max area")
+                max_area = max([e.area for e in extend_surfaces])
+                extend_surfaces = [e for e in extend_surfaces if e.area == max_area]
             extend_surface = sorted(
                 extend_surfaces, key=lambda x: x.distance, reverse=True
             )[-1]
@@ -184,13 +183,9 @@ class OrientedBoundingBox(BaseModel):
     @classmethod
     def from_vertices(cls, vertices: List[List[float]]):
         vertices_np = np.array(vertices)
-        points = np.round(np.asarray(vertices_np), 2)
-        means = np.mean(points, axis=1)
-
+        points = np.asarray(vertices_np)
         cov = np.cov(points, y=None, rowvar=0, bias=1)
-
         v, vect = np.linalg.eig(cov)
-
         tvect = np.transpose(vect)
         points_r = np.dot(points, np.linalg.inv(tvect))
 
@@ -208,6 +203,18 @@ class OrientedBoundingBox(BaseModel):
         cx = xmin + xdif
         cy = ymin + ydif
         cz = zmin + zdif
+        corners = np.array([
+                [cx - xdif, cy - ydif, cz - zdif],
+                [cx - xdif, cy + ydif, cz - zdif],
+                [cx - xdif, cy + ydif, cz + zdif],
+                [cx - xdif, cy - ydif, cz + zdif],
+                [cx + xdif, cy + ydif, cz + zdif],
+                [cx + xdif, cy + ydif, cz - zdif],
+                [cx + xdif, cy - ydif, cz + zdif],
+                [cx + xdif, cy - ydif, cz - zdif],
+            ]
+        )
+        corners = np.dot(corners, tvect)
         coordinate_system = CoordinateSystem.from_array(tvect)
         c = P(x=cx, y=cy, z=cz)
         d = P(x=xdif, y=ydif, z=zdif)
@@ -216,3 +223,12 @@ class OrientedBoundingBox(BaseModel):
             faces=faces,
             centroid=Point.from_array(coordinate_system.project(c.to_array())),
         )
+
+    @classmethod
+    def from_entity(cls, entity: entity_instance):
+        entity_shape = ifcopenshell.geom.create_shape(settings, entity)
+
+        vertices = ifcopenshell.util.shape.get_shape_vertices(
+        entity_shape, entity_shape.geometry)
+        return cls.from_vertices(vertices)
+

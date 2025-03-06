@@ -2,12 +2,16 @@ from typing import Tuple, Literal, List, Annotated
 
 import ifcopenshell.geom
 import numpy as np
-from pydantic import BaseModel, BeforeValidator
-
+from pydantic import BaseModel, BeforeValidator, ConfigDict
+settings = ifcopenshell.geom.settings()
 Coordinate = Literal["x", "y", "z"]
+AREA_TOLERANCE = 0.5
+
+class BaseModelConfig(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 def round_two_decimals(value: float) -> float:
-    return round(value, 2)
+    return round(value, 10)
 
 
 class BasePoint(BaseModel):
@@ -33,7 +37,10 @@ class BasePoint(BaseModel):
 
     @classmethod
     def from_array(cls, array: np.ndarray):
-        return cls(x=array[0], y=array[1], z=array[2])
+        try:
+            return cls(x=array[0], y=array[1], z=array[2])
+        except IndexError:
+            raise ValueError("Array must have three components")
 
     def __eq__(self, other):
         return all([self.x == other.x, self.y == other.y, self.z == other.z])
@@ -72,15 +79,12 @@ class Vector(BasePoint):
         return np.array([self.x, self.y, self.z])
 
     def get_normal_index(self) -> int:
-        if 1.0 in self.to_list():
-            return self.to_list().index(1.0)
-        elif -1.0 in self.to_list():
-            return self.to_list().index(-1.0)
-        else:
-            raise ValueError("No normal index found")
+        normal_index_list = [abs(v) for v in self.to_list()]
+        return normal_index_list.index(max(normal_index_list))
+
 
     def is_a_zero(self) -> bool:
-        return all([value == 0 for value in self.to_list()])
+        return all([abs(value) < 0.1 for value in self.to_list()])
 
 
 class Point(BasePoint):
@@ -99,7 +103,7 @@ class P(Point):
     pass
 
 
-class GlobalId(BaseModel):
+class GlobalId(BaseModelConfig):
     global_id: str
 
 class CoordinateSystem(BaseModel):
@@ -114,12 +118,12 @@ class CoordinateSystem(BaseModel):
         return np.array([self.x.to_array(), self.y.to_array(), self.z.to_array()])
 
     def project(self, array: np.array) -> np.array:
-        return np.round(np.dot(array, self.to_array()),2)
+        return np.dot(array, self.to_array())
 
     def inverse(self, array: np.array) -> np.array:
-        return np.round(np.dot(array, np.linalg.inv(self.to_array())),2)
+        return np.dot(array, np.linalg.inv(self.to_array()))
 
-settings = ifcopenshell.geom.settings()
+
 
 
 class Vertices(BaseModel):
@@ -134,3 +138,11 @@ class Vertices(BaseModel):
 
     def to_list(self):
         return self.to_array().tolist()
+
+
+class CommonSurface(BaseModel):
+    area: float
+    orientation: Vector
+
+    def description(self):
+        return self.area, self.orientation.to_list()
