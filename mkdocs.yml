@@ -11,15 +11,15 @@ theme:
         name: Switch to light mode
     - media: '(prefers-color-scheme: light)'
       scheme: default
-      primary: amber
-      accent: amber
+      primary: teal
+      accent: teal
       toggle:
         icon: material/lightbulb
         name: Switch to dark mode
     - media: '(prefers-color-scheme: dark)'
       scheme: slate
-      primary: amber
-      accent: amber
+      primary: teal
+      accent: teal
       toggle:
         icon: material/lightbulb-outline
         name: Switch to system preference
