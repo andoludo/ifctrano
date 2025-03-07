@@ -1,17 +1,16 @@
 import multiprocessing
 import re
-from typing import Optional, List, Tuple, Any, Literal
+from typing import Optional, List, Tuple, Any
 
 import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.shape
 from ifcopenshell import entity_instance, file
-from pydantic import BaseModel, Field, field_validator, model_validator
-from trano.elements import Space as TranoSpace, ExternalWall, Window
-from trano.elements.construction import Construction, Layer, Material
-from trano.elements.system import Occupancy
-from trano.elements.types import Azimuth, Tilt
-from trano.topology import Network
+from pydantic import BaseModel, Field
+from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall  # type: ignore
+from trano.elements.construction import Construction, Layer, Material  # type: ignore
+from trano.elements.system import Occupancy  # type: ignore
+from trano.elements.types import Azimuth, Tilt  # type: ignore
 
 from ifctrano.base import GlobalId, settings, BaseModelConfig, CommonSurface
 from ifctrano.bounding_box import OrientedBoundingBox
@@ -24,15 +23,15 @@ def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
     iterator = ifcopenshell.geom.iterator(
         settings, ifc_file, multiprocessing.cpu_count()
     )
-    if iterator.initialize():
+    if iterator.initialize():  # type: ignore
         while True:
-            tree.add_element(iterator.get())
-            if not iterator.next():
+            tree.add_element(iterator.get())  # type: ignore
+            if not iterator.next():  # type: ignore
                 break
     return tree
 
 
-def remove_non_alphanumeric(text):
+def remove_non_alphanumeric(text: str) -> str:
     return re.sub(r"[^a-zA-Z0-9]", "", text).lower()
 
 
@@ -70,7 +69,7 @@ class SpaceBoundary(BaseModelConfig):
     common_surface: CommonSurface
     adjacent_space: Optional[Space] = None
 
-    def model_element(self):
+    def model_element(self) -> Optional[BaseWall]:
         if "wall" in self.entity.is_a().lower():
             return ExternalWall(
                 surface=6.44,
@@ -100,7 +99,7 @@ class SpaceBoundary(BaseModelConfig):
             )
         return None
 
-    def description(self) -> Tuple[float, Tuple, Any, str]:
+    def description(self) -> Tuple[float, Tuple[float, ...], Any, str]:
         return (
             self.common_surface.area,
             self.common_surface.orientation.to_tuple(),
@@ -126,8 +125,11 @@ class SpaceBoundaries(BaseModel):
 
     @classmethod
     def from_space_entity(
-        cls, ifcopenshell_file, tree: ifcopenshell.geom.tree, space: entity_instance
-    ):
+        cls,
+        ifcopenshell_file: file,
+        tree: ifcopenshell.geom.tree,
+        space: entity_instance,
+    ) -> "SpaceBoundaries":
         bounding_box = OrientedBoundingBox.from_entity(space)
         space_ = Space(
             global_id=space.GlobalId,

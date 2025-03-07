@@ -158,7 +158,6 @@ def test_oriented_bounding_box_not_aligned_with_coordinate() -> None:
 
 
 def test_oriented_bounding_box_not_aligned_with_coordinate_different_origin() -> None:
-    center = (5, 4, 2)
     vertices = [
         [1.46446609, 0.46446609, 1.0],
         [8.53553391, 7.53553391, 1.0],
@@ -253,7 +252,7 @@ def test_oriented_bounding_box_compare_faces() -> None:
     obb_1 = OrientedBoundingBox.from_vertices(vertices=vertices)
     obb_2 = OrientedBoundingBox.from_vertices(vertices=vertices_)
     common_surface = obb_2.intersect_faces(obb_1)
-    assert round(common_surface.area,2) == 0.82
+    assert round(common_surface.area, 2) == 0.82
 
 
 def test_oriented_bounding_box_compare_faces_another_direction() -> None:
@@ -275,10 +274,10 @@ def test_oriented_bounding_box_compare_faces_another_direction() -> None:
     obb_1 = OrientedBoundingBox.from_vertices(vertices=vertices)
     obb_2 = OrientedBoundingBox.from_vertices(vertices=vertices_)
     common_surface = obb_2.intersect_faces(obb_1)
-    assert round(common_surface.area,2) == 19.82
+    assert round(common_surface.area, 2) == 19.82
 
 
-def test_common_area_multiple_boxes_following_x():
+def test_common_area_multiple_boxes_following_x() -> None:
 
     vertices = [
         [0.0, 0.0, 0.0],
@@ -305,7 +304,7 @@ def test_common_area_multiple_boxes_following_x():
     assert common_surface_1.description() == (1.0, [1.0, 0.0, 0.0])
 
 
-def test_common_area_multiple_boxes_following_y():
+def test_common_area_multiple_boxes_following_y() -> None:
 
     vertices = [
         [0.0, 0.0, 0.0],

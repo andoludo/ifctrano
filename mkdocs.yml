@@ -1,0 +1,87 @@
+site_name: ifctrano
+site_description: Automated building energy simulation tool with Modelica
+repo_name: trano
+repo_url: https://github.com/andoludo/ifctrano
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/lightbulb-auto
+        name: Switch to light mode
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      primary: amber
+      accent: amber
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      primary: amber
+      accent: amber
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to system preference
+
+  features:
+  - content.code.annotate
+  - content.code.copy
+  # - content.code.select
+  - content.footnote.tooltips
+  - content.tabs.link
+  - content.tooltips
+  - navigation.footer
+  - navigation.indexes
+  - navigation.instant
+  - navigation.instant.prefetch
+  # - navigation.instant.preview
+  - navigation.instant.progress
+  - navigation.path
+  - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.top
+  - navigation.tracking
+  - search.highlight
+  - search.share
+  - search.suggest
+  - toc.follow
+
+  icon:
+    repo: fontawesome/brands/github-alt
+  logo: img/trano.webp
+  favicon: img/trano.webp
+  language: en
+plugins:
+  - search
+nav:
+  - Trano: index.md
+  - Getting-started:
+    - Installation: getting-started/installation.md
+  - Tutorials:
+    - First model and simulation: tutorials/first_model_and_simulation.md
+    - Model with another library: tutorials/model_with_another_library.md
+    - Multi-zones: tutorials/multizone_model.md
+    - Multi-zone with ideal heating: tutorials/multi-zone_with_ideal_heating.md
+    - Multi-zone with hydronic heating: tutorials/multi-zone_with_hydronic_heating.md
+    - Zone with ventilation: tutorials/zone_with_ventilation.md
+    - Model with photovoltaics: tutorials/zone_with_photovoltaics.md
+  - How-to Guides: how-to guides/index.md
+  - Explanation: explanation/index.md
+  - Reference:
+      - Components: reference/components.md
+      - Parameters: reference/parameters.md
+
+markdown_extensions:
+    - admonition
+    - pymdownx.details
+    - pymdownx.superfences
+    - markdown_include.include:
+        base_path: docs
+    - pymdownx.highlight:
+        anchor_linenums: true
+        line_spans: __span
+        pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences

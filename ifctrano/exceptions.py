@@ -1,9 +1,10 @@
-
-
 class NoIntersectionAreaFoundError(Exception):
     """Raised when no intersection area is found between two polygons"""
-    pass
 
 
 class BoundingBoxFaceError(Exception):
+    pass
+
+
+class IfcFileNotFoundError(FileNotFoundError):
     pass

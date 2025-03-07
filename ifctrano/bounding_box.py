@@ -1,15 +1,16 @@
 from logging import getLogger
-from typing import List, Optional
+from typing import List, Optional, Any, Tuple
 
 import ifcopenshell
 import numpy as np
-from ifcopenshell.ifcopenshell_wrapper import entity_instance
+from ifcopenshell import entity_instance
 import ifcopenshell.geom
 import ifcopenshell.util.shape
 from pydantic import (
-    BaseModel, Field,
+    BaseModel,
+    Field,
 )
-from shapely import Polygon
+from shapely import Polygon  # type: ignore
 
 from ifctrano.base import (
     Point,
@@ -17,11 +18,16 @@ from ifctrano.base import (
     P,
     Sign,
     CoordinateSystem,
-    Vertices, BaseModelConfig, settings, CommonSurface, AREA_TOLERANCE,
+    Vertices,
+    BaseModelConfig,
+    settings,
+    CommonSurface,
+    AREA_TOLERANCE,
 )
 from ifctrano.exceptions import BoundingBoxFaceError
 
 logger = getLogger(__name__)
+
 
 def get_normal(
     centroid: Point,
@@ -34,7 +40,9 @@ def get_normal(
     point_2 = centroid + difference.s(face_signs[2])
     vector_1 = coordinate_system.project((point_1 - point_0).to_array())
     vector_2 = coordinate_system.project((point_2 - point_0).to_array())
-    array = (Vector.from_array(vector_1) * Vector.from_array(vector_2)).norm().to_array()
+    array = (
+        (Vector.from_array(vector_1) * Vector.from_array(vector_2)).norm().to_array()
+    )
     return Vector.from_array(array)
 
 
@@ -56,12 +64,12 @@ class BoundingBoxFace(BaseModelConfig):
         difference: Point,
         face_signs: List[Sign],
         coordinate_system: CoordinateSystem,
-    ):
+    ) -> "BoundingBoxFace":
         if len(face_signs) != len(set(face_signs)):
             raise BoundingBoxFaceError("Face signs must be unique")
         normal = get_normal(centroid, difference, face_signs, coordinate_system)
         vertices_ = [(centroid + difference.s(s)).to_list() for s in face_signs]
-        vertices_ = vertices_ + [vertices_[0]]
+        vertices_ = [*vertices_, vertices_[0]]
         vertices__ = [coordinate_system.project(v) for v in vertices_]
         vertices = Vertices.from_arrays(vertices__)
 
@@ -91,7 +99,7 @@ class BoundingBoxFace(BaseModelConfig):
 class BoundingBoxFaces(BaseModel):
     faces: List[BoundingBoxFace]
 
-    def description(self):
+    def description(self) -> List[tuple[Any, Tuple[float, float, float]]]:
         return sorted([(f.vertices.to_list(), f.normal.to_tuple()) for f in self.faces])
 
     @classmethod
@@ -136,7 +144,7 @@ class BoundingBoxFaces(BaseModel):
 class ExtendCommonSurface(CommonSurface):
     distance: float
 
-    def to_common_surface(self):
+    def to_common_surface(self) -> CommonSurface:
         return CommonSurface(area=self.area, orientation=self.orientation)
 
 
@@ -168,9 +176,9 @@ class OrientedBoundingBox(BaseModel):
                             )
                         )
         if extend_surfaces:
-            if not all([
+            if not all(
                 e.orientation == extend_surfaces[0].orientation for e in extend_surfaces
-            ]):
+            ):
                 logger.warning("Different orientations found. taking the max area")
                 max_area = max([e.area for e in extend_surfaces])
                 extend_surfaces = [e for e in extend_surfaces if e.area == max_area]
@@ -181,10 +189,12 @@ class OrientedBoundingBox(BaseModel):
         return None
 
     @classmethod
-    def from_vertices(cls, vertices: List[List[float]]):
+    def from_vertices(
+        cls, vertices: np.ndarray[tuple[int, ...], np.dtype[np.float64]]
+    ) -> "OrientedBoundingBox":
         vertices_np = np.array(vertices)
         points = np.asarray(vertices_np)
-        cov = np.cov(points, y=None, rowvar=0, bias=1)
+        cov = np.cov(points, y=None, rowvar=0, bias=1)  # type: ignore
         v, vect = np.linalg.eig(cov)
         tvect = np.transpose(vect)
         points_r = np.dot(points, np.linalg.inv(tvect))
@@ -203,7 +213,8 @@ class OrientedBoundingBox(BaseModel):
         cx = xmin + xdif
         cy = ymin + ydif
         cz = zmin + zdif
-        corners = np.array([
+        corners = np.array(
+            [
                 [cx - xdif, cy - ydif, cz - zdif],
                 [cx - xdif, cy + ydif, cz - zdif],
                 [cx - xdif, cy + ydif, cz + zdif],
@@ -225,10 +236,10 @@ class OrientedBoundingBox(BaseModel):
         )
 
     @classmethod
-    def from_entity(cls, entity: entity_instance):
+    def from_entity(cls, entity: entity_instance) -> "OrientedBoundingBox":
         entity_shape = ifcopenshell.geom.create_shape(settings, entity)
 
         vertices = ifcopenshell.util.shape.get_shape_vertices(
-        entity_shape, entity_shape.geometry)
+            entity_shape, entity_shape.geometry  # type: ignore
+        )
         return cls.from_vertices(vertices)
-

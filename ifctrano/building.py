@@ -2,14 +2,17 @@ from pathlib import Path
 from typing import List
 
 import ifcopenshell
-from ifcopenshell import file
-from trano.topology import Network
+from ifcopenshell import file, entity_instance
+from pydantic import validate_call
+from trano.elements.library.library import Library  # type: ignore
+from trano.topology import Network  # type: ignore
 
 from ifctrano.base import BaseModelConfig
+from ifctrano.exceptions import IfcFileNotFoundError
 from ifctrano.space_boundary import SpaceBoundaries, initialize_tree
 
 
-def get_spaces(ifcopenshell_file) -> List[ifcopenshell.entity_instance]:
+def get_spaces(ifcopenshell_file: file) -> List[entity_instance]:
     return ifcopenshell_file.by_type("IfcSpace")
 
 
@@ -20,16 +23,17 @@ class Building(BaseModelConfig):
     parent_folder: Path
 
     @classmethod
-    def from_ifc(cls, ifc_file_path: Path):
+    def from_ifc(cls, ifc_file_path: Path) -> "Building":
+        if not ifc_file_path.exists():
+            raise IfcFileNotFoundError(
+                f"File specified {ifc_file_path} does not exist."
+            )
         ifc_file = ifcopenshell.open(str(ifc_file_path))
         tree = initialize_tree(ifc_file)
         spaces = get_spaces(ifc_file)
-        space_boundaries = []
-        for space in spaces:
-            space_boundaries.append(
-                SpaceBoundaries.from_space_entity(ifc_file, tree, space)
-            )
-
+        space_boundaries = [
+            SpaceBoundaries.from_space_entity(ifc_file, tree, space) for space in spaces
+        ]
         return cls(
             space_boundaries=space_boundaries,
             ifc_file=ifc_file,
@@ -37,10 +41,10 @@ class Building(BaseModelConfig):
             name=ifc_file_path.stem,
         )
 
-    def write_model(self) -> None:
-        network = Network(name=self.name)
+    @validate_call
+    def create_model(self, library: Library = "Buildings") -> str:
+        network = Network(name=self.name, library=Library.from_configuration(library))
         network.add_boiler_plate_spaces(
             [space_boundary.model() for space_boundary in self.space_boundaries]
         )
-        model_ = network.model()
-        Path(self.parent_folder.joinpath(f"{self.name}.mo")).write_text(model_)
+        return network.model()  # type: ignore

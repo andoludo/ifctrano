@@ -2,9 +2,11 @@
 name = "ifctrano"
 version = "0.1.0"
 description = "Package for generating building energy simulation model from IFC"
-authors = ["aan <andoludovic.andriamamonjy@gmail.com>"]
+authors = ["Ando Andriamamonjy <andoludovic.andriamamonjy@gmail.com>"]
 license = "GPL V3"
 readme = "README.md"
+repository = "https://github.com/andoludo/ifctrano"
+keywords = ["BIM","IFC","energy simulation", "modelica", "building energy simulation", "buildings", "ideas"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
@@ -12,7 +14,7 @@ ifcopenshell = "^0.8.1.post1"
 pydantic = "^2.10.6"
 trano = "^0.1.48"
 shapely = "^2.0.7"
-
+typer = "^0.12.5"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
@@ -31,6 +33,83 @@ jsf = "^0.11.2"
 black = "^24.10.0"
 pytest = "^7.4.3"
 
+[tool.poetry.scripts]
+trano = "ifctrano.main:app"
+
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.1"
+mkdocs-material = "^9.5.42"
+mkdocstrings = "^0.26.2"
+mkdocstrings-python = "^1.12.2"
+markdown-include = "^0.8.1"
+mkdocs-gen-files = "^0.5.0"
+openai = "^1.52.2"
+python-dotenv = "^1.0.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.mypy]
+plugins = "pydantic.mypy"
+packages= "ifctrano"
+
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+show_absolute_path = true
+# for strict mypy: (this is the tricky one :-))
+disallow_untyped_defs = true
+strict = true
+
+exclude = [
+    "test_*",
+    "conftest.py",
+]
+
+[tool.ruff]
+line-length = 120
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+[tool.isort]
+skip = ["models"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "B006","RUF","UP","SIM","FURB","PIE","PERF","C4","B","PL","S","C901","N","ANN", "ERA001", "PD"]
+ignore = []
+extend-ignore = ["ANN101","ANN102","S101","PLR2004","W291"]
+
+fixable = ["ALL"]
+unfixable = []
