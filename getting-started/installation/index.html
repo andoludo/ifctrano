@@ -489,6 +489,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#optional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#graphviz" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graphviz
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#python-package" class="md-nav__link">
     <span class="md-ellipsis">
       Python package
@@ -654,6 +678,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#optional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#graphviz" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graphviz
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#python-package" class="md-nav__link">
     <span class="md-ellipsis">
       Python package
@@ -682,18 +730,27 @@
 
 
 <h1 id="installation">Installation</h1>
+<h2 id="optional-dependencies">Optional dependencies</h2>
+<h3 id="graphviz">Graphviz</h3>
+<p><code>ifctrano</code> utilizes Graphviz to position various Modelica components within the model. While installation is not mandatory, it is recommended for improved visualization. </p>
+<p>You can install Graphviz by following the instructions on the <a href="https://graphviz.org/download/">official website</a>. For Windows installations, ensure that the Graphviz <code>bin</code> folder is added to the system path.</p>
+<p>To install Graphviz on Linux, use the following command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>graphviz
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>graphviz
+</span></code></pre></div>
 <h2 id="python-package">Python package</h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>ifctrano requires python 3.9 or higher.</p>
+<p>Trano requires python 3.9 or higher and docker to be installed on the system.</p>
 </div>
-<p>ifctrano is a Python package that can be installed via pip.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ifctrano
+<p>ifctrano is a Python package that can be installed using pip.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ifctrano
 </span></code></pre></div>
-<p>ifctrano can also be utilized with Poetry.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>poetry<span class="w"> </span>add<span class="w"> </span>ifctrano
+<p>Ifctrano can also be used with Poetry.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>poetry<span class="w"> </span>add<span class="w"> </span>ifctrano
 </span></code></pre></div>
-<p>The Python package will generate the model in the same folder as the IFC file.</p>
 
 
 
