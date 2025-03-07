@@ -1,0 +1,52 @@
+name: publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    name: Build and publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          fetch-depth: 0
+          ref: master
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.4.1
+
+      - name: Bump patch version
+        if: "! contains(github.event.head_commit.message, 'Auto-increment patch version')"
+        run: poetry version patch
+
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Auto-increment patch version
+
+      - name: Build source and wheel archives
+        if: "contains(github.event.head_commit.message, 'Auto-increment patch version')"
+        run: |
+          poetry build
+
+      - name: Publish distribution 📦 to PyPI
+        if: "contains(github.event.head_commit.message, 'Auto-increment patch version')"
+        uses: pypa/gh-action-pypi-publish@v1.9.0
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository_url: https://upload.pypi.org/legacy/
