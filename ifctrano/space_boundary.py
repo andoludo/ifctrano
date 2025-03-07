@@ -46,7 +46,7 @@ class Space(GlobalId):
             if self.name
             else remove_non_alphanumeric(self.entity.GlobalId)
         )
-        return f"space_{main_name}"
+        return f"space_{main_name}_{self.entity.GlobalId}"
 
 
 material_1 = Material(

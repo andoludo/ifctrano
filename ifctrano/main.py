@@ -5,7 +5,7 @@ import typer
 from pydantic import validate_call
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from ifctrano.base import Library
+from ifctrano.base import Libraries
 from ifctrano.building import Building
 
 app = typer.Typer()
@@ -21,7 +21,7 @@ def create(
         typer.Argument(help="Local path to the ifc file."),
     ],
     library: Annotated[
-        Library,
+        Libraries,
         typer.Argument(help="Modelica library to be used for simulation."),
     ] = "Buildings",
 ) -> None:

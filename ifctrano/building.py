@@ -5,9 +5,10 @@ import ifcopenshell
 from ifcopenshell import file, entity_instance
 from pydantic import validate_call
 from trano.elements.library.library import Library  # type: ignore
+
 from trano.topology import Network  # type: ignore
 
-from ifctrano.base import BaseModelConfig
+from ifctrano.base import BaseModelConfig, Libraries
 from ifctrano.exceptions import IfcFileNotFoundError
 from ifctrano.space_boundary import SpaceBoundaries, initialize_tree
 
@@ -42,9 +43,13 @@ class Building(BaseModelConfig):
         )
 
     @validate_call
-    def create_model(self, library: Library = "Buildings") -> str:
+    def create_model(self, library: Libraries = "Buildings") -> str:
         network = Network(name=self.name, library=Library.from_configuration(library))
         network.add_boiler_plate_spaces(
             [space_boundary.model() for space_boundary in self.space_boundaries]
         )
         return network.model()  # type: ignore
+
+    def save_model(self, library: Libraries = "Buildings") -> None:
+        model_ = self.create_model(library)
+        Path(self.parent_folder.joinpath(f"{self.name}.mo")).write_text(model_)

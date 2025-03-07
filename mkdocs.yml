@@ -1,5 +1,5 @@
 site_name: ifctrano
-site_description: Automated building energy simulation tool with Modelica
+site_description: IFC energy simulation tool with Modelica
 repo_name: trano
 repo_url: https://github.com/andoludo/ifctrano
 theme:
@@ -49,8 +49,8 @@ theme:
 
   icon:
     repo: fontawesome/brands/github-alt
-  logo: img/trano.webp
-  favicon: img/trano.webp
+  logo: img/ifctrano.webp
+  favicon: img/ifctrano.webp
   language: en
 plugins:
   - search
@@ -59,18 +59,10 @@ nav:
   - Getting-started:
     - Installation: getting-started/installation.md
   - Tutorials:
-    - First model and simulation: tutorials/first_model_and_simulation.md
-    - Model with another library: tutorials/model_with_another_library.md
-    - Multi-zones: tutorials/multizone_model.md
-    - Multi-zone with ideal heating: tutorials/multi-zone_with_ideal_heating.md
-    - Multi-zone with hydronic heating: tutorials/multi-zone_with_hydronic_heating.md
-    - Zone with ventilation: tutorials/zone_with_ventilation.md
-    - Model with photovoltaics: tutorials/zone_with_photovoltaics.md
+    - Two zones model: tutorials/two_zones_model.md
   - How-to Guides: how-to guides/index.md
   - Explanation: explanation/index.md
-  - Reference:
-      - Components: reference/components.md
-      - Parameters: reference/parameters.md
+
 
 markdown_extensions:
     - admonition

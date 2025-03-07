@@ -160,4 +160,4 @@ class CommonSurface(BaseModel):
         return self.area, self.orientation.to_list()
 
 
-Library = Literal["IDEAS", "Buildings", "reduced_order", "iso_13790"]
+Libraries = Literal["IDEAS", "Buildings", "reduced_order", "iso_13790"]
