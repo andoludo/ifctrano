@@ -1,6 +1,6 @@
 site_name: ifctrano
 site_description: IFC energy simulation tool with Modelica
-repo_name: trano
+repo_name: ifctrano
 repo_url: https://github.com/andoludo/ifctrano
 theme:
   name: material
@@ -55,7 +55,7 @@ theme:
 plugins:
   - search
 nav:
-  - Trano: index.md
+  - ifctrano: index.md
   - Getting-started:
     - Installation: getting-started/installation.md
   - Tutorials:
