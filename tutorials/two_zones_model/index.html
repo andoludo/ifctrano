@@ -625,16 +625,16 @@
 
 
 <h1 id="two-zones-model">Two zones model</h1>
-<p>This tutorial demonstrates how to generate a Modelica model and open it using OpenModelica for the two-zone BIM model displayed below.</p>
-<p><img alt="Generated model" src="./img/two_zones_1.jpg" /></p>
-<p><img alt="Generated model" src="./img/two_zones_2.jpg" /></p>
-<p>The file is located in the <code>tests</code> folder of the repository.</p>
+<p>This tutorial demonstrates how to generate a Modelica model and open it with OpenModelica for the two-zone BIM model shown below.</p>
+<p><img alt="Generated model" src="../img/two_zones_1.png" /></p>
+<p><img alt="Generated model" src="../img/two_zones_2.png" /></p>
+<p>The file is located in the repository's tests folder.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span><span class="n">path_to_ifc_file</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">building</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
 </span></code></pre></div>
-<p>The code snippet above generates a Modelica model of the IFC file in the same directory as the IFC file. You can then open the model in OpenModelica, as demonstrated below.</p>
-<p><img alt="Generated model" src="./img/two_zones_3.jpg" /></p>
+<p>The code snippet above generates a Modelica model of the IFC file in the same directory as the IFC file. You can then open the model in OpenModelica, as shown below.</p>
+<p><img alt="Generated model" src="../img/two_zones_3.png" /></p>
 <p>Given that the relevant libraries are loaded, the figure above displays the generated model.</p>
 
 
