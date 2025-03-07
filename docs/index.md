@@ -1,7 +1,7 @@
 # 
 <div style="display: flex; align-items: center;">
   <img src="img/ifctrano.webp" alt="Image" style="width: 120px; height: 140px; margin-right: 10px;">
-  <span style="color: #FFBF00; font-size: 96px; font-weight: bold;">ifctrano</span>
+  <span style="color: #005F5F; font-size: 96px; font-weight: bold;">ifctrano</span>
 </div>
 
 
