@@ -10,7 +10,7 @@ from trano.elements.types import Tilt  # type: ignore
 from trano.topology import Network  # type: ignore
 
 from ifctrano.base import BaseModelConfig, Libraries
-from ifctrano.exceptions import IfcFileNotFoundError
+from ifctrano.exceptions import IfcFileNotFoundError, NoIfcSpaceFoundError
 from ifctrano.space_boundary import (
     SpaceBoundaries,
     initialize_tree,
@@ -52,6 +52,8 @@ class Building(BaseModelConfig):
         ifc_file = ifcopenshell.open(str(ifc_file_path))
         tree = initialize_tree(ifc_file)
         spaces = get_spaces(ifc_file)
+        if not spaces:
+            raise NoIfcSpaceFoundError("No IfcSpace found in the file.")
         space_boundaries = [
             SpaceBoundaries.from_space_entity(ifc_file, tree, space) for space in spaces
         ]
