@@ -8,6 +8,7 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict
 settings = ifcopenshell.geom.settings()  # type: ignore
 Coordinate = Literal["x", "y", "z"]
 AREA_TOLERANCE = 0.5
+ROUNDING_FACTOR = 5
 
 
 class BaseModelConfig(BaseModel):

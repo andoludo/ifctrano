@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import List, Optional, Any, Tuple
+from typing import List, Optional, Any, Tuple, cast
 
 import ifcopenshell
 import numpy as np
@@ -23,6 +23,7 @@ from ifctrano.base import (
     settings,
     CommonSurface,
     AREA_TOLERANCE,
+    ROUNDING_FACTOR,
 )
 from ifctrano.exceptions import BoundingBoxFaceError
 
@@ -77,7 +78,12 @@ class BoundingBoxFace(BaseModelConfig):
             vertices=vertices, normal=normal, coordinate_system=coordinate_system
         )
 
+    def get_face_area(self) -> float:
+        polygon_2d = self.get_2d_polygon(self.coordinate_system)
+        return cast(float, round(polygon_2d.polygon.area, ROUNDING_FACTOR))
+
     def get_2d_polygon(self, coordinate_system: CoordinateSystem) -> Polygon2D:
+
         projected_vertices = coordinate_system.inverse(self.vertices.to_array())
         projected_normal_index = Vector.from_array(
             coordinate_system.inverse(self.normal.to_array())
@@ -152,6 +158,8 @@ class OrientedBoundingBox(BaseModel):
     faces: BoundingBoxFaces
     centroid: Point
     area_tolerance: float = Field(default=AREA_TOLERANCE)
+    volume: float
+    height: float
 
     def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
         extend_surfaces = []
@@ -160,11 +168,9 @@ class OrientedBoundingBox(BaseModel):
             for other_face in other.faces.faces:
                 vector = face.normal * other_face.normal
                 if vector.is_a_zero():
-
                     polygon_1 = other_face.get_2d_polygon(face.coordinate_system)
                     polygon_2 = face.get_2d_polygon(face.coordinate_system)
                     intersection = polygon_2.polygon.intersection(polygon_1.polygon)
-
                     if intersection.area > self.area_tolerance:
                         distance = abs(polygon_1.length - polygon_2.length)
                         area = intersection.area
@@ -194,8 +200,8 @@ class OrientedBoundingBox(BaseModel):
     ) -> "OrientedBoundingBox":
         vertices_np = np.array(vertices)
         points = np.asarray(vertices_np)
-        cov = np.cov(points, y=None, rowvar=0, bias=1)  # type: ignore
-        v, vect = np.linalg.eig(cov)
+        cov = np.cov(points, y=None, rowvar=0, bias=0)  # type: ignore
+        v, vect = np.linalg.eig(np.round(cov, ROUNDING_FACTOR))
         tvect = np.transpose(vect)
         points_r = np.dot(points, np.linalg.inv(tvect))
 
@@ -206,9 +212,12 @@ class OrientedBoundingBox(BaseModel):
         ymin, ymax = co_min[1], co_max[1]
         zmin, zmax = co_min[2], co_max[2]
 
-        xdif = (xmax - xmin) * 0.5
-        ydif = (ymax - ymin) * 0.5
-        zdif = (zmax - zmin) * 0.5
+        x_len = xmax - xmin
+        y_len = ymax - ymin
+        z_len = zmax - zmin
+        xdif = x_len * 0.5
+        ydif = y_len * 0.5
+        zdif = z_len * 0.5
 
         cx = xmin + xdif
         cy = ymin + ydif
@@ -225,7 +234,11 @@ class OrientedBoundingBox(BaseModel):
                 [cx + xdif, cy - ydif, cz - zdif],
             ]
         )
-        corners = np.dot(corners, tvect)
+        corners_ = np.dot(corners, tvect)
+        dims = np.transpose(corners_)
+        x_size = np.max(dims[0]) - np.min(dims[0])
+        y_size = np.max(dims[1]) - np.min(dims[1])
+        z_size = np.max(dims[2]) - np.min(dims[2])
         coordinate_system = CoordinateSystem.from_array(tvect)
         c = P(x=cx, y=cy, z=cz)
         d = P(x=xdif, y=ydif, z=zdif)
@@ -233,6 +246,8 @@ class OrientedBoundingBox(BaseModel):
         return cls(
             faces=faces,
             centroid=Point.from_array(coordinate_system.project(c.to_array())),
+            volume=x_size * y_size * z_size,
+            height=z_size,
         )
 
     @classmethod
