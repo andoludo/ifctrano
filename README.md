@@ -1,5 +1,11 @@
 # ifctrano - IFC to Energy Simulation Tool
 
+📖 **Full Documentation:** 👉 [Trano Docs](https://andoludo.github.io/ifctrano/) 
+
+```bash
+pip install ifctrano
+```
+
 ## Overview
 ifctrano is yet another **IFC to energy simulation** tool designed to translate **Industry Foundation Classes (IFC)** models into energy simulation models in **Modelica**.
 
