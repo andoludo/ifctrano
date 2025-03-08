@@ -7,6 +7,7 @@ import ifcopenshell.geom
 import ifcopenshell.util.shape
 from ifcopenshell import entity_instance, file
 from pydantic import BaseModel, Field
+from trano.data_models.conversion import SpaceParameter  # type: ignore
 from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall  # type: ignore
 from trano.elements.construction import Construction, Layer, Material  # type: ignore
 from trano.elements.system import Occupancy  # type: ignore
@@ -39,6 +40,20 @@ class Space(GlobalId):
     name: Optional[str] = None
     bounding_box: OrientedBoundingBox
     entity: entity_instance
+    average_room_height: float
+    floor_area: float
+
+    @classmethod
+    def from_entity(cls, entity: entity_instance) -> "Space":
+        bounding_box = OrientedBoundingBox.from_entity(entity)
+        return cls(
+            global_id=entity.GlobalId,
+            name=entity.Name,
+            bounding_box=bounding_box,
+            entity=entity,
+            average_room_height=bounding_box.height,
+            floor_area=bounding_box.volume / bounding_box.height,
+        )
 
     def space_name(self) -> str:
         main_name = (
@@ -72,16 +87,23 @@ class SpaceBoundary(BaseModelConfig):
     def model_element(self) -> Optional[BaseWall]:
         if "wall" in self.entity.is_a().lower():
             return ExternalWall(
-                surface=6.44,
+                surface=self.common_surface.area,
                 azimuth=Azimuth.south,
                 tilt=Tilt.wall,
                 construction=construction,
             )
         if "window" in self.entity.is_a().lower():
             return Window(
-                surface=6.44,
+                surface=self.common_surface.area,
                 azimuth=Azimuth.south,
                 tilt=Tilt.wall,
+                construction=construction,
+            )
+        if "roof" in self.entity.is_a().lower():
+            return ExternalWall(
+                surface=self.common_surface.area,
+                azimuth=Azimuth.south,
+                tilt=Tilt.ceiling,
                 construction=construction,
             )
 
@@ -116,6 +138,10 @@ class SpaceBoundaries(BaseModel):
         return TranoSpace(
             name=self.space.space_name(),
             occupancy=Occupancy(),
+            parameters=SpaceParameter(
+                floor_area=self.space.floor_area,
+                average_room_height=self.space.average_room_height,
+            ),
             external_boundaries=[
                 boundary.model_element()
                 for boundary in self.boundaries
@@ -130,13 +156,7 @@ class SpaceBoundaries(BaseModel):
         tree: ifcopenshell.geom.tree,
         space: entity_instance,
     ) -> "SpaceBoundaries":
-        bounding_box = OrientedBoundingBox.from_entity(space)
-        space_ = Space(
-            global_id=space.GlobalId,
-            name=space.Name,
-            bounding_box=bounding_box,
-            entity=space,
-        )
+        space_ = Space.from_entity(space)
         clashes = tree.clash_clearance_many(
             [space],
             ifcopenshell_file.by_type("IfcWall")
@@ -157,7 +177,7 @@ class SpaceBoundaries(BaseModel):
                 if element.GlobalId == space.GlobalId:
                     continue
                 space_boundary = SpaceBoundary.from_space_and_element(
-                    bounding_box, element
+                    space_.bounding_box, element
                 )
                 if space_boundary:
                     space_boundaries.append(space_boundary)

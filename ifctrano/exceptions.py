@@ -8,3 +8,11 @@ class BoundingBoxFaceError(Exception):
 
 class IfcFileNotFoundError(FileNotFoundError):
     pass
+
+
+class SpaceSurfaceAreaNullError(Exception):
+    pass
+
+
+class InvalidLibraryError(Exception):
+    pass

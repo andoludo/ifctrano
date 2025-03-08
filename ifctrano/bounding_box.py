@@ -152,6 +152,8 @@ class OrientedBoundingBox(BaseModel):
     faces: BoundingBoxFaces
     centroid: Point
     area_tolerance: float = Field(default=AREA_TOLERANCE)
+    volume: float
+    height: float
 
     def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
         extend_surfaces = []
@@ -206,9 +208,12 @@ class OrientedBoundingBox(BaseModel):
         ymin, ymax = co_min[1], co_max[1]
         zmin, zmax = co_min[2], co_max[2]
 
-        xdif = (xmax - xmin) * 0.5
-        ydif = (ymax - ymin) * 0.5
-        zdif = (zmax - zmin) * 0.5
+        x_len = xmax - xmin
+        y_len = ymax - ymin
+        z_len = zmax - zmin
+        xdif = x_len * 0.5
+        ydif = y_len * 0.5
+        zdif = z_len * 0.5
 
         cx = xmin + xdif
         cy = ymin + ydif
@@ -233,6 +238,8 @@ class OrientedBoundingBox(BaseModel):
         return cls(
             faces=faces,
             centroid=Point.from_array(coordinate_system.project(c.to_array())),
+            volume=x_len * y_len * z_len,
+            height=z_len,
         )
 
     @classmethod
