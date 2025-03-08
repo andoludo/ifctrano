@@ -22,3 +22,8 @@ def test_building_two_zone_save_file(two_zone_path: Path) -> None:
         building = Building.from_ifc(temp_ifc_file)
         building.save_model()
         assert temp_ifc_file.parent.joinpath(f"{temp_ifc_file.stem}.mo").exists()
+
+
+def test_building_two_zone_adjacency(two_zone_path: Path) -> None:
+    building = Building.from_ifc(two_zone_path)
+    assert building.internal_elements

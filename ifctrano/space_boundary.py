@@ -13,12 +13,17 @@ from trano.elements.construction import Construction, Layer, Material  # type: i
 from trano.elements.system import Occupancy  # type: ignore
 from trano.elements.types import Azimuth, Tilt  # type: ignore
 
-from ifctrano.base import GlobalId, settings, BaseModelConfig, CommonSurface
+from ifctrano.base import (
+    GlobalId,
+    settings,
+    BaseModelConfig,
+    CommonSurface,
+    ROUNDING_FACTOR,
+)
 from ifctrano.bounding_box import OrientedBoundingBox
 
 
 def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
-
     tree = ifcopenshell.geom.tree()
 
     iterator = ifcopenshell.geom.iterator(
@@ -42,17 +47,34 @@ class Space(GlobalId):
     entity: entity_instance
     average_room_height: float
     floor_area: float
+    bounding_box_height: float
+    bounding_box_volume: float
 
     @classmethod
     def from_entity(cls, entity: entity_instance) -> "Space":
         bounding_box = OrientedBoundingBox.from_entity(entity)
+        entity_shape = ifcopenshell.geom.create_shape(settings, entity)
+        area = ifcopenshell.util.shape.get_footprint_area(entity_shape.geometry)  # type: ignore
+        volume = ifcopenshell.util.shape.get_volume(entity_shape.geometry)  # type: ignore
+        if area:
+            average_room_height = volume / area
+        else:
+            area = bounding_box.volume / bounding_box.height
+            average_room_height = bounding_box.height
         return cls(
             global_id=entity.GlobalId,
             name=entity.Name,
             bounding_box=bounding_box,
             entity=entity,
-            average_room_height=bounding_box.height,
-            floor_area=bounding_box.volume / bounding_box.height,
+            average_room_height=average_room_height,
+            floor_area=area,
+            bounding_box_height=bounding_box.height,
+            bounding_box_volume=bounding_box.volume,
+        )
+
+    def check_volume(self) -> bool:
+        return round(self.bounding_box_volume, ROUNDING_FACTOR) == round(
+            self.floor_area * self.average_room_height, ROUNDING_FACTOR
         )
 
     def space_name(self) -> str:
@@ -82,9 +104,11 @@ class SpaceBoundary(BaseModelConfig):
     bounding_box: OrientedBoundingBox
     entity: entity_instance
     common_surface: CommonSurface
-    adjacent_space: Optional[Space] = None
+    adjacent_spaces: List[Space] = Field(default_factory=list)
 
-    def model_element(self) -> Optional[BaseWall]:
+    def model_element(self, exclude_entities: List[str]) -> Optional[BaseWall]:
+        if self.entity.GlobalId in exclude_entities:
+            return None
         if "wall" in self.entity.is_a().lower():
             return ExternalWall(
                 surface=self.common_surface.area,
@@ -134,7 +158,7 @@ class SpaceBoundaries(BaseModel):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
 
-    def model(self) -> TranoSpace:
+    def model(self, exclude_entities: List[str]) -> TranoSpace:
         return TranoSpace(
             name=self.space.space_name(),
             occupancy=Occupancy(),
@@ -143,9 +167,9 @@ class SpaceBoundaries(BaseModel):
                 average_room_height=self.space.average_room_height,
             ),
             external_boundaries=[
-                boundary.model_element()
+                boundary.model_element(exclude_entities)
                 for boundary in self.boundaries
-                if boundary.model_element()
+                if boundary.model_element(exclude_entities)
             ],
         )
 
