@@ -14,6 +14,20 @@ ifctrano --help
 ifctrano verify
 ```
 
+# ⚠️ WARNING ⚠️
+
+**This package is still under construction and is largely a work in progress.**  
+There are still several aspects that need further development, including:  
+
+- Material and construction extraction  
+- Slab and roof boundaries  
+- Systems integration  
+- Additional validation  
+- Bug fixes  
+- ...
+- 
+Help and contribution are more than appreciated! 🚧  
+
 ## Overview
 ifctrano is yet another **IFC to energy simulation** tool designed to translate **Industry Foundation Classes (IFC)** models into energy simulation models in **Modelica**.
 
