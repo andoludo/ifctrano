@@ -57,7 +57,38 @@ building.save_model()
                 content="""Given that the relevant libraries are loaded the figure above shows the model generated."""
             ),
         ],
-    )
+    ),
+    Tutorial(
+        title="Two zones model",
+        contents=[
+            CleanedText(
+                content="""This tutorial demonstrates how to generate a modelica 
+                model and open it with OpenModelica for the two zone BIM model displayed below"""
+            ),
+            DisplayImage(title="Generated model", path="./img/two_zones_1.png"),
+            DisplayImage(title="Generated model", path="./img/two_zones_2.png"),
+            CleanedText(
+                content="""The file is available in the tests folder of the repository."""
+            ),
+            DisplayObject(
+                language="python",
+                object="""
+from ifctrano.building import Building
+building = Building.from_ifc(path_to_ifc_file)
+building.save_model()
+                """,
+            ),
+            CleanedText(
+                content="""The code snippet above will create a modelica model of the ifc model in the same 
+                folder as the ifc file. The model can then be opened in openModelica as shown below when 
+                open in OpenModelica."""
+            ),
+            DisplayImage(title="Generated model", path="./img/two_zones_3.png"),
+            CleanedText(
+                content="""Given that the relevant libraries are loaded the figure above shows the model generated."""
+            ),
+        ],
+    ),
 ]
 
 
