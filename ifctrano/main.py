@@ -41,7 +41,7 @@ def create(
             total=None,
         )
         building = Building.from_ifc(Path(model))
-        modelica_model = building.create_model()
+        modelica_model = building.create_model(library=library)  # type: ignore
         progress.update(task, completed=True)
         task = progress.add_task(description="Writing model to file...", total=None)
         modelica_model_path.write_text(modelica_model)
