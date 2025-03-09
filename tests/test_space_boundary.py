@@ -28,6 +28,7 @@ def test_get_space_boundaries(duplex_appartment: file) -> None:
     boundaries = SpaceBoundaries.from_space_entity(duplex_appartment, tree, space)
     assert sorted([b.description() for b in boundaries.boundaries]) == [
         (2.2886707467062, (-0.0, 1.0, -0.0), "1s1jVhK8z0pgKYcr9jt781", "IfcDoor"),
+        (7.3926776418866815, (0.0, 0.0, 1.0), "1hOSvn6df7F8_7GcBWlRqU", "IfcSlab"),
         (9.247723, (-1.0, -0.0, -0.0), "2O2Fr$t4X7Zf8NOew3FNld", "IfcWallStandardCase"),
         (11.700699999999998, (-0.0, 1.0, -0.0), "1hOSvn6df7F8_7GcBWlR72", "IfcWindow"),
         (
@@ -37,6 +38,7 @@ def test_get_space_boundaries(duplex_appartment: file) -> None:
             "IfcWallStandardCase",
         ),
         (14.925923, (-0.0, 1.0, -0.0), "2O2Fr$t4X7Zf8NOew3FNtn", "IfcWallStandardCase"),
+        (18.343008663780722, (0.0, 0.0, 1.0), "1hOSvn6df7F8_7GcBWlRrM", "IfcSlab"),
         (27.660089, (-0.0, -0.0, -1.0), "2O2Fr$t4X7Zf8NOew3FK4F", "IfcSlab"),
         (27.660089000000003, (-0.0, -0.0, -1.0), "2OBrcmyk58NupXoVOHUtgP", "IfcSlab"),
     ]
@@ -51,6 +53,12 @@ def test_get_space_boundaries_another_space(duplex_appartment: file) -> None:
             0.5117823028019094,
             (-0.0, -0.0, -1.0),
             "2O2Fr$t4X7Zf8NOew3FNtn",
+            "IfcWallStandardCase",
+        ),
+        (
+            0.5117823028019096,
+            (0.0, 0.0, 1.0),
+            "0jf0rYHfX3RAB3bSIRjmmy",
             "IfcWallStandardCase",
         ),
         (
@@ -70,6 +78,12 @@ def test_get_space_boundaries_another_space(duplex_appartment: file) -> None:
             (-0.074653364, 0.9972095443, 0.0),
             "1hOSvn6df7F8_7GcBWlSp1",
             "IfcWindow",
+        ),
+        (
+            1.212751258931948,
+            (0.0, 0.0, 1.0),
+            "0jf0rYHfX3RAB3bSIRjmr1",
+            "IfcWallStandardCase",
         ),
         (
             1.2127512589319482,
@@ -134,6 +148,7 @@ def test_get_space_boundaries_another_space(duplex_appartment: file) -> None:
         ),
         (24.511075501663456, (-0.0, -0.0, -1.0), "1hOSvn6df7F8_7GcBWlRqU", "IfcSlab"),
         (25.94542685522518, (-0.0, -0.0, -1.0), "2OBrcmyk58NupXoVOHUtC0", "IfcSlab"),
+        (26.545228088276954, (0.0, 0.0, 1.0), "3ThA22djr8AQQ9eQMA5s7I", "IfcSlab"),
     ]
 
 
@@ -212,3 +227,30 @@ def test_intersection_space_space(two_zones: file) -> None:
     space_2_bbox = OrientedBoundingBox.from_entity(space_2)
     intersection = space_1_bbox.intersect_faces(space_2_bbox)
     assert intersection.description() == (9.0, [-0.0, 1.0, -0.0])
+
+
+def test_intersection_space_windows_multizone(multizone: file) -> None:
+    space_1 = multizone.by_guid("3iLI4eTzPsHe5kCfE8mHt4")
+    space_2 = multizone.by_guid("1cMdolzEBzHfSYIkD4K2Kb")
+    space_1_bbox = OrientedBoundingBox.from_entity(space_1)
+    space_2_bbox = OrientedBoundingBox.from_entity(space_2)
+    intersection = space_1_bbox.intersect_faces(space_2_bbox)
+    assert intersection.description() == (39.22227235752945, [-1.0, -0.0, -0.0])
+
+
+def test_get_space_boundaries_multizone(multizone: file) -> None:
+    tree = initialize_tree(multizone)
+    space = multizone.by_guid("3iLI4eTzPsHe5kCfE8mHt4")
+    boundaries = SpaceBoundaries.from_space_entity(multizone, tree, space)
+    assert sorted([b.description() for b in boundaries.boundaries]) == [
+        (2.50823021632346, (0.0, -1.0, 0.0), "19B65EIi3EIh2tA$vM8ZgT", "IfcDoor"),
+        (2.508997869619421, (1.0, 0.0, 0.0), "0jryqJ3XdhIf5exNfKRiH5", "IfcDoor"),
+        (7.76210139838769, (-0.0, 1.0, -0.0), "1X7PJ2zxFYJQJ7zr1nDhxn", "IfcWindow"),
+        (21.6, (0.0, -1.0, 0.0), "2Mx5O979lPJu$FydjHS6_e", "IfcWallStandardCase"),
+        (21.6, (-0.0, 1.0, -0.0), "0gSvHU18p4HuqD4mS$gG8D", "IfcWallStandardCase"),
+        (39.22227235752945, (-1.0, -0.0, -0.0), "1cMdolzEBzHfSYIkD4K2Kb", "IfcWindow"),
+        (50.22, (-1.0, -0.0, -0.0), "1116XLLwKdJRZmM_rK_l4f", "IfcWallStandardCase"),
+        (50.22, (1.0, 0.0, 0.0), "0idtIsso1oHPkD7tQ4ezLe", "IfcWallStandardCase"),
+        (148.79999999999998, (-0.0, -0.0, -1.0), "2f4B0EKma$Gf_OoOWMssbl", "IfcSlab"),
+        (148.79999999999998, (0.0, 0.0, 1.0), "1Hey_hGXaaIvKh948Y5lwS", "IfcSlab"),
+    ]

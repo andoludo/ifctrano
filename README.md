@@ -1,6 +1,6 @@
 # ifctrano - IFC to Energy Simulation Tool
 
-📖 **Full Documentation:** 👉 [Trano Docs](https://andoludo.github.io/ifctrano/) 
+📖 **Full Documentation:** 👉 [ifctrano Docs](https://andoludo.github.io/ifctrano/) 
 
 ```bash
 pip install ifctrano

@@ -25,7 +25,7 @@ from ifctrano.base import (
     AREA_TOLERANCE,
     ROUNDING_FACTOR,
 )
-from ifctrano.exceptions import BoundingBoxFaceError
+from ifctrano.exceptions import BoundingBoxFaceError, VectorWithNansError
 
 logger = getLogger(__name__)
 
@@ -175,7 +175,14 @@ class OrientedBoundingBox(BaseModel):
                         distance = abs(polygon_1.length - polygon_2.length)
                         area = intersection.area
                         direction_vector = (other.centroid - self.centroid).norm()
-                        orientation = direction_vector.project(face.normal).norm()
+                        try:
+                            orientation = direction_vector.project(face.normal).norm()
+                        except VectorWithNansError as e:
+                            logger.error(
+                                "Orientation vector was not properly computed when computing the intersection between"
+                                f"two elements. Error: {e}"
+                            )
+                            continue
                         extend_surfaces.append(
                             ExtendCommonSurface(
                                 distance=distance, area=area, orientation=orientation
