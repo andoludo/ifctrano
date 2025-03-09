@@ -3,9 +3,9 @@
 
 ### Graphviz
 
-`ifctrano` utilizes Graphviz to position various Modelica components within the model. While installation is not mandatory, it is recommended for improved visualization. 
+`ifctrano` utilizes Graphviz to arrange various Modelica components within the model. While installation is not mandatory, it is advisable for improved visualization. 
 
-You can install Graphviz by following the instructions on the [official website](https://graphviz.org/download/). For Windows installations, ensure that the Graphviz `bin` folder is added to the system path.
+You can install Graphviz by following the instructions on the [official website](https://graphviz.org/download/). For Windows installation, ensure that the Graphviz `bin` folder is added to the system path.
 
 To install Graphviz on Linux, use the following command:
 
@@ -29,7 +29,7 @@ sudo apt install graphviz
     Trano requires python 3.9 or higher and docker to be installed on the system.
             
 
-ifctrano is a Python package that can be installed using pip.
+ifctrano is a Python package that can be installed via pip.
 
 
 ```bash
@@ -37,11 +37,25 @@ pip install ifctrano
 ```
             
 
-Ifctrano can also be used with Poetry.
+`ifctrano` can also be utilized with Poetry.
 
 
 ```bash
 poetry add ifctrano
+```
+            
+
+To verify the installation, execute the following command in the terminal.
+
+
+```bash
+ifctrano --help
+```
+            
+
+
+```bash
+ifctrano verify
 ```
             
 
