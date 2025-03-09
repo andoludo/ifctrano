@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ifctrano"
-version = "0.1.9"
+version = "0.1.10"
 description = "Package for generating building energy simulation model from IFC"
 authors = ["Ando Andriamamonjy <andoludovic.andriamamonjy@gmail.com>"]
 license = "GPL V3"
@@ -12,7 +12,7 @@ keywords = ["BIM","IFC","energy simulation", "modelica", "building energy simula
 python = ">=3.10,<3.13"
 ifcopenshell = "^0.8.1.post1"
 pydantic = "^2.10.6"
-trano = "^0.1.48"
+trano = "^0.1.50"
 shapely = "^2.0.7"
 typer = "^0.12.5"
 

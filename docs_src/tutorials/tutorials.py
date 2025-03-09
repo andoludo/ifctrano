@@ -52,6 +52,17 @@ building.save_model()
                 folder as the ifc file. The model can then be opened in openModelica as shown below when 
                 open in OpenModelica."""
             ),
+            CleanedText(
+                content="""ifctrano can also be run using the command line interface as shown below."""
+            ),
+            DisplayObject(
+                language="bash",
+                object="ifctrano create --help",
+            ),
+            DisplayObject(
+                language="bash",
+                object="ifctrano create path_to_ifc_file.ifc",
+            ),
             DisplayImage(title="Generated model", path="./img/two_zones_3.png"),
             CleanedText(
                 content="""Given that the relevant libraries are loaded the figure above shows the model generated."""
@@ -59,14 +70,14 @@ building.save_model()
         ],
     ),
     Tutorial(
-        title="Two zones model",
+        title="Multizone model",
         contents=[
             CleanedText(
                 content="""This tutorial demonstrates how to generate a modelica 
                 model and open it with OpenModelica for the two zone BIM model displayed below"""
             ),
-            DisplayImage(title="Generated model", path="./img/two_zones_1.png"),
-            DisplayImage(title="Generated model", path="./img/two_zones_2.png"),
+            DisplayImage(title="Generated model", path="./img/multizone_1.png"),
+            DisplayImage(title="Generated model", path="./img/multizone_2.png"),
             CleanedText(
                 content="""The file is available in the tests folder of the repository."""
             ),
@@ -82,10 +93,6 @@ building.save_model()
                 content="""The code snippet above will create a modelica model of the ifc model in the same 
                 folder as the ifc file. The model can then be opened in openModelica as shown below when 
                 open in OpenModelica."""
-            ),
-            DisplayImage(title="Generated model", path="./img/two_zones_3.png"),
-            CleanedText(
-                content="""Given that the relevant libraries are loaded the figure above shows the model generated."""
             ),
         ],
     ),

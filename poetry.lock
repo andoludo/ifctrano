@@ -2375,14 +2375,14 @@ files = [
 
 [[package]]
 name = "openai"
-version = "1.65.4"
+version = "1.65.5"
 description = "The official Python library for the openai API"
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "openai-1.65.4-py3-none-any.whl", hash = "sha256:15566d46574b94eae3d18efc2f9a4ebd1366d1d44bfc1bdafeea7a5cf8271bcb"},
-    {file = "openai-1.65.4.tar.gz", hash = "sha256:0b08c58625d556f5c6654701af1023689c173eb0989ce8f73c7fd0eb22203c76"},
+    {file = "openai-1.65.5-py3-none-any.whl", hash = "sha256:5948a504e7b4003d921cfab81273813793a31c25b1d7b605797c01757e0141f1"},
+    {file = "openai-1.65.5.tar.gz", hash = "sha256:17d39096bbcaf6c86580244b493a59e16613460147f0ba5ab6e608cdb6628149"},
 ]
 
 [package.dependencies]
@@ -4371,14 +4371,14 @@ telegram = ["requests"]
 
 [[package]]
 name = "trano"
-version = "0.1.49"
+version = "0.1.50"
 description = ""
 category = "main"
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "trano-0.1.49-py3-none-any.whl", hash = "sha256:2e919c11b38dc41494d51048bb157afad3fa6c232a1ae17e0e5d857e85aec0f0"},
-    {file = "trano-0.1.49.tar.gz", hash = "sha256:aa4e20e2b9b78180fe02b415f79a87338f5774e31e5b7a56f61d2e9dfc2dc581"},
+    {file = "trano-0.1.50-py3-none-any.whl", hash = "sha256:4ef11c32de6a9497c7e05ca3d7f9df9533db99b747716f5abad941f4f114af47"},
+    {file = "trano-0.1.50.tar.gz", hash = "sha256:6d338e5cfda43f550e673a2fe6e2f46dd0b05d7383c28a4bfdc552f0e1de1ef2"},
 ]
 
 [package.dependencies]
@@ -4737,4 +4737,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "9b05fb520295bc7d5aa1ffd71c965d84e3f1224d289b16eadc6bafe8d7c82ef4"
+content-hash = "36eabdf82436b1d56008069d315036bf6a11aa2d60ee9abb5f240ae09e5c90fb"

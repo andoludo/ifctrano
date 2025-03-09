@@ -17,7 +17,21 @@ building.save_model()
 ```
             
 
-The code snippet above generates a Modelica model of the IFC file in the same directory as the IFC file. You can then open the model in OpenModelica, as shown below.
+The code snippet above creates a Modelica model of the IFC file in the same directory. You can open the model in OpenModelica as demonstrated below.
+
+Ifctrano can also be executed via the command line interface, as demonstrated below.
+
+
+```bash
+ifctrano create --help
+```
+            
+
+
+```bash
+ifctrano create path_to_ifc_file.ifc
+```
+            
 
 ![Generated model](./img/two_zones_3.png)
 
