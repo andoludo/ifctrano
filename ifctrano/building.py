@@ -9,7 +9,7 @@ from trano.elements.library.library import Library  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
 from trano.topology import Network  # type: ignore
 
-from ifctrano.base import BaseModelConfig, Libraries
+from ifctrano.base import BaseModelConfig, Libraries, Vector
 from ifctrano.exceptions import IfcFileNotFoundError, NoIfcSpaceFoundError
 from ifctrano.space_boundary import (
     SpaceBoundaries,
@@ -140,15 +140,16 @@ class Building(BaseModelConfig):
         return InternalElements(elements=list(set(elements)))
 
     @validate_call
-    def create_model(self, library: Libraries = "Buildings") -> str:
+    def create_model(self, library: Libraries = "Buildings", north_axis: Vector = Vector(x=0,y=1,z=0)) -> str:
         network = Network(name=self.name, library=Library.from_configuration(library))
         spaces = {
             space_boundary.space.global_id: space_boundary.model(
-                self.internal_elements.internal_element_ids()
+                self.internal_elements.internal_element_ids(), north_axis
             )
             for space_boundary in self.space_boundaries
         }
-        network.add_boiler_plate_spaces(list(spaces.values()))
+        spaces = {k: v for k, v in spaces.items() if v}
+        network.add_boiler_plate_spaces(list(spaces.values()), create_internal=False)
         for internal_element in self.internal_elements.elements:
             space_1 = internal_element.spaces[0]
             space_2 = internal_element.spaces[1]

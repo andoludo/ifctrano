@@ -14,6 +14,9 @@ def test_duplex_appartment(duplex_appartment_path: Path) -> None:
     building = Building.from_ifc(duplex_appartment_path)
     assert building.create_model()
 
+def test_multizone(multizone_path: Path) -> None:
+    building = Building.from_ifc(multizone_path)
+    assert building.create_model()
 
 def test_building_two_zone_save_file(two_zone_path: Path) -> None:
     with TemporaryDirectory() as temp_dir:

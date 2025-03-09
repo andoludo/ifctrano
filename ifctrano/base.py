@@ -9,6 +9,7 @@ settings = ifcopenshell.geom.settings()  # type: ignore
 Coordinate = Literal["x", "y", "z"]
 AREA_TOLERANCE = 0.5
 ROUNDING_FACTOR = 5
+CLASH_CLEARANCE = 0.5
 
 
 class BaseModelConfig(BaseModel):
@@ -69,6 +70,15 @@ class Vector(BasePoint):
     def dot(self, other: "Vector") -> float:
         return np.dot(self.to_array(), other.to_array())  # type: ignore
 
+    def angle(self, other: "Vector") -> float:
+        dot_product = np.dot(self.to_xy(), other.to_xy())
+        cross_product = np.cross(self.to_xy(), other.to_xy())
+        angle_rad = np.arctan2(cross_product, dot_product)
+        angle_deg = np.degrees(angle_rad)
+        if angle_deg < 0:
+            angle_deg += 360
+        return angle_deg
+
     def project(self, other: "Vector") -> "Vector":
         a = self.dot(other) / other.dot(other)
         return Vector(x=a * other.x, y=a * other.y, z=a * other.z)
@@ -81,6 +91,8 @@ class Vector(BasePoint):
 
     def to_array(self) -> np.ndarray:  # type: ignore
         return np.array([self.x, self.y, self.z])
+    def to_xy(self) -> np.ndarray:  # type: ignore
+        return np.array([self.x, self.y])
 
     def get_normal_index(self) -> int:
         normal_index_list = [abs(v) for v in self.to_list()]
