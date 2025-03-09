@@ -14,7 +14,7 @@
         <link rel="prev" href="../../getting-started/installation/">
       
       
-        <link rel="next" href="../../how-to%20guides/">
+        <link rel="next" href="../multizone_model/">
       
       
       <link rel="icon" href="../../img/ifctrano.webp">
@@ -471,6 +471,8 @@
       
         
       
+        
+      
     
     
       
@@ -533,6 +535,28 @@
 
       </a>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multizone_model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multizone model
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -633,7 +657,12 @@
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span><span class="n">path_to_ifc_file</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">building</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
 </span></code></pre></div>
-<p>The code snippet above generates a Modelica model of the IFC file in the same directory as the IFC file. You can then open the model in OpenModelica, as shown below.</p>
+<p>The code snippet above creates a Modelica model of the IFC file in the same directory. You can open the model in OpenModelica as demonstrated below.</p>
+<p>Ifctrano can also be executed via the command line interface, as demonstrated below.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>--help
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>path_to_ifc_file.ifc
+</span></code></pre></div>
 <p><img alt="Generated model" src="../img/two_zones_3.png" /></p>
 <p>Given that the relevant libraries are loaded, the figure above displays the generated model.</p>
 
@@ -690,13 +719,13 @@
         
         
           
-          <a href="../../how-to%20guides/" class="md-footer__link md-footer__link--next" aria-label="Next: How-to Guides">
+          <a href="../multizone_model/" class="md-footer__link md-footer__link--next" aria-label="Next: Multizone model">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                How-to Guides
+                Multizone model
               </div>
             </div>
             <div class="md-footer__button md-icon">

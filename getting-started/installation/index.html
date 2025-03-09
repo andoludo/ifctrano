@@ -548,6 +548,8 @@
       
         
       
+        
+      
     
     
       
@@ -592,6 +594,28 @@
   
   <span class="md-ellipsis">
     Two zones model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/multizone_model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multizone model
     
   </span>
   
@@ -732,8 +756,8 @@
 <h1 id="installation">Installation</h1>
 <h2 id="optional-dependencies">Optional dependencies</h2>
 <h3 id="graphviz">Graphviz</h3>
-<p><code>ifctrano</code> utilizes Graphviz to position various Modelica components within the model. While installation is not mandatory, it is recommended for improved visualization. </p>
-<p>You can install Graphviz by following the instructions on the <a href="https://graphviz.org/download/">official website</a>. For Windows installations, ensure that the Graphviz <code>bin</code> folder is added to the system path.</p>
+<p><code>ifctrano</code> utilizes Graphviz to arrange various Modelica components within the model. While installation is not mandatory, it is advisable for improved visualization. </p>
+<p>You can install Graphviz by following the instructions on the <a href="https://graphviz.org/download/">official website</a>. For Windows installation, ensure that the Graphviz <code>bin</code> folder is added to the system path.</p>
 <p>To install Graphviz on Linux, use the following command:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>graphviz
 </span></code></pre></div>
@@ -745,11 +769,16 @@
 <p class="admonition-title">Warning</p>
 <p>Trano requires python 3.9 or higher and docker to be installed on the system.</p>
 </div>
-<p>ifctrano is a Python package that can be installed using pip.</p>
+<p>ifctrano is a Python package that can be installed via pip.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ifctrano
 </span></code></pre></div>
-<p>Ifctrano can also be used with Poetry.</p>
+<p><code>ifctrano</code> can also be utilized with Poetry.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>poetry<span class="w"> </span>add<span class="w"> </span>ifctrano
+</span></code></pre></div>
+<p>To verify the installation, execute the following command in the terminal.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ifctrano<span class="w"> </span>--help
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ifctrano<span class="w"> </span>verify
 </span></code></pre></div>
 
 
