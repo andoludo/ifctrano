@@ -27,3 +27,14 @@ def two_zone_path() -> Path:
 def two_zones(two_zone_path: Path) -> file:
     ifcopenshell_file = ifcopenshell.open(str(two_zone_path))
     return ifcopenshell_file
+
+
+@pytest.fixture
+def multizone_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "MultiZoneBuilding.ifc"
+
+
+@pytest.fixture
+def multizone(multizone_path: Path) -> file:
+    ifcopenshell_file = ifcopenshell.open(str(multizone_path))
+    return ifcopenshell_file

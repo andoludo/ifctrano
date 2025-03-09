@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Tuple, Any, Optional
 
 import ifcopenshell
 from ifcopenshell import file, entity_instance
@@ -28,12 +28,35 @@ class IfcInternalElement(BaseModelConfig):
     element: entity_instance
     area: float
 
+    def __hash__(self) -> int:
+        return hash(
+            (
+                *sorted([space.global_id for space in self.spaces]),
+                self.element.GlobalId,
+                self.area,
+            )
+        )
+
+    def __eq__(self, other: "IfcInternalElement") -> bool:  # type: ignore
+        return hash(self) == hash(other)
+
+    def description(self) -> Tuple[Any, Any, str, float]:
+        return (
+            *sorted([space.global_id for space in self.spaces]),
+            self.element.GlobalId,
+            self.element.is_a(),
+            self.area,
+        )
+
 
 class InternalElements(BaseModelConfig):
     elements: List[IfcInternalElement] = Field(default_factory=list)
 
     def internal_element_ids(self) -> List[str]:
         return list({e.element.GlobalId for e in self.elements})
+
+    def description(self) -> List[Tuple[Any, Any, str, float]]:
+        return sorted([element.description() for element in self.elements])
 
 
 class Building(BaseModelConfig):
@@ -44,7 +67,10 @@ class Building(BaseModelConfig):
     internal_elements: InternalElements = Field(default_factory=InternalElements)
 
     @classmethod
-    def from_ifc(cls, ifc_file_path: Path) -> "Building":
+    def from_ifc(
+        cls, ifc_file_path: Path, selected_spaces_global_id: Optional[List[str]] = None
+    ) -> "Building":
+        selected_spaces_global_id = selected_spaces_global_id or []
         if not ifc_file_path.exists():
             raise IfcFileNotFoundError(
                 f"File specified {ifc_file_path} does not exist."
@@ -52,6 +78,10 @@ class Building(BaseModelConfig):
         ifc_file = ifcopenshell.open(str(ifc_file_path))
         tree = initialize_tree(ifc_file)
         spaces = get_spaces(ifc_file)
+        if selected_spaces_global_id:
+            spaces = [
+                space for space in spaces if space.GlobalId in selected_spaces_global_id
+            ]
         if not spaces:
             raise NoIfcSpaceFoundError("No IfcSpace found in the file.")
         space_boundaries = [
@@ -100,10 +130,14 @@ class Building(BaseModelConfig):
                                 IfcInternalElement(
                                     spaces=[space_1, space_2],
                                     element=boundary_.entity,
-                                    area=common_surface.area,
+                                    area=min(
+                                        common_surface.area,
+                                        boundary.common_surface.area,
+                                        boundary_.common_surface.area,
+                                    ),
                                 )
                             )
-        return InternalElements(elements=elements)
+        return InternalElements(elements=list(set(elements)))
 
     @validate_call
     def create_model(self, library: Libraries = "Buildings") -> str:
