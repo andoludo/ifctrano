@@ -8,10 +8,19 @@ import ifcopenshell.util.shape
 from ifcopenshell import entity_instance, file
 from pydantic import BaseModel, Field
 from trano.data_models.conversion import SpaceParameter  # type: ignore
-from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall  # type: ignore
-from trano.elements.construction import Construction, Layer, Material  # type: ignore
+from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall, ExternalDoor  # type: ignore
+from trano.elements.construction import (  # type: ignore
+    Construction,
+    Layer,
+    Material,
+    Glass,
+    GlassLayer,
+    GasLayer,
+    GlassMaterial,
+    Gas,
+)
 from trano.elements.system import Occupancy  # type: ignore
-from trano.elements.types import Azimuth, Tilt  # type: ignore
+from trano.elements.types import Tilt  # type: ignore
 
 from ifctrano.base import (
     GlobalId,
@@ -19,6 +28,8 @@ from ifctrano.base import (
     BaseModelConfig,
     CommonSurface,
     ROUNDING_FACTOR,
+    CLASH_CLEARANCE,
+    Vector,
 )
 from ifctrano.bounding_box import OrientedBoundingBox
 
@@ -78,12 +89,8 @@ class Space(GlobalId):
         )
 
     def space_name(self) -> str:
-        main_name = (
-            remove_non_alphanumeric(self.name)
-            if self.name
-            else remove_non_alphanumeric(self.entity.GlobalId)
-        )
-        return f"space_{main_name}_{self.entity.GlobalId}"
+        main_name = f"{remove_non_alphanumeric(self.name)}_" if self.name else ""
+        return f"space_{main_name}{remove_non_alphanumeric(self.entity.GlobalId)}"
 
 
 material_1 = Material(
@@ -98,6 +105,34 @@ construction = Construction(
         Layer(material=material_1, thickness=0.18),
     ],
 )
+id_100 = GlassMaterial(
+    name="id_100",
+    thermal_conductivity=1,
+    density=2500,
+    specific_heat_capacity=840,
+    solar_transmittance=[0.646],
+    solar_reflectance_outside_facing=[0.062],
+    solar_reflectance_room_facing=[0.063],
+    infrared_transmissivity=0,
+    infrared_absorptivity_outside_facing=0.84,
+    infrared_absorptivity_room_facing=0.84,
+)
+
+air = Gas(
+    name="Air",
+    thermal_conductivity=0.025,
+    density=1.2,
+    specific_heat_capacity=1005,
+)
+glass = Glass(
+    name="double_glazing",
+    u_value_frame=1.4,
+    layers=[
+        GlassLayer(thickness=0.003, material=id_100),
+        GasLayer(thickness=0.0127, material=air),
+        GlassLayer(thickness=0.003, material=id_100),
+    ],
+)
 
 
 class SpaceBoundary(BaseModelConfig):
@@ -106,27 +141,44 @@ class SpaceBoundary(BaseModelConfig):
     common_surface: CommonSurface
     adjacent_spaces: List[Space] = Field(default_factory=list)
 
-    def model_element(self, exclude_entities: List[str]) -> Optional[BaseWall]:
+    def boundary_name(self) -> str:
+        return f"{self.entity.is_a()}_{remove_non_alphanumeric(self.entity.GlobalId)}"
+
+    def model_element(
+        self, exclude_entities: List[str], north_axis: Vector
+    ) -> Optional[BaseWall]:
         if self.entity.GlobalId in exclude_entities:
             return None
+        azimuth = self.common_surface.orientation.angle(north_axis)
         if "wall" in self.entity.is_a().lower():
             return ExternalWall(
+                name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=Azimuth.south,
+                azimuth=azimuth,
+                tilt=Tilt.wall,
+                construction=construction,
+            )
+        if "door" in self.entity.is_a().lower():
+            return ExternalDoor(
+                name=self.boundary_name(),
+                surface=self.common_surface.area,
+                azimuth=azimuth,
                 tilt=Tilt.wall,
                 construction=construction,
             )
         if "window" in self.entity.is_a().lower():
             return Window(
+                name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=Azimuth.south,
+                azimuth=azimuth,
                 tilt=Tilt.wall,
-                construction=construction,
+                construction=glass,
             )
         if "roof" in self.entity.is_a().lower():
             return ExternalWall(
+                name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=Azimuth.south,
+                azimuth=azimuth,
                 tilt=Tilt.ceiling,
                 construction=construction,
             )
@@ -158,7 +210,16 @@ class SpaceBoundaries(BaseModel):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
 
-    def model(self, exclude_entities: List[str]) -> TranoSpace:
+    def model(
+        self, exclude_entities: List[str], north_axis: Vector
+    ) -> Optional[TranoSpace]:
+        external_boundaries = [
+            boundary.model_element(exclude_entities, north_axis)
+            for boundary in self.boundaries
+            if boundary.model_element(exclude_entities, north_axis)
+        ]
+        if not external_boundaries:
+            return None
         return TranoSpace(
             name=self.space.space_name(),
             occupancy=Occupancy(),
@@ -166,11 +227,7 @@ class SpaceBoundaries(BaseModel):
                 floor_area=self.space.floor_area,
                 average_room_height=self.space.average_room_height,
             ),
-            external_boundaries=[
-                boundary.model_element(exclude_entities)
-                for boundary in self.boundaries
-                if boundary.model_element(exclude_entities)
-            ],
+            external_boundaries=external_boundaries,
         )
 
     @classmethod
@@ -188,7 +245,7 @@ class SpaceBoundaries(BaseModel):
             + ifcopenshell_file.by_type("IfcRoof")
             + ifcopenshell_file.by_type("IfcDoor")
             + ifcopenshell_file.by_type("IfcWindow"),
-            clearance=0.1,
+            clearance=CLASH_CLEARANCE,
         )
         space_boundaries = []
 

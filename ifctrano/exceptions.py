@@ -14,5 +14,13 @@ class SpaceSurfaceAreaNullError(Exception):
     pass
 
 
+class NoIfcSpaceFoundError(Exception):
+    pass
+
+
 class InvalidLibraryError(Exception):
+    pass
+
+
+class VectorWithNansError(Exception):
     pass

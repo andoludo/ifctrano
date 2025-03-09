@@ -1,4 +1,6 @@
+import shutil
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Annotated, get_args
 
 import typer
@@ -45,3 +47,29 @@ def create(
         modelica_model_path.write_text(modelica_model)
         progress.remove_task(task)
         print(f"{CHECKMARK} Model generated at {modelica_model_path}")
+
+
+@app.command()
+def verify() -> None:
+    verification_ifc = Path(__file__).parent / "example" / "verification.ifc"
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        transient=True,
+    ) as progress, TemporaryDirectory() as temp_dir:
+        temp_ifc_file = Path(temp_dir) / verification_ifc.name
+        shutil.copy(verification_ifc, temp_ifc_file)
+        task = progress.add_task(
+            description="Trying to create a model from a test file...",
+            total=None,
+        )
+        building = Building.from_ifc(temp_ifc_file)
+        building.save_model()
+        if temp_ifc_file.parent.joinpath(f"{building.name}.mo").exists():
+            progress.remove_task(task)
+            print(f"{CHECKMARK} Model successfully created... your system is ready.")
+        else:
+            progress.remove_task(task)
+            print(
+                f"{CROSS_MARK} Model could not be created... please check your system."
+            )

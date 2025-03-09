@@ -3,12 +3,15 @@ from typing import Tuple, Literal, List, Annotated, Sequence
 import ifcopenshell.geom
 import numpy as np
 from numpy import ndarray
-from pydantic import BaseModel, BeforeValidator, ConfigDict
+from pydantic import BaseModel, BeforeValidator, ConfigDict, model_validator
+
+from ifctrano.exceptions import VectorWithNansError
 
 settings = ifcopenshell.geom.settings()  # type: ignore
 Coordinate = Literal["x", "y", "z"]
 AREA_TOLERANCE = 0.5
 ROUNDING_FACTOR = 5
+CLASH_CLEARANCE = 0.5
 
 
 class BaseModelConfig(BaseModel):
@@ -61,6 +64,13 @@ class Sign(BaseModel):
 
 
 class Vector(BasePoint):
+
+    @model_validator(mode="after")
+    def _validator(self) -> "Vector":
+        if any(np.isnan(v) for v in self.to_list()):
+            raise VectorWithNansError("Vector cannot have NaN values")
+        return self
+
     def __mul__(self, other: "Vector") -> "Vector":
 
         array = np.cross(self.to_array(), other.to_array())
@@ -68,6 +78,15 @@ class Vector(BasePoint):
 
     def dot(self, other: "Vector") -> float:
         return np.dot(self.to_array(), other.to_array())  # type: ignore
+
+    def angle(self, other: "Vector") -> int:
+        dot_product = np.dot(self.to_xy(), other.to_xy())
+        cross_product = np.cross(self.to_xy(), other.to_xy())
+        angle_rad = np.arctan2(cross_product, dot_product)
+        angle_deg = np.degrees(angle_rad)
+        if angle_deg < 0:
+            angle_deg += 360
+        return int(angle_deg)
 
     def project(self, other: "Vector") -> "Vector":
         a = self.dot(other) / other.dot(other)
@@ -81,6 +100,9 @@ class Vector(BasePoint):
 
     def to_array(self) -> np.ndarray:  # type: ignore
         return np.array([self.x, self.y, self.z])
+
+    def to_xy(self) -> np.ndarray:  # type: ignore
+        return np.array([self.x, self.y])
 
     def get_normal_index(self) -> int:
         normal_index_list = [abs(v) for v in self.to_list()]
