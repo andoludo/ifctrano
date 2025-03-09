@@ -60,6 +60,7 @@ nav:
     - Installation: getting-started/installation.md
   - Tutorials:
     - Two zones model: tutorials/two_zones_model.md
+    - Multizone model: tutorials/multizone_model.md
   - How-to Guides: how-to guides/index.md
   - Explanation: explanation/index.md
 

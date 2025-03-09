@@ -6,6 +6,14 @@
 pip install ifctrano
 ```
 
+To check the installation, run the following commands:
+
+```bash
+ifctrano --help
+
+ifctrano verify
+```
+
 ## Overview
 ifctrano is yet another **IFC to energy simulation** tool designed to translate **Industry Foundation Classes (IFC)** models into energy simulation models in **Modelica**.
 
