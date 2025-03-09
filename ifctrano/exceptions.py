@@ -20,3 +20,7 @@ class NoIfcSpaceFoundError(Exception):
 
 class InvalidLibraryError(Exception):
     pass
+
+
+class VectorWithNansError(Exception):
+    pass

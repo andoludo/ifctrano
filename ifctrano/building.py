@@ -1,9 +1,10 @@
+import re
 from pathlib import Path
 from typing import List, Tuple, Any, Optional
 
 import ifcopenshell
 from ifcopenshell import file, entity_instance
-from pydantic import validate_call, Field, model_validator
+from pydantic import validate_call, Field, model_validator, field_validator
 from trano.elements import InternalElement  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
@@ -66,6 +67,13 @@ class Building(BaseModelConfig):
     parent_folder: Path
     internal_elements: InternalElements = Field(default_factory=InternalElements)
 
+    @field_validator("name")
+    @classmethod
+    def _name_validator(cls, name: str) -> str:
+        name = name.replace(" ", "_")
+        name = re.sub(r"[^a-zA-Z0-9_]", "", name)
+        return name.lower()
+
     @classmethod
     def from_ifc(
         cls, ifc_file_path: Path, selected_spaces_global_id: Optional[List[str]] = None
@@ -125,7 +133,9 @@ class Building(BaseModelConfig):
                                 boundary_.common_surface.orientation
                                 * common_surface.orientation
                             ).is_a_zero()
-                        ):
+                        ) and boundary.common_surface.orientation.dot(
+                            boundary_.common_surface.orientation
+                        ) < 0:
                             elements.append(  # noqa: PERF401
                                 IfcInternalElement(
                                     spaces=[space_1, space_2],
@@ -140,7 +150,12 @@ class Building(BaseModelConfig):
         return InternalElements(elements=list(set(elements)))
 
     @validate_call
-    def create_model(self, library: Libraries = "Buildings", north_axis: Vector = Vector(x=0,y=1,z=0)) -> str:
+    def create_model(
+        self,
+        library: Libraries = "Buildings",
+        north_axis: Optional[Vector] = None,
+    ) -> str:
+        north_axis = north_axis or Vector(x=0, y=1, z=0)
         network = Network(name=self.name, library=Library.from_configuration(library))
         spaces = {
             space_boundary.space.global_id: space_boundary.model(
