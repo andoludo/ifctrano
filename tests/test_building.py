@@ -7,16 +7,55 @@ from ifctrano.building import Building
 
 def test_building_two_zone(two_zone_path: Path) -> None:
     building = Building.from_ifc(two_zone_path)
+    space_boundaries = building.get_boundaries("0t8Y4TnjqtGRnTw6NPeuj9")
+    internal_element_ids = building.internal_elements.internal_element_ids()
     assert building.create_model()
+    assert [
+        b.description()
+        for b in space_boundaries.boundaries
+        if b.entity.GlobalId not in internal_element_ids
+    ] == [
+        (
+            8.999999999999998,
+            (1.0, 0.0, 0.0),
+            "3PvpR$hKFlHuhmlmbygBig",
+            "IfcWallStandardCase",
+        ),
+        (9.000000000000002, (-0.0, -0.0, -1.0), "2wnKoR7TlMJAMsrOjFIt2k", "IfcSlab"),
+        (9.000000000000002, (0.0, 0.0, 1.0), "1GtdW14ne2HvZSwZg9DViT", "IfcSlab"),
+        (
+            8.999999999999998,
+            (-1.0, -0.0, -0.0),
+            "0iF2lvyBzlJgGtYWNfuhrr",
+            "IfcWallStandardCase",
+        ),
+        (1.0119311581000008, (0.0, -1.0, 0.0), "3_bV5rUcEqG8kASS9SeipQ", "IfcWindow"),
+        (9.0, (0.0, -1.0, 0.0), "1vV1tvb7ErHeOK_7Z$PfBe", "IfcWallStandardCase"),
+    ]
 
 
 def test_duplex_appartment(duplex_appartment_path: Path) -> None:
     building = Building.from_ifc(duplex_appartment_path)
+
     assert building.create_model()
 
 
 def test_multizone(multizone_path: Path) -> None:
     building = Building.from_ifc(multizone_path)
+    space_boundaries = building.get_boundaries("3iLI4eTzPsHe5kCfE8mHt4")
+    internal_element_ids = building.internal_elements.internal_element_ids()
+    assert [
+        b.description()
+        for b in space_boundaries.boundaries
+        if b.entity.GlobalId not in internal_element_ids
+    ] == [
+        (21.6, (-0.0, 1.0, -0.0), "0gSvHU18p4HuqD4mS$gG8D", "IfcWallStandardCase"),
+        (148.79999999999998, (0.0, 0.0, 1.0), "1Hey_hGXaaIvKh948Y5lwS", "IfcSlab"),
+        (148.79999999999998, (-0.0, -0.0, -1.0), "2f4B0EKma$Gf_OoOWMssbl", "IfcSlab"),
+        (50.22, (-1.0, -0.0, -0.0), "1116XLLwKdJRZmM_rK_l4f", "IfcWallStandardCase"),
+        (7.76210139838769, (-0.0, 1.0, -0.0), "1X7PJ2zxFYJQJ7zr1nDhxn", "IfcWindow"),
+        (39.22227235752945, (-1.0, -0.0, -0.0), "1cMdolzEBzHfSYIkD4K2Kb", "IfcWindow"),
+    ]
     assert building.create_model()
 
 

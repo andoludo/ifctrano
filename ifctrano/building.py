@@ -67,6 +67,11 @@ class Building(BaseModelConfig):
     parent_folder: Path
     internal_elements: InternalElements = Field(default_factory=InternalElements)
 
+    def get_boundaries(self, space_id: str) -> SpaceBoundaries:
+        return next(
+            sb for sb in self.space_boundaries if sb.space.global_id == space_id
+        )
+
     @field_validator("name")
     @classmethod
     def _name_validator(cls, name: str) -> str:

@@ -1,5 +1,6 @@
 from ifcopenshell import file
 
+from ifctrano.base import Vector
 from ifctrano.bounding_box import OrientedBoundingBox
 from ifctrano.space_boundary import initialize_tree, SpaceBoundaries, Space
 
@@ -254,3 +255,16 @@ def test_get_space_boundaries_multizone(multizone: file) -> None:
         (148.79999999999998, (-0.0, -0.0, -1.0), "2f4B0EKma$Gf_OoOWMssbl", "IfcSlab"),
         (148.79999999999998, (0.0, 0.0, 1.0), "1Hey_hGXaaIvKh948Y5lwS", "IfcSlab"),
     ]
+
+
+def test_get_space_boundaries_two_zones_slab(two_zones: file) -> None:
+    tree = initialize_tree(two_zones)
+    space = two_zones.by_guid("0t8Y4TnjqtGRnTw6NPeuj9")
+    boundaries = SpaceBoundaries.from_space_entity(two_zones, tree, space)
+    trano_space = boundaries.model([], Vector(x=0, y=1, z=0))
+    floor = next(e for e in trano_space.external_boundaries if e.tilt.value == "floor")
+    roof = next(e for e in trano_space.external_boundaries if e.tilt.value == "ceiling")
+    assert "IfcSlab_1gtdw14ne2hvzswzg9dvit" in roof.name
+    assert "IfcSlab_2wnkor7tlmjamsrojfit2k" in floor.name
+    assert int(roof.surface) == 9
+    assert int(floor.surface) == 9

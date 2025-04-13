@@ -33,6 +33,8 @@ from ifctrano.base import (
 )
 from ifctrano.bounding_box import OrientedBoundingBox
 
+ROOF_VECTOR = Vector(x=0, y=0, z=1)
+
 
 def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
     tree = ifcopenshell.geom.tree()
@@ -144,7 +146,7 @@ class SpaceBoundary(BaseModelConfig):
     def boundary_name(self) -> str:
         return f"{self.entity.is_a()}_{remove_non_alphanumeric(self.entity.GlobalId)}"
 
-    def model_element(
+    def model_element(  # noqa: PLR0911
         self, exclude_entities: List[str], north_axis: Vector
     ) -> Optional[BaseWall]:
         if self.entity.GlobalId in exclude_entities:
@@ -180,6 +182,15 @@ class SpaceBoundary(BaseModelConfig):
                 surface=self.common_surface.area,
                 azimuth=azimuth,
                 tilt=Tilt.ceiling,
+                construction=construction,
+            )
+        if "slab" in self.entity.is_a().lower():
+            orientation = self.common_surface.orientation.dot(ROOF_VECTOR)
+            return ExternalWall(
+                name=self.boundary_name(),
+                surface=self.common_surface.area,
+                azimuth=azimuth,
+                tilt=Tilt.ceiling if orientation > 0 else Tilt.floor,
                 construction=construction,
             )
 
