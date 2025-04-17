@@ -3,45 +3,34 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from ifctrano.building import Building
-
+SHOW_FIGURES=True
 
 def test_building_two_zone(two_zone_path: Path) -> None:
     building = Building.from_ifc(two_zone_path)
     space_boundaries = building.get_boundaries("0t8Y4TnjqtGRnTw6NPeuj9")
+
     internal_element_ids = building.internal_elements.internal_element_ids()
+    if SHOW_FIGURES:
+        building.show()
     assert building.create_model()
     assert [
         b.description()
         for b in space_boundaries.boundaries
         if b.entity.GlobalId not in internal_element_ids
-    ] == [
-        (
-            8.999999999999998,
-            (1.0, 0.0, 0.0),
-            "3PvpR$hKFlHuhmlmbygBig",
-            "IfcWallStandardCase",
-        ),
-        (9.000000000000002, (-0.0, -0.0, -1.0), "2wnKoR7TlMJAMsrOjFIt2k", "IfcSlab"),
-        (9.000000000000002, (0.0, 0.0, 1.0), "1GtdW14ne2HvZSwZg9DViT", "IfcSlab"),
-        (
-            8.999999999999998,
-            (-1.0, -0.0, -0.0),
-            "0iF2lvyBzlJgGtYWNfuhrr",
-            "IfcWallStandardCase",
-        ),
-        (1.0119311581000008, (0.0, -1.0, 0.0), "3_bV5rUcEqG8kASS9SeipQ", "IfcWindow"),
-        (9.0, (0.0, -1.0, 0.0), "1vV1tvb7ErHeOK_7Z$PfBe", "IfcWallStandardCase"),
-    ]
+    ] == [(9.0, (0.0, -0.0, 1.0), '1GtdW14ne2HvZSwZg9DViT', 'IfcSlab'), (9.0, (1.0, 0.0, 0.0), '3PvpR$hKFlHuhmlmbygBig', 'IfcWallStandardCase'), (9.0, (0.0, 0.0, -1.0), '2wnKoR7TlMJAMsrOjFIt2k', 'IfcSlab'), (1.0, (0.0, -1.0, 0.0), '3_bV5rUcEqG8kASS9SeipQ', 'IfcWindow'), (9.0, (0.0, -1.0, 0.0), '1vV1tvb7ErHeOK_7Z$PfBe', 'IfcWallStandardCase'), (9.0, (-1.0, 0.0, 0.0), '0iF2lvyBzlJgGtYWNfuhrr', 'IfcWallStandardCase')]
 
 
 def test_duplex_appartment(duplex_appartment_path: Path) -> None:
     building = Building.from_ifc(duplex_appartment_path)
-
+    if SHOW_FIGURES:
+        building.show()
     assert building.create_model()
 
 
 def test_multizone(multizone_path: Path) -> None:
     building = Building.from_ifc(multizone_path)
+    if SHOW_FIGURES:
+        building.show()
     space_boundaries = building.get_boundaries("3iLI4eTzPsHe5kCfE8mHt4")
     internal_element_ids = building.internal_elements.internal_element_ids()
     assert [
@@ -150,4 +139,9 @@ def test_multizone_internal_duplex(duplex_appartment_path: Path) -> None:
         ],
     )
     assert building.internal_elements
+    assert building.create_model()
+
+
+def test_smiley_west(smiley_west_path: Path) -> None:
+    building = Building.from_ifc(smiley_west_path)
     assert building.create_model()

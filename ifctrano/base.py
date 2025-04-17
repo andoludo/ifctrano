@@ -1,9 +1,22 @@
+import math
+from abc import abstractmethod
+from itertools import combinations
 from typing import Tuple, Literal, List, Annotated, Sequence
 
 import ifcopenshell.geom
 import numpy as np
+import open3d
+from ifcopenshell.express.bootstrap import found
 from numpy import ndarray
-from pydantic import BaseModel, BeforeValidator, ConfigDict, model_validator
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    model_validator,
+    computed_field,
+)
+from shapely.geometry.polygon import Polygon
+from vedo import Line, Arrow, Polygon as VedoPolygon, Mesh, show, write
 
 from ifctrano.exceptions import VectorWithNansError
 
@@ -21,6 +34,31 @@ class BaseModelConfig(BaseModel):
 def round_two_decimals(value: float) -> float:
     return round(value, 10)
 
+class BaseShow(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    @abstractmethod
+    def lines(self) -> List[Line]:
+        ...
+
+    def show(self):
+
+        show(
+            *self.lines(),
+            axes=1,
+            viewup="z",
+            bg="white",
+            interactive=True,
+        )
+    def write(self):
+
+        write(
+            *self.lines(),
+            axes=1,
+            viewup="z",
+            bg="white",
+            interactive=True,
+        )
 
 class BasePoint(BaseModel):
     x: Annotated[float, BeforeValidator(round_two_decimals)]
@@ -141,6 +179,15 @@ class CoordinateSystem(BaseModel):
     y: Vector
     z: Vector
 
+    def __eq__(self, other):
+        return all(
+            [
+                self.x == other.x,
+                self.y == other.y,
+                self.z == other.z,
+            ]
+        )
+
     @classmethod
     def from_array(cls, array: np.ndarray) -> "CoordinateSystem":  # type: ignore
         return cls(
@@ -152,11 +199,11 @@ class CoordinateSystem(BaseModel):
     def to_array(self) -> np.ndarray:  # type: ignore
         return np.array([self.x.to_array(), self.y.to_array(), self.z.to_array()])
 
-    def project(self, array: np.array) -> np.array:  # type: ignore
-        return np.dot(array, self.to_array())  # type: ignore
+    def inverse(self, array: np.array) -> np.array:  # type: ignore
+        return np.round(np.dot(array, self.to_array()), ROUNDING_FACTOR)  # type: ignore
 
-    def inverse(self, array: np.array) -> np.ndarray:  # type: ignore
-        return np.dot(array, np.linalg.inv(self.to_array()))  # type: ignore
+    def project(self, array: np.array) -> np.ndarray:  # type: ignore
+        return np.round(np.dot(array, np.linalg.inv(self.to_array())), ROUNDING_FACTOR)  # type: ignore
 
 
 class Vertices(BaseModel):
@@ -174,13 +221,181 @@ class Vertices(BaseModel):
     def to_list(self) -> List[List[float]]:
         return self.to_array().tolist()  # type: ignore
 
+    def to_face_vertices(self) -> "FaceVertices":
+        return FaceVertices(points=self.points)
 
-class CommonSurface(BaseModel):
+    def get_local_coordinate_system(self) -> CoordinateSystem:
+        origin = self.points[0]
+        x = self.points[1] - origin
+        found = False
+        for point in self.points[2:]:
+            y = point - origin
+            if x.dot(y) < 0.00001:
+                found = True
+                break
+        if not found:
+            raise ValueError("No orthogonal vectors found.")
+
+        z = x * y
+        return CoordinateSystem(x=x, y=y, z=z)
+
+    def get_bounding_box(self) -> "Vertices":
+        coordinates = self.get_local_coordinate_system()
+        projected = coordinates.project(self.to_array())
+        points_ = open3d.utility.Vector3dVector(projected)
+        aab = open3d.geometry.AxisAlignedBoundingBox.create_from_points(points_)
+        reversed = coordinates.inverse(np.array(aab.get_box_points()))
+        return Vertices.from_arrays(reversed)
+
+    def is_box_shaped(self)->bool:
+        return len(self.points) == 8
+
+
+class FaceVertices(Vertices):
+
+    @model_validator(mode="after")
+    def _model_validator(self) -> "FaceVertices":
+        if len(self.points) < 3:
+            raise ValueError("Face must have more than 3 vertices.")
+        return self
+
+    @computed_field
+    def _vector_1(self) -> Vector:
+        point_0 = self.points[0]
+        point_1 = self.points[1]
+        vector_0 = point_1 - point_0
+        return Vector.from_array(
+            vector_0.to_array() / np.linalg.norm(vector_0.to_array())
+        )
+
+    @computed_field
+    def _vector_2(self) -> Vector:
+        point_0 = self.points[0]
+        point_2 = self.points[2]
+        vector_0 = point_2 - point_0
+        return Vector.from_array(
+            vector_0.to_array() / np.linalg.norm(vector_0.to_array())
+        )
+
+    def get_normal(self) -> Vector:
+        normal_vector = self._vector_1 * self._vector_2
+        normal_normalized = normal_vector.to_array() / np.linalg.norm(
+            normal_vector.to_array()
+        )
+        return Vector.from_array(normal_normalized)
+
+    def get_coordinates(self) -> CoordinateSystem:
+        z_axis = self.get_normal()
+        x_axis = self._vector_1
+        y_axis = z_axis * x_axis
+        return CoordinateSystem(x=x_axis, y=y_axis, z=z_axis)
+
+    def project(self, vertices: "FaceVertices") -> "ProjectedFaceVertices":
+        coordinates = self.get_coordinates()
+        projected = coordinates.project(vertices.to_array())
+        return ProjectedFaceVertices.from_arrays_(projected, coordinates)
+
+    def get_face_area(self) -> float:
+        projected = self.project(self)
+        return round(projected.to_polygon().area, ROUNDING_FACTOR)
+
+    def get_center(self) -> Point:
+        x = np.mean([point.x for point in self.points])
+        y = np.mean([point.y for point in self.points])
+        z = np.mean([point.z for point in self.points])
+        return Point(x=x, y=y, z=z)
+
+    def get_distance(self, other: "FaceVertices") -> float:
+        return math.dist(self.get_center().to_list(), other.get_center().to_list())
+
+
+class FixedIndex(BaseModel):
+    index: int
+    value: float
+
+
+class ProjectedFaceVertices(FaceVertices):
+    coordinate_system: CoordinateSystem
+
+    def get_fixed_index(self) -> FixedIndex:
+        fixed_indexes = [
+            FixedIndex(index=i, value=x[0])
+            for i, x in enumerate(self.to_array().T)
+            if len(set(x)) == 1
+        ]
+        if len(fixed_indexes) != 1:
+            raise ValueError("No or wrong fixed index found")
+        return fixed_indexes[0]
+
+    def to_polygon(self) -> Polygon:
+        vertices_ = self.to_list()
+        try:
+            fixed_index = self.get_fixed_index()
+        except ValueError:
+            return Polygon()
+        indexes = [0, 1, 2]
+        indexes.remove(fixed_index.index)
+        vertices_ = [*vertices_, vertices_[0]]
+        points = [np.array(v)[indexes] for v in vertices_]
+        return Polygon(points)
+
+    def common_vertices(self, polygon: Polygon) -> FaceVertices:
+        fixed_index = self.get_fixed_index()
+        coords = [list(coord) for coord in list(polygon.exterior.coords)]
+        [coord.insert(fixed_index.index, fixed_index.value) for coord in coords]
+        vertices = FaceVertices.from_arrays(coords)
+        original = self.coordinate_system.inverse(vertices.to_array())
+        return FaceVertices.from_arrays(original)
+
+    @classmethod
+    def from_arrays_(cls, arrays: Sequence[np.ndarray[np.float64]], coordinate_system: CoordinateSystem) -> "ProjectedFaceVertices":  # type: ignore
+        return cls(
+            points=[Point(x=array[0], y=array[1], z=array[2]) for array in arrays],
+            coordinate_system=coordinate_system,
+        )
+
+
+class CommonSurface(BaseShow):
     area: float
     orientation: Vector
+    main_vertices: FaceVertices
+    common_vertices: FaceVertices
+    exterior: bool = True
+
+    def __hash__(self) -> int:
+        return hash((self.area, self.orientation.to_list(), tuple(self.main_vertices.to_list()), tuple(self.common_vertices.to_list())))
+
+    @model_validator(mode="after")
+    def _model_validator(self) -> "CommonSurface":
+        self.area = round(self.area, ROUNDING_FACTOR)
+        return self
 
     def description(self) -> Tuple[float, List[float]]:
         return self.area, self.orientation.to_list()
+
+
+
+    def lines(self) -> List[Line]:
+        lines = []
+        lst = self.common_vertices.to_list()[:4]
+
+        # for a, b in [[lst[i], lst[(i + 1) % len(lst)]] for i in range(len(lst))]:
+        color ='red' if self.exterior else 'blue'
+        alpha = 0.1 if self.exterior else 0.9
+        lines.append(Mesh([lst, [(0, 1, 2, 3)] ], c=color, alpha=alpha))
+        arrow = Arrow(
+            self.main_vertices.get_center().to_list(),
+            (
+                self.main_vertices.get_center().to_array() + self.orientation.to_array()
+            ).tolist(),
+            c="deepskyblue",
+            s=0.001,  # thinner shaft
+            head_length=0.05,  # smaller tip
+            head_radius=0.05,  # sharper tip
+            res=16,  # shaft resolution
+        )
+        lines.append(arrow)
+        return lines
 
 
 Libraries = Literal["IDEAS", "Buildings", "reduced_order", "iso_13790"]

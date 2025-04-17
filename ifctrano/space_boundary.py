@@ -1,12 +1,12 @@
 import multiprocessing
 import re
-from typing import Optional, List, Tuple, Any
+from typing import Optional, List, Tuple, Any, Annotated
 
 import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.shape
 from ifcopenshell import entity_instance, file
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, BeforeValidator
 from trano.data_models.conversion import SpaceParameter  # type: ignore
 from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall, ExternalDoor  # type: ignore
 from trano.elements.construction import (  # type: ignore
@@ -21,6 +21,7 @@ from trano.elements.construction import (  # type: ignore
 )
 from trano.elements.system import Occupancy  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
+from vedo import Line
 
 from ifctrano.base import (
     GlobalId,
@@ -29,7 +30,7 @@ from ifctrano.base import (
     CommonSurface,
     ROUNDING_FACTOR,
     CLASH_CLEARANCE,
-    Vector,
+    Vector, BaseShow,
 )
 from ifctrano.bounding_box import OrientedBoundingBox
 
@@ -53,15 +54,17 @@ def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
 def remove_non_alphanumeric(text: str) -> str:
     return re.sub(r"[^a-zA-Z0-9]", "", text).lower()
 
+def _round(value: float) -> float:
+    return round(value, ROUNDING_FACTOR)
 
 class Space(GlobalId):
     name: Optional[str] = None
     bounding_box: OrientedBoundingBox
     entity: entity_instance
-    average_room_height: float
-    floor_area: float
-    bounding_box_height: float
-    bounding_box_volume: float
+    average_room_height: Annotated[float, BeforeValidator(_round)]
+    floor_area: Annotated[float, BeforeValidator(_round)]
+    bounding_box_height: Annotated[float, BeforeValidator(_round)]
+    bounding_box_volume: Annotated[float, BeforeValidator(_round)]
 
     @classmethod
     def from_entity(cls, entity: entity_instance) -> "Space":
@@ -143,6 +146,9 @@ class SpaceBoundary(BaseModelConfig):
     common_surface: CommonSurface
     adjacent_spaces: List[Space] = Field(default_factory=list)
 
+    def __hash__(self) -> int:
+        return hash(self.common_surface)
+
     def boundary_name(self) -> str:
         return f"{self.entity.is_a()}_{remove_non_alphanumeric(self.entity.GlobalId)}"
 
@@ -217,9 +223,20 @@ class SpaceBoundary(BaseModelConfig):
         )
 
 
-class SpaceBoundaries(BaseModel):
+class SpaceBoundaries(BaseShow):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
+
+    def lines(self) -> List[Line]:
+        lines = []
+        for boundary in self.boundaries:
+            lines += boundary.common_surface.lines()
+        return lines
+
+    def remove(self, space_boundaries: List[SpaceBoundary]) -> None:
+        for space_boundary in space_boundaries:
+            if space_boundary in self.boundaries:
+                self.boundaries.remove(space_boundary)
 
     def model(
         self, exclude_entities: List[str], north_axis: Vector
@@ -249,28 +266,33 @@ class SpaceBoundaries(BaseModel):
         space: entity_instance,
     ) -> "SpaceBoundaries":
         space_ = Space.from_entity(space)
-        clashes = tree.clash_clearance_many(
-            [space],
+        elements = (
             ifcopenshell_file.by_type("IfcWall")
             + ifcopenshell_file.by_type("IfcSlab")
             + ifcopenshell_file.by_type("IfcRoof")
             + ifcopenshell_file.by_type("IfcDoor")
-            + ifcopenshell_file.by_type("IfcWindow"),
+            + ifcopenshell_file.by_type("IfcWindow")
+        )
+        clashes = tree.clash_clearance_many(
+            [space],
+            elements,
             clearance=CLASH_CLEARANCE,
         )
         space_boundaries = []
-
-        for clash in clashes:
-            elements = [
-                ifcopenshell_file.by_guid(clash.a.get_argument(0)),
-                ifcopenshell_file.by_guid(clash.b.get_argument(0)),
+        elements = {
+            entity
+            for c in clashes
+            for entity in [
+                ifcopenshell_file.by_guid(c.a.get_argument(0)),
+                ifcopenshell_file.by_guid(c.b.get_argument(0)),
             ]
-            for element in elements:
-                if element.GlobalId == space.GlobalId:
-                    continue
-                space_boundary = SpaceBoundary.from_space_and_element(
-                    space_.bounding_box, element
-                )
-                if space_boundary:
-                    space_boundaries.append(space_boundary)
+            if entity.is_a() not in ["IfcSpace"]
+        }
+
+        for element in elements:
+            space_boundary = SpaceBoundary.from_space_and_element(
+                space_.bounding_box, element
+            )
+            if space_boundary:
+                space_boundaries.append(space_boundary)
         return cls(space=space_, boundaries=space_boundaries)

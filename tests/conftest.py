@@ -24,6 +24,17 @@ def two_zone_path() -> Path:
 
 
 @pytest.fixture
+def smiley_west_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "AC-20-Smiley-West-10-Bldg.ifc"
+
+
+@pytest.fixture
+def smiley_west(smiley_west_path: Path) -> file:
+    ifcopenshell_file = ifcopenshell.open(str(smiley_west_path))
+    return ifcopenshell_file
+
+
+@pytest.fixture
 def two_zones(two_zone_path: Path) -> file:
     ifcopenshell_file = ifcopenshell.open(str(two_zone_path))
     return ifcopenshell_file
