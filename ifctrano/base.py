@@ -1,7 +1,9 @@
+import json
 import math
 from abc import abstractmethod
 from itertools import combinations
-from typing import Tuple, Literal, List, Annotated, Sequence
+from pathlib import Path
+from typing import Tuple, Literal, List, Annotated, Sequence, Any
 
 import ifcopenshell.geom
 import numpy as np
@@ -37,7 +39,7 @@ def round_two_decimals(value: float) -> float:
 class BaseShow(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    @abstractmethod
+    # @abstractmethod
     def lines(self) -> List[Line]:
         ...
 
@@ -59,6 +61,14 @@ class BaseShow(BaseModel):
             bg="white",
             interactive=True,
         )
+    @classmethod
+    def load_description(cls, file_path:Path) -> Any:
+        return json.loads(file_path.read_text())
+
+    def save_description(self, file_path:Path) -> None:
+        file_path.write_text(json.dumps(sorted(list(self.description())), indent=4))
+    def description_loaded(self):
+        return json.loads(json.dumps(sorted(list(self.description()))))
 
 class BasePoint(BaseModel):
     x: Annotated[float, BeforeValidator(round_two_decimals)]
@@ -146,8 +156,8 @@ class Vector(BasePoint):
         normal_index_list = [abs(v) for v in self.to_list()]
         return normal_index_list.index(max(normal_index_list))
 
-    def is_a_zero(self) -> bool:
-        return all(abs(value) < 0.1 for value in self.to_list())
+    def is_a_zero(self, tolerance:float=0.1) -> bool:
+        return all(abs(value) < tolerance for value in self.to_list())
 
     @classmethod
     def from_array(cls, array: np.ndarray) -> "Vector":  # type: ignore
@@ -220,6 +230,8 @@ class Vertices(BaseModel):
 
     def to_list(self) -> List[List[float]]:
         return self.to_array().tolist()  # type: ignore
+    def to_tuple(self) -> List[List[float]]:
+        return tuple(tuple(t) for t in self.to_array().tolist())  # type: ignore
 
     def to_face_vertices(self) -> "FaceVertices":
         return FaceVertices(points=self.points)
@@ -230,7 +242,7 @@ class Vertices(BaseModel):
         found = False
         for point in self.points[2:]:
             y = point - origin
-            if x.dot(y) < 0.00001:
+            if abs(x.dot(y)) < 0.00001:
                 found = True
                 break
         if not found:
@@ -363,7 +375,7 @@ class CommonSurface(BaseShow):
     exterior: bool = True
 
     def __hash__(self) -> int:
-        return hash((self.area, self.orientation.to_list(), tuple(self.main_vertices.to_list()), tuple(self.common_vertices.to_list())))
+        return hash((self.area, tuple(self.orientation.to_list()), self.main_vertices.to_tuple(), self.common_vertices.to_tuple()))
 
     @model_validator(mode="after")
     def _model_validator(self) -> "CommonSurface":
@@ -371,7 +383,9 @@ class CommonSurface(BaseShow):
         return self
 
     def description(self) -> Tuple[float, List[float]]:
-        return self.area, self.orientation.to_list()
+        return ([self.area], self.orientation.to_list())
+
+
 
 
 

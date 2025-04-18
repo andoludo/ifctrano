@@ -1,6 +1,7 @@
+import json
 import multiprocessing
 import re
-from typing import Optional, List, Tuple, Any, Annotated
+from typing import Optional, List, Tuple, Any, Annotated, Set
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -89,8 +90,8 @@ class Space(GlobalId):
         )
 
     def check_volume(self) -> bool:
-        return round(self.bounding_box_volume, ROUNDING_FACTOR) == round(
-            self.floor_area * self.average_room_height, ROUNDING_FACTOR
+        return round(self.bounding_box_volume) == round(
+            self.floor_area * self.average_room_height
         )
 
     def space_name(self) -> str:
@@ -226,6 +227,12 @@ class SpaceBoundary(BaseModelConfig):
 class SpaceBoundaries(BaseShow):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
+
+
+    def description(self) -> set[tuple[float, tuple[float, ...], Any, str]]:
+        return {b.description() for b in  self.boundaries}
+
+
 
     def lines(self) -> List[Line]:
         lines = []

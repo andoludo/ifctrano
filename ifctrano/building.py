@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List, Tuple, Any, Optional
+from typing import List, Tuple, Any, Optional, Set
 
 import ifcopenshell
 from ifcopenshell import file, entity_instance
@@ -57,14 +57,14 @@ class IfcInternalElement(BaseModelConfig):
         return lines
 
 
-class InternalElements(BaseModelConfig):
+class InternalElements(BaseShow):
     elements: List[IfcInternalElement] = Field(default_factory=list)
 
     def internal_element_ids(self) -> List[str]:
         return list({e.element.GlobalId for e in self.elements})
 
-    def description(self) -> List[Tuple[Any, Any, str, float]]:
-        return sorted([element.description() for element in self.elements])
+    def description(self) -> Set[Tuple[Any, Any, str, float]]:
+        return set(sorted([element.description() for element in self.elements]))
 
 def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalElements:
     elements = []
@@ -128,6 +128,8 @@ class Building(BaseShow):
         return next(
             sb for sb in self.space_boundaries if sb.space.global_id == space_id
         )
+    def description(self) -> set[tuple[float, tuple[float, ...], Any, str]]:
+        return sorted([sorted(list((b.description()))) for b in self.space_boundaries])
     def lines(self)->List[Line]:
         lines = []
         for space_boundaries_ in [*self.space_boundaries, *self.internal_elements.elements]:

@@ -19,8 +19,8 @@ def install(session: Session) -> None:
 
 @nox.session(python=["3.10"])
 def linting(session: Session) -> None:
-    session.run("poetry", "run", "mypy")
     session.run("poetry", "run", "black", ".")
+    session.run("poetry", "run", "mypy")
     session.run(
         "poetry",
         "run",

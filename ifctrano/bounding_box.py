@@ -144,7 +144,6 @@ class OrientedBoundingBox(BaseShow):
         lines = []
         for f in self.faces.faces:
             face = f.vertices.to_list()
-            combinations(face, 2)
             for a, b in combinations(face, 2):
                 lines.append(Line(a, b))
         return lines
@@ -240,6 +239,6 @@ class OrientedBoundingBox(BaseShow):
             entity_shape, entity_shape.geometry  # type: ignore
         )
         vertices_ = Vertices.from_arrays(vertices)
-        if not vertices_.is_box_shaped():
-            vertices_ = vertices_.get_bounding_box()
+
+        vertices_ = vertices_.get_bounding_box()
         return cls.from_vertices(vertices_.to_array(), entity)

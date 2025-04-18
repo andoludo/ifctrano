@@ -251,8 +251,8 @@ def test_common_area_multiple_boxes_following_x() -> None:
     obb_2 = OrientedBoundingBox.from_vertices(vertices=vertices_2)
     common_surface_1 = obb_space.intersect_faces(obb_1)
     common_surface_2 = obb_space.intersect_faces(obb_2)
-    assert common_surface_2.description() == (1.0, [-1.0, -0.0, -0.0])
-    assert common_surface_1.description() == (1.0, [1.0, 0.0, 0.0])
+    assert common_surface_2.description() == ([1.0], [-1.0, -0.0, -0.0])
+    assert common_surface_1.description() == ([1.0], [1.0, 0.0, 0.0])
 
 
 def test_common_area_multiple_boxes_following_y() -> None:
@@ -275,8 +275,8 @@ def test_common_area_multiple_boxes_following_y() -> None:
     obb_2 = OrientedBoundingBox.from_vertices(vertices=vertices_2)
     common_surface_1 = obb_space.intersect_faces(obb_1)
     common_surface_2 = obb_space.intersect_faces(obb_2)
-    assert common_surface_2.description() == (20.0, [0.0, -1.0, 0.0])
-    assert common_surface_1.description() == (20.0, [-0.0, 1.0, -0.0])
+    assert common_surface_2.description() == ([20.0], [0.0, -1.0, 0.0])
+    assert common_surface_1.description() == ([20.0], [-0.0, 1.0, -0.0])
 
 
 def test_space_face_area() -> None:
