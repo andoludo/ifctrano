@@ -327,7 +327,7 @@ def test_space_face_area_2() -> None:
     ]
 
 
-def test_non_properly_computed_bounding_box():
+def test_non_properly_computed_bounding_box() -> None:
     vertices = [
         [7.475, -0.05, -0.43],
         [7.475, -0.05, -0.25],
@@ -349,7 +349,7 @@ def test_non_properly_computed_bounding_box():
     ]
 
 
-def test_face_vertices_coordinates():
+def test_face_vertices_coordinates() -> None:
     vertices = np.round(
         np.array(
             [

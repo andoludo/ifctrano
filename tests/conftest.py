@@ -2,22 +2,27 @@ from pathlib import Path
 
 import ifcopenshell
 import pytest
+from _pytest.fixtures import FixtureRequest
 from ifcopenshell import file
+
+from ifctrano.base import BaseShow
 
 SPACE_BOUNDARY_IFC = Path(__file__).parent / "models" / "space_boundary"
 
-SHOW_FIGURES=False
+SHOW_FIGURES = False
 OVERWRITE_RESULTS = False
 TEST_PATH = Path(__file__).parent.joinpath("data")
 TEST_PATH.mkdir(parents=True, exist_ok=True)
 
-def compare(elements, request):
+
+def compare(elements: BaseShow, request: FixtureRequest) -> bool:
     if elements is None:
         raise ValueError("No intersection found")
     file_path = TEST_PATH.joinpath(f"{request.node.name}.json")
     if OVERWRITE_RESULTS:
         elements.save_description(file_path)
     return elements.description_loaded() == elements.load_description(file_path)
+
 
 @pytest.fixture
 def duplex_apartment_path() -> Path:
@@ -72,14 +77,14 @@ def office_building_path() -> Path:
 def residential_house_path() -> Path:
     return SPACE_BOUNDARY_IFC / "Residential House.ifc"
 
+
 @pytest.fixture
 def residential_house(residential_house_path: Path) -> file:
     ifcopenshell_file = ifcopenshell.open(str(residential_house_path))
     return ifcopenshell_file
 
+
 @pytest.fixture
 def office_building(office_building_path: Path) -> file:
     ifcopenshell_file = ifcopenshell.open(str(office_building_path))
     return ifcopenshell_file
-
-

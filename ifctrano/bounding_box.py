@@ -1,49 +1,36 @@
 from itertools import combinations
 from logging import getLogger
-from typing import List, Optional, Any, Tuple, cast
+from typing import List, Optional, Any, Tuple
 
 import ifcopenshell
-import numpy as np
-import open3d
-from ifcopenshell import entity_instance
 import ifcopenshell.geom
-import ifcopenshell.util.shape
-from ifcopenshell.ifcopenshell_wrapper import IfcEntityInstanceData
 import ifcopenshell.util.placement
+import ifcopenshell.util.shape
+import numpy as np
+import open3d  # type: ignore
+from ifcopenshell import entity_instance
 from pydantic import (
     BaseModel,
     Field,
     ConfigDict,
 )
 from shapely import Polygon  # type: ignore
-from shapely.constructive import centroid
-from vedo import Line, show
+from vedo import Line  # type: ignore
 
 from ifctrano.base import (
     Point,
     Vector,
-    P,
-    Sign,
-    CoordinateSystem,
     Vertices,
     BaseModelConfig,
     settings,
     CommonSurface,
     AREA_TOLERANCE,
-    ROUNDING_FACTOR,
-    CLASH_CLEARANCE,
-    FaceVertices, BaseShow,
+    FaceVertices,
+    BaseShow,
 )
-from ifctrano.exceptions import BoundingBoxFaceError, VectorWithNansError
-from scipy.spatial import ConvexHull
+from ifctrano.exceptions import VectorWithNansError
 
 logger = getLogger(__name__)
-
-
-# class Polygon2D(BaseModelConfig):
-#     polygon: Polygon
-#     normal: Vector
-#     length: float
 
 
 class BoundingBoxFace(BaseModelConfig):
@@ -56,45 +43,6 @@ class BoundingBoxFace(BaseModelConfig):
 
         return cls(vertices=face_vertices, normal=face_vertices.get_normal())
 
-    #
-    # def get_face_area(self) -> float:
-    #     return self.polygon.area
-    # def get_2d_polygon_projected(self) -> Polygon2D:
-    #
-    #     projected_vertices = self.vertices.to_array()
-    #     projected_normal_index = self.normal.get_normal_index()
-    #     polygon = Polygon(
-    #         [
-    #             [v_ for i, v_ in enumerate(v) if i != projected_normal_index]
-    #             for v in projected_vertices.tolist()
-    #         ]
-    #     )
-    #
-    #     return Polygon2D(
-    #         polygon=polygon,
-    #         normal=self.normal,
-    #         length=projected_vertices.tolist()[0][projected_normal_index],
-    #     )
-    #
-    # def get_2d_polygon(self, coordinate_system: CoordinateSystem) -> Polygon2D:
-    #
-    #     projected_vertices = coordinate_system.inverse(self.vertices.to_array())
-    #     projected_normal_index = Vector.from_array(
-    #         coordinate_system.inverse(self.normal.to_array())
-    #     ).get_normal_index()
-    #     polygon = Polygon(
-    #         [
-    #             [v_ for i, v_ in enumerate(v) if i != projected_normal_index]
-    #             for v in projected_vertices.tolist()
-    #         ]
-    #     )
-    #
-    #     return Polygon2D(
-    #         polygon=polygon,
-    #         normal=self.normal,
-    #         length=projected_vertices.tolist()[0][projected_normal_index],
-    #     )
-
 
 class BoundingBoxFaces(BaseModel):
     faces: List[BoundingBoxFace]
@@ -103,7 +51,9 @@ class BoundingBoxFaces(BaseModel):
         return sorted([(f.vertices.to_list(), f.normal.to_tuple()) for f in self.faces])
 
     @classmethod
-    def build(cls, box_points) -> "BoundingBoxFaces":
+    def build(
+        cls, box_points: np.ndarray[tuple[int, ...], np.dtype[np.float64]]
+    ) -> "BoundingBoxFaces":
         faces = [
             [0, 1, 6, 3],
             [2, 5, 4, 7],
@@ -112,11 +62,11 @@ class BoundingBoxFaces(BaseModel):
             [0, 2, 7, 1],
             [3, 6, 4, 5],
         ]
-        faces = [
+        faces_ = [
             BoundingBoxFace.build(Vertices.from_arrays(np.array(box_points)[face]))
             for face in faces
         ]
-        return cls(faces=faces)
+        return cls(faces=faces_)
 
 
 class ExtendCommonSurface(CommonSurface):
@@ -148,12 +98,10 @@ class OrientedBoundingBox(BaseShow):
                 lines.append(Line(a, b))
         return lines
 
-
-
     def contained(self, poly_1: Polygon, poly_2: Polygon) -> bool:
         include_1_in_2 = poly_1.contains(poly_2)
         include_2_in_1 = poly_2.contains(poly_1)
-        return include_2_in_1 or include_1_in_2
+        return bool(include_2_in_1 or include_1_in_2)
 
     def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
         extend_surfaces = []
@@ -178,7 +126,9 @@ class OrientedBoundingBox(BaseShow):
                         except VectorWithNansError as e:
                             logger.error(
                                 "Orientation vector was not properly computed when computing the intersection between "
-                                f"two elements ({(self.entity.GlobalId, self.entity.is_a(), self.entity.Name) if self.entity else None}, {(other.entity.GlobalId, other.entity.is_a(), other.entity.Name)if other.entity else None}). Error: {e}"
+                                f"two elements "
+                                f"({(self.entity.GlobalId, self.entity.is_a(), self.entity.Name) if self.entity else None}"  # noqa: E501
+                                f", {(other.entity.GlobalId, other.entity.is_a(), other.entity.Name)if other.entity else None}). Error: {e}"  # noqa: E501
                             )
                             continue
                         extend_surfaces.append(
@@ -207,7 +157,9 @@ class OrientedBoundingBox(BaseShow):
         else:
             logger.warning(
                 "No common surfaces found between between "
-                f"two elements ({(self.entity.GlobalId, self.entity.is_a(), self.entity.Name) if self.entity else None}, {(other.entity.GlobalId, other.entity.is_a(), other.entity.Name) if other.entity else None})."
+                f"two elements "
+                f"({(self.entity.GlobalId, self.entity.is_a(), self.entity.Name) if self.entity else None}, "
+                f"{(other.entity.GlobalId, other.entity.is_a(), other.entity.Name) if other.entity else None})."
             )
         return None
 
@@ -238,7 +190,7 @@ class OrientedBoundingBox(BaseShow):
         vertices = ifcopenshell.util.shape.get_shape_vertices(
             entity_shape, entity_shape.geometry  # type: ignore
         )
-        vertices_ = Vertices.from_arrays(vertices)
+        vertices_ = Vertices.from_arrays(np.asarray(vertices))
 
         vertices_ = vertices_.get_bounding_box()
         return cls.from_vertices(vertices_.to_array(), entity)

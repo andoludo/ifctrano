@@ -9,7 +9,7 @@ from trano.elements import InternalElement  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
 from trano.topology import Network  # type: ignore
-from vedo import Line
+from vedo import Line  # type: ignore
 
 from ifctrano.base import BaseModelConfig, Libraries, Vector, BaseShow, CommonSurface
 from ifctrano.exceptions import IfcFileNotFoundError, NoIfcSpaceFoundError
@@ -50,6 +50,7 @@ class IfcInternalElement(BaseModelConfig):
             self.element.is_a(),
             self.area,
         )
+
     def lines(self) -> List[Line]:
         lines = []
         if self.common_surface:
@@ -64,7 +65,10 @@ class InternalElements(BaseShow):
         return list({e.element.GlobalId for e in self.elements})
 
     def description(self) -> Set[Tuple[Any, Any, str, float]]:
-        return set(sorted([element.description() for element in self.elements]))
+        return set(  # noqa: C414
+            sorted([element.description() for element in self.elements])
+        )
+
 
 def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalElements:
     elements = []
@@ -75,12 +79,18 @@ def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalE
             space_1 = space_boundaries_.space
             space_2 = space_boundaries__.space
 
-            if space_1.global_id == space_2.global_id and (space_1.global_id, space_2.global_id) in seen:
+            if (
+                space_1.global_id == space_2.global_id
+                and (space_1.global_id, space_2.global_id) in seen
+            ):
                 continue
-            seen.update({(space_1.global_id, space_2.global_id), (space_2.global_id, space_1.global_id)})
-            common_surface = space_1.bounding_box.intersect_faces(
-                space_2.bounding_box
+            seen.update(
+                {
+                    (space_1.global_id, space_2.global_id),
+                    (space_2.global_id, space_1.global_id),
+                }
             )
+            common_surface = space_1.bounding_box.intersect_faces(space_2.bounding_box)
 
             for boundary in space_boundaries_.boundaries:
                 for boundary_ in space_boundaries__.boundaries:
@@ -101,21 +111,23 @@ def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalE
                         boundary_.common_surface.orientation
                     ) < 0:
                         common_boundaries.extend([boundary, boundary_])
-                        common_surface = sorted([
-                                    boundary.common_surface,
-                                    boundary_.common_surface], key = lambda s:s.area)[0]
+                        common_surface = sorted(
+                            [boundary.common_surface, boundary_.common_surface],
+                            key=lambda s: s.area,
+                        )[0]
                         common_surface.exterior = False
-                        elements.append(  # noqa: PERF401
+                        elements.append(
                             IfcInternalElement(
                                 spaces=[space_1, space_2],
                                 element=boundary_.entity,
                                 area=common_surface.area,
-                                common_surface=common_surface
+                                common_surface=common_surface,
                             )
                         )
     for space_boundaries_ in space1_boundaries:
         space_boundaries_.remove(common_boundaries)
     return InternalElements(elements=list(set(elements)))
+
 
 class Building(BaseShow):
     name: str
@@ -128,12 +140,17 @@ class Building(BaseShow):
         return next(
             sb for sb in self.space_boundaries if sb.space.global_id == space_id
         )
-    def description(self) -> set[tuple[float, tuple[float, ...], Any, str]]:
-        return sorted([sorted(list((b.description()))) for b in self.space_boundaries])
-    def lines(self)->List[Line]:
+
+    def description(self) -> list[list[tuple[float, tuple[float, ...], Any, str]]]:
+        return sorted([sorted(b.description()) for b in self.space_boundaries])
+
+    def lines(self) -> List[Line]:
         lines = []
-        for space_boundaries_ in [*self.space_boundaries, *self.internal_elements.elements]:
-            lines += space_boundaries_.lines()
+        for space_boundaries_ in [
+            *self.space_boundaries,
+            *self.internal_elements.elements,
+        ]:
+            lines += space_boundaries_.lines()  # type: ignore
         return lines
 
     @field_validator("name")
@@ -176,11 +193,8 @@ class Building(BaseShow):
         self.internal_elements = self.get_adjacency()
         return self
 
-
-
     def get_adjacency(self) -> InternalElements:
         return get_internal_elements(self.space_boundaries)
-
 
     @validate_call
     def create_model(

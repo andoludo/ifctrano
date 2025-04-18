@@ -1,13 +1,12 @@
-import json
 import multiprocessing
 import re
-from typing import Optional, List, Tuple, Any, Annotated, Set
+from typing import Optional, List, Tuple, Any, Annotated
 
 import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.shape
 from ifcopenshell import entity_instance, file
-from pydantic import BaseModel, Field, BeforeValidator
+from pydantic import Field, BeforeValidator
 from trano.data_models.conversion import SpaceParameter  # type: ignore
 from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall, ExternalDoor  # type: ignore
 from trano.elements.construction import (  # type: ignore
@@ -22,7 +21,7 @@ from trano.elements.construction import (  # type: ignore
 )
 from trano.elements.system import Occupancy  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
-from vedo import Line
+from vedo import Line  # type: ignore
 
 from ifctrano.base import (
     GlobalId,
@@ -31,7 +30,8 @@ from ifctrano.base import (
     CommonSurface,
     ROUNDING_FACTOR,
     CLASH_CLEARANCE,
-    Vector, BaseShow,
+    Vector,
+    BaseShow,
 )
 from ifctrano.bounding_box import OrientedBoundingBox
 
@@ -55,8 +55,10 @@ def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
 def remove_non_alphanumeric(text: str) -> str:
     return re.sub(r"[^a-zA-Z0-9]", "", text).lower()
 
+
 def _round(value: float) -> float:
     return round(value, ROUNDING_FACTOR)
+
 
 class Space(GlobalId):
     name: Optional[str] = None
@@ -228,11 +230,8 @@ class SpaceBoundaries(BaseShow):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
 
-
     def description(self) -> set[tuple[float, tuple[float, ...], Any, str]]:
-        return {b.description() for b in  self.boundaries}
-
-
+        return {b.description() for b in self.boundaries}
 
     def lines(self) -> List[Line]:
         lines = []
@@ -286,7 +285,7 @@ class SpaceBoundaries(BaseShow):
             clearance=CLASH_CLEARANCE,
         )
         space_boundaries = []
-        elements = {
+        elements_ = {
             entity
             for c in clashes
             for entity in [
@@ -296,7 +295,7 @@ class SpaceBoundaries(BaseShow):
             if entity.is_a() not in ["IfcSpace"]
         }
 
-        for element in elements:
+        for element in elements_:
             space_boundary = SpaceBoundary.from_space_and_element(
                 space_.bounding_box, element
             )

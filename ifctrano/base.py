@@ -1,14 +1,11 @@
 import json
 import math
-from abc import abstractmethod
-from itertools import combinations
 from pathlib import Path
-from typing import Tuple, Literal, List, Annotated, Sequence, Any
+from typing import Tuple, Literal, List, Annotated, Any, Dict, cast
 
 import ifcopenshell.geom
 import numpy as np
-import open3d
-from ifcopenshell.express.bootstrap import found
+import open3d  # type: ignore
 from numpy import ndarray
 from pydantic import (
     BaseModel,
@@ -17,8 +14,8 @@ from pydantic import (
     model_validator,
     computed_field,
 )
-from shapely.geometry.polygon import Polygon
-from vedo import Line, Arrow, Polygon as VedoPolygon, Mesh, show, write
+from shapely.geometry.polygon import Polygon  # type: ignore
+from vedo import Line, Arrow, Mesh, show, write  # type: ignore
 
 from ifctrano.exceptions import VectorWithNansError
 
@@ -36,14 +33,15 @@ class BaseModelConfig(BaseModel):
 def round_two_decimals(value: float) -> float:
     return round(value, 10)
 
+
 class BaseShow(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    # @abstractmethod
-    def lines(self) -> List[Line]:
-        ...
+    def lines(self) -> List[Line]: ...  # type: ignore
 
-    def show(self):
+    def description(self) -> Any: ...  # noqa: ANN401
+
+    def show(self) -> None:
 
         show(
             *self.lines(),
@@ -52,7 +50,8 @@ class BaseShow(BaseModel):
             bg="white",
             interactive=True,
         )
-    def write(self):
+
+    def write(self) -> None:
 
         write(
             *self.lines(),
@@ -61,14 +60,17 @@ class BaseShow(BaseModel):
             bg="white",
             interactive=True,
         )
-    @classmethod
-    def load_description(cls, file_path:Path) -> Any:
-        return json.loads(file_path.read_text())
 
-    def save_description(self, file_path:Path) -> None:
-        file_path.write_text(json.dumps(sorted(list(self.description())), indent=4))
-    def description_loaded(self):
-        return json.loads(json.dumps(sorted(list(self.description()))))
+    @classmethod
+    def load_description(cls, file_path: Path) -> Dict[str, Any]:
+        return cast(Dict[str, Any], json.loads(file_path.read_text()))
+
+    def save_description(self, file_path: Path) -> None:
+        file_path.write_text(json.dumps(sorted(self.description()), indent=4))
+
+    def description_loaded(self) -> Dict[str, Any]:
+        return cast(Dict[str, Any], json.loads(json.dumps(sorted(self.description()))))
+
 
 class BasePoint(BaseModel):
     x: Annotated[float, BeforeValidator(round_two_decimals)]
@@ -156,7 +158,7 @@ class Vector(BasePoint):
         normal_index_list = [abs(v) for v in self.to_list()]
         return normal_index_list.index(max(normal_index_list))
 
-    def is_a_zero(self, tolerance:float=0.1) -> bool:
+    def is_a_zero(self, tolerance: float = 0.1) -> bool:
         return all(abs(value) < tolerance for value in self.to_list())
 
     @classmethod
@@ -189,7 +191,7 @@ class CoordinateSystem(BaseModel):
     y: Vector
     z: Vector
 
-    def __eq__(self, other):
+    def __eq__(self, other: "CoordinateSystem") -> bool:  # type: ignore
         return all(
             [
                 self.x == other.x,
@@ -220,7 +222,9 @@ class Vertices(BaseModel):
     points: List[Point]
 
     @classmethod
-    def from_arrays(cls, arrays: Sequence[np.ndarray[np.float64]]) -> "Vertices":  # type: ignore
+    def from_arrays(
+        cls, arrays: np.ndarray[tuple[int, ...], np.dtype[np.float64]]
+    ) -> "Vertices":
         return cls(
             points=[Point(x=array[0], y=array[1], z=array[2]) for array in arrays]
         )
@@ -230,6 +234,7 @@ class Vertices(BaseModel):
 
     def to_list(self) -> List[List[float]]:
         return self.to_array().tolist()  # type: ignore
+
     def to_tuple(self) -> List[List[float]]:
         return tuple(tuple(t) for t in self.to_array().tolist())  # type: ignore
 
@@ -259,7 +264,7 @@ class Vertices(BaseModel):
         reversed = coordinates.inverse(np.array(aab.get_box_points()))
         return Vertices.from_arrays(reversed)
 
-    def is_box_shaped(self)->bool:
+    def is_box_shaped(self) -> bool:
         return len(self.points) == 8
 
 
@@ -290,7 +295,7 @@ class FaceVertices(Vertices):
         )
 
     def get_normal(self) -> Vector:
-        normal_vector = self._vector_1 * self._vector_2
+        normal_vector = self._vector_1 * self._vector_2  # type: ignore
         normal_normalized = normal_vector.to_array() / np.linalg.norm(
             normal_vector.to_array()
         )
@@ -299,7 +304,7 @@ class FaceVertices(Vertices):
     def get_coordinates(self) -> CoordinateSystem:
         z_axis = self.get_normal()
         x_axis = self._vector_1
-        y_axis = z_axis * x_axis
+        y_axis = z_axis * x_axis  # type: ignore
         return CoordinateSystem(x=x_axis, y=y_axis, z=z_axis)
 
     def project(self, vertices: "FaceVertices") -> "ProjectedFaceVertices":
@@ -309,7 +314,7 @@ class FaceVertices(Vertices):
 
     def get_face_area(self) -> float:
         projected = self.project(self)
-        return round(projected.to_polygon().area, ROUNDING_FACTOR)
+        return float(round(projected.to_polygon().area, ROUNDING_FACTOR))
 
     def get_center(self) -> Point:
         x = np.mean([point.x for point in self.points])
@@ -354,13 +359,15 @@ class ProjectedFaceVertices(FaceVertices):
     def common_vertices(self, polygon: Polygon) -> FaceVertices:
         fixed_index = self.get_fixed_index()
         coords = [list(coord) for coord in list(polygon.exterior.coords)]
-        [coord.insert(fixed_index.index, fixed_index.value) for coord in coords]
-        vertices = FaceVertices.from_arrays(coords)
+        [coord.insert(fixed_index.index, fixed_index.value) for coord in coords]  # type: ignore
+        vertices = FaceVertices.from_arrays(np.array(coords))
         original = self.coordinate_system.inverse(vertices.to_array())
-        return FaceVertices.from_arrays(original)
+        return FaceVertices.from_arrays(original)  # type: ignore
 
     @classmethod
-    def from_arrays_(cls, arrays: Sequence[np.ndarray[np.float64]], coordinate_system: CoordinateSystem) -> "ProjectedFaceVertices":  # type: ignore
+    def from_arrays_(
+        cls, arrays: ndarray[Any, Any], coordinate_system: CoordinateSystem
+    ) -> "ProjectedFaceVertices":
         return cls(
             points=[Point(x=array[0], y=array[1], z=array[2]) for array in arrays],
             coordinate_system=coordinate_system,
@@ -375,28 +382,31 @@ class CommonSurface(BaseShow):
     exterior: bool = True
 
     def __hash__(self) -> int:
-        return hash((self.area, tuple(self.orientation.to_list()), self.main_vertices.to_tuple(), self.common_vertices.to_tuple()))
+        return hash(
+            (
+                self.area,
+                tuple(self.orientation.to_list()),
+                self.main_vertices.to_tuple(),
+                self.common_vertices.to_tuple(),
+            )
+        )
 
     @model_validator(mode="after")
     def _model_validator(self) -> "CommonSurface":
         self.area = round(self.area, ROUNDING_FACTOR)
         return self
 
-    def description(self) -> Tuple[float, List[float]]:
+    def description(self) -> tuple[list[float], list[float]]:
         return ([self.area], self.orientation.to_list())
-
-
-
-
 
     def lines(self) -> List[Line]:
         lines = []
         lst = self.common_vertices.to_list()[:4]
 
         # for a, b in [[lst[i], lst[(i + 1) % len(lst)]] for i in range(len(lst))]:
-        color ='red' if self.exterior else 'blue'
+        color = "red" if self.exterior else "blue"
         alpha = 0.1 if self.exterior else 0.9
-        lines.append(Mesh([lst, [(0, 1, 2, 3)] ], c=color, alpha=alpha))
+        lines.append(Mesh([lst, [(0, 1, 2, 3)]], c=color, alpha=alpha))
         arrow = Arrow(
             self.main_vertices.get_center().to_list(),
             (
