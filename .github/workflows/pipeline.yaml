@@ -1,0 +1,140 @@
+name: Pipeline
+
+on:
+  push:
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/') && ! contains(github.event.head_commit.message, 'Auto-increment')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ github.ref_name }}
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Install nox dependencies
+        run: poetry run nox -s install
+
+      - name: Run linting
+        run: poetry run nox -s linting
+
+  tests:
+    needs: [linting]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ github.ref_name }}
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Install graphviz
+        run: |
+            sudo apt update
+            sudo apt install graphviz
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Install nox dependencies
+        run: poetry run nox -s install
+      - name: Run tests
+        run: poetry run nox -s tests
+
+  create-revision-and-tag:
+    if: startsWith(github.ref, 'refs/heads/master')
+    needs: [tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          ref: ${{ github.ref_name }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Determine Versioning Strategy
+        run: |
+          echo "Bumping minor version"
+          poetry version minor
+          echo "NEW_VERSION=$(poetry version -s)" >> $GITHUB_ENV
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: ${{ github.ref == 'refs/heads/master' && 'Auto-increment release version' || 'Auto-increment prerelease version' }}
+      - name: Create and Push Git Tag
+        run: |
+          NEW_TAG="${{ env.NEW_VERSION }}"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+  publish:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          ref: ${{ github.ref_name }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Determine Current Version
+        run: |
+          echo "NEW_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Build source and wheel archives
+        id: build
+        run: poetry build
+      - name: Get Commit Messages Since Last Tag
+        id: commit_messages
+        run: |
+          RELEASE_NOTES=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"- %s")
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: List generated files
+        run: ls -l dist
+
+      - name: Upload Wheel to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          name: Release ${{ env.NEW_VERSION }}
+          body: |
+            ## Release Notes
+            - Automatically generated release for version **${{ env.NEW_VERSION }}**
+            - Commit: ${{ github.sha }}
+            - Triggered by push to branch `${{ github.ref_name }}`
+
+          files: dist/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Publish distribution 📦 to PyPI
+        if: "contains(github.event.head_commit.message, 'Auto-increment release version')"
+        uses: pypa/gh-action-pypi-publish@v1.9.0
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository_url: https://upload.pypi.org/legacy/
