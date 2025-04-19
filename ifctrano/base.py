@@ -18,6 +18,7 @@ from shapely.geometry.polygon import Polygon  # type: ignore
 from vedo import Line, Arrow, Mesh, show, write  # type: ignore
 
 from ifctrano.exceptions import VectorWithNansError
+from multiprocessing import Process
 
 settings = ifcopenshell.geom.settings()  # type: ignore
 Coordinate = Literal["x", "y", "z"]
@@ -34,6 +35,16 @@ def round_two_decimals(value: float) -> float:
     return round(value, 10)
 
 
+def _show(lines: List[Line], interactive: bool = True) -> None:
+    show(
+        *lines,
+        axes=1,
+        viewup="z",
+        bg="white",
+        interactive=interactive,
+    )
+
+
 class BaseShow(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -41,15 +52,9 @@ class BaseShow(BaseModel):
 
     def description(self) -> Any: ...  # noqa: ANN401
 
-    def show(self) -> None:
-
-        show(
-            *self.lines(),
-            axes=1,
-            viewup="z",
-            bg="white",
-            interactive=True,
-        )
+    def show(self, interactive: bool = True) -> None:
+        p = Process(target=_show, args=(self.lines(), interactive))
+        p.start()
 
     def write(self) -> None:
 

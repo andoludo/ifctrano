@@ -34,4 +34,9 @@ def linting(session: Session) -> None:
 
 @nox.session(python=["3.10"])
 def tests(session: Session) -> None:
-    session.run("poetry", "run", "pytest")
+    session.run("poetry", "run", "pytest", "-m", "not large")
+
+
+@nox.session(python=["3.10"])
+def large(session: Session) -> None:
+    session.run("poetry", "run", "pytest", "-m", "large")

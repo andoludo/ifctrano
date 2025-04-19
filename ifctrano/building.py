@@ -17,8 +17,8 @@ from ifctrano.space_boundary import (
     SpaceBoundaries,
     initialize_tree,
     Space,
-    construction,
 )
+from ifctrano.construction import Constructions, default_construction
 
 
 def get_spaces(ifcopenshell_file: file) -> List[entity_instance]:
@@ -135,6 +135,7 @@ class Building(BaseShow):
     ifc_file: file
     parent_folder: Path
     internal_elements: InternalElements = Field(default_factory=InternalElements)
+    constructions: Constructions
 
     def get_boundaries(self, space_id: str) -> SpaceBoundaries:
         return next(
@@ -172,6 +173,7 @@ class Building(BaseShow):
         ifc_file = ifcopenshell.open(str(ifc_file_path))
         tree = initialize_tree(ifc_file)
         spaces = get_spaces(ifc_file)
+        constructions = Constructions.from_ifc(ifc_file)
         if selected_spaces_global_id:
             spaces = [
                 space for space in spaces if space.GlobalId in selected_spaces_global_id
@@ -186,6 +188,7 @@ class Building(BaseShow):
             ifc_file=ifc_file,
             parent_folder=ifc_file_path.parent,
             name=ifc_file_path.stem,
+            constructions=constructions,
         )
 
     @model_validator(mode="after")
@@ -206,7 +209,9 @@ class Building(BaseShow):
         network = Network(name=self.name, library=Library.from_configuration(library))
         spaces = {
             space_boundary.space.global_id: space_boundary.model(
-                self.internal_elements.internal_element_ids(), north_axis
+                self.internal_elements.internal_element_ids(),
+                north_axis,
+                self.constructions,
             )
             for space_boundary in self.space_boundaries
         }
@@ -220,7 +225,7 @@ class Building(BaseShow):
                 spaces[space_2.global_id],
                 InternalElement(
                     azimuth=10,
-                    construction=construction,
+                    construction=default_construction,
                     surface=internal_element.area,
                     tilt=Tilt.wall,
                 ),

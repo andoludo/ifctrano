@@ -8,6 +8,7 @@ from ifcopenshell import file
 from ifctrano.base import BaseShow
 
 SPACE_BOUNDARY_IFC = Path(__file__).parent / "models" / "space_boundary"
+SPACE_ONLY = Path(__file__).parent / "models" / "space_only"
 
 SHOW_FIGURES = False
 OVERWRITE_RESULTS = False
@@ -30,6 +31,51 @@ def duplex_apartment_path() -> Path:
 
 
 @pytest.fixture
+def example_hom_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "ExampleHOM.ifc"
+
+
+@pytest.fixture
+def erc_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "ERC_Mainbuilding_Arch.ifc"
+
+
+@pytest.fixture
+def digital_hub_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "FM_ARC_DigitalHub_with_SB_neu.ifc"
+
+
+@pytest.fixture
+def rooftop_building_three_zones_thin_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "RooftopBuilding3ZonesThin.ifc"
+
+
+@pytest.fixture
+def rooftop_building_four_zones_thin_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "RooftopBuilding4ZonesThin.ifc"
+
+
+@pytest.fixture
+def architect_path() -> Path:
+    return SPACE_BOUNDARY_IFC / "architect.ifc"
+
+
+@pytest.fixture
+def sample_house_path() -> Path:
+    return SPACE_ONLY / "Ifc4_SampleHouse.ifc"
+
+
+@pytest.fixture
+def large_building_path() -> Path:
+    return SPACE_ONLY / "LargeBuilding.ifc"
+
+
+@pytest.fixture
+def tall_building_path() -> Path:
+    return SPACE_ONLY / "TallBuilding.ifc"
+
+
+@pytest.fixture
 def duplex_apartment(duplex_apartment_path: Path) -> file:
     ifcopenshell_file = ifcopenshell.open(str(duplex_apartment_path))
     return ifcopenshell_file
@@ -43,6 +89,18 @@ def two_zone_path() -> Path:
 @pytest.fixture
 def smiley_west_path() -> Path:
     return SPACE_BOUNDARY_IFC / "AC-20-Smiley-West-10-Bldg.ifc"
+
+
+@pytest.fixture
+def example_hom(example_hom_path: Path) -> Path:
+    ifcopenshell_file = ifcopenshell.open(str(example_hom_path))
+    return ifcopenshell_file
+
+
+@pytest.fixture
+def sample_house(sample_house_path: Path) -> file:
+    ifcopenshell_file = ifcopenshell.open(str(sample_house_path))
+    return ifcopenshell_file
 
 
 @pytest.fixture

@@ -124,7 +124,7 @@ class OrientedBoundingBox(BaseShow):
                             direction_vector = (other.centroid - self.centroid).norm()
                             orientation = direction_vector.project(face.normal).norm()
                         except VectorWithNansError as e:
-                            logger.error(
+                            logger.warning(
                                 "Orientation vector was not properly computed when computing the intersection between "
                                 f"two elements "
                                 f"({(self.entity.GlobalId, self.entity.is_a(), self.entity.Name) if self.entity else None}"  # noqa: E501

@@ -19,6 +19,59 @@ def test_building_two_zone(request: FixtureRequest, two_zone_path: Path) -> None
     assert compare(building, request)
 
 
+def test_example_hom(request: FixtureRequest, example_hom_path: Path) -> None:
+    building = Building.from_ifc(example_hom_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_tall_building(request: FixtureRequest, tall_building_path: Path) -> None:
+    building = Building.from_ifc(tall_building_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_large_building(request: FixtureRequest, large_building_path: Path) -> None:
+    building = Building.from_ifc(large_building_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_sample_house(request: FixtureRequest, sample_house_path: Path) -> None:
+    building = Building.from_ifc(sample_house_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_rooftop_building_three_zones_thin(
+    request: FixtureRequest, rooftop_building_three_zones_thin_path: Path
+) -> None:
+    building = Building.from_ifc(rooftop_building_three_zones_thin_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+@pytest.mark.skip("segmentation fault?")
+def test_rooftop_building_four_zones_thin(
+    request: FixtureRequest, rooftop_building_four_zones_thin_path: Path
+) -> None:
+    building = Building.from_ifc(rooftop_building_four_zones_thin_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
 def test_building_duplex_apartment(
     request: FixtureRequest, duplex_apartment_path: Path
 ) -> None:
@@ -99,9 +152,9 @@ def test_multizone_internal_duplex(
     assert compare(building.internal_elements, request)
 
 
-@pytest.mark.skip("too slow")
-def test_smiley_west(smiley_west_path: Path) -> None:
-    building = Building.from_ifc(smiley_west_path)
+def test_architect(request: FixtureRequest, architect_path: Path) -> None:
+    building = Building.from_ifc(architect_path)
     if SHOW_FIGURES:
         building.show()
     assert building.create_model()
+    assert compare(building, request)
