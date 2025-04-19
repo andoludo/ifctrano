@@ -24,33 +24,29 @@ def test_construction(two_zones: file) -> None:
 
 
 def test_construction_two_zones(two_zones: file) -> None:
-    walls = two_zones.by_type("IfcWall")
     constructions = Constructions.from_ifc(two_zones)
-    for wall in walls:
+    for wall in get_building_elements(two_zones):
         construction = constructions.get_construction(wall)
         assert construction.layers
 
 
 def test_construction_duplex_apartment(duplex_apartment: file) -> None:
-    walls = duplex_apartment.by_type("IfcWall")
     constructions = Constructions.from_ifc(duplex_apartment)
-    for wall in walls:
+    for wall in get_building_elements(duplex_apartment):
         construction = constructions.get_construction(wall)
         assert construction.layers
 
 
 def test_construction_multizone(multizone: file) -> None:
-    walls = multizone.by_type("IfcWall")
     constructions = Constructions.from_ifc(multizone)
-    for wall in walls:
+    for wall in get_building_elements(multizone):
         construction = constructions.get_construction(wall)
         assert construction.layers
 
 
 def test_construction_sample_house(sample_house: file) -> None:
-    walls = sample_house.by_type("IfcWall")
     constructions = Constructions.from_ifc(sample_house)
-    for wall in walls:
+    for wall in get_building_elements(sample_house):
         construction = constructions.get_construction(wall)
         assert construction.layers
 
