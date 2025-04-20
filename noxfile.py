@@ -39,4 +39,4 @@ def tests(session: Session) -> None:
 
 @nox.session(python=["3.10"])
 def integration(session: Session) -> None:
-    session.run("poetry", "run", "pytest", "-m", "large")
+    session.run("poetry", "run", "pytest", "-m", "integration")
