@@ -204,7 +204,7 @@ class Building(BaseShow):
         self,
         library: Libraries = "Buildings",
         north_axis: Optional[Vector] = None,
-    ) -> str:
+    ) -> Network:
         north_axis = north_axis or Vector(x=0, y=1, z=0)
         network = Network(name=self.name, library=Library.from_configuration(library))
         spaces = {
@@ -230,7 +230,7 @@ class Building(BaseShow):
                     tilt=Tilt.wall,
                 ),
             )
-        return network.model()  # type: ignore
+        return network
 
     def save_model(self, library: Libraries = "Buildings") -> None:
         model_ = self.create_model(library)
