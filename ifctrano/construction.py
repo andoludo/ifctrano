@@ -175,7 +175,8 @@ class Constructions(BaseModel):
         construction_id = self._get_construction_id(entity)
         if construction_id is None:
             logger.error(
-                f"Construction ID not found for {entity.GlobalId}. Using default construction."
+                f"Construction ID not found for {entity.GlobalId} ({entity.is_a()}) "
+                f"({entity.Name}). Using default construction."
             )
             return default_construction
         constructions = [

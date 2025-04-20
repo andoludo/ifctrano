@@ -169,6 +169,25 @@ class SpaceBoundary(BaseModelConfig):
         )
 
 
+def _reassign_constructions(external_boundaries: List[BaseWall]) -> None:
+    results = {
+        tuple(sorted([ex.name, ex_.name])): (ex, ex_)
+        for ex in external_boundaries
+        for ex_ in external_boundaries
+        if ex.construction.name != ex_.construction.name
+        and ex.azimuth == ex_.azimuth
+        and isinstance(ex, ExternalWall)
+        and isinstance(ex_, ExternalWall)
+        and ex.tilt == Tilt.wall
+        and ex_.tilt == Tilt.wall
+    }
+    if results:
+        for walls in results.values():
+            construction = next(w.construction for w in walls)
+            for w in walls:
+                w.construction = construction.model_copy(deep=True)
+
+
 class SpaceBoundaries(BaseShow):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
@@ -201,8 +220,8 @@ class SpaceBoundaries(BaseShow):
             if boundary_model:
                 external_boundaries.append(boundary_model)
 
-        if not external_boundaries:
-            return None
+        _reassign_constructions(external_boundaries)
+
         return TranoSpace(
             name=self.space.space_name(),
             occupancy=Occupancy(),
