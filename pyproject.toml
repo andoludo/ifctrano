@@ -11,8 +11,7 @@ keywords = ["BIM","IFC","energy simulation", "modelica", "building energy simula
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 ifcopenshell = "^0.8.1.post1"
-pydantic = "^2.10.6"
-trano = "^0.1.50"
+trano = "^0.2.0"
 shapely = "^2.0.7"
 typer = "^0.12.5"
 vedo = "^2025.5.3"

@@ -68,7 +68,9 @@ def create(
             print("Simulating...")
             results = simulate(
                 modelica_model_path.parent,
-                modelica_network,
+                building.create_model(
+                    library=library  # type: ignore
+                ),  # TODO: cannot use the network after cretingt he model
             )
             if not is_success(results):
                 print(f"{CROSS_MARK} Simulation failed. See logs for more information.")
@@ -85,7 +87,7 @@ def create(
                 )
                 return
             reporting = ModelDocumentation.from_network(
-                modelica_network,
+                building.create_model(library=library),  # type: ignore
                 result=ResultFile(path=result_path),
             )
             html = to_html_reporting(reporting)
@@ -120,3 +122,7 @@ def verify() -> None:
             print(
                 f"{CROSS_MARK} Model could not be created... please check your system."
             )
+
+
+if __name__ == "__main__":
+    app()

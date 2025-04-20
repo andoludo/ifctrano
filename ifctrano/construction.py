@@ -115,21 +115,36 @@ class Materials(BaseModel):
         raise ValueError(f"Material {id} not found in materials list.")
 
 
+def _get_unit_factor(ifc_file: file) -> float:
+    length_unit = next(
+        unit for unit in ifc_file.by_type("IfcSiUnit") if unit.UnitType == "LENGTHUNIT"
+    )
+    if length_unit.Prefix == "MILLI" and length_unit.Name == "METRE":
+        return 0.001
+    return 1
+
+
 class Layers(BaseModel):
     layers: List[LayerId]
 
     @classmethod
     def from_ifc(cls, ifc_file: file, materials: Materials) -> "Layers":
         material_layers = ifc_file.by_type("IfcMaterialLayer")
-        return cls.from_ifc_material_layers(material_layers, materials)
+        unit_factor = _get_unit_factor(ifc_file)
+        return cls.from_ifc_material_layers(
+            material_layers, materials, unit_factor=unit_factor
+        )
 
     @classmethod
     def from_ifc_material_layers(
-        cls, ifc_material_layers: List[entity_instance], materials: Materials
+        cls,
+        ifc_material_layers: List[entity_instance],
+        materials: Materials,
+        unit_factor: float = 1,
     ) -> "Layers":
         layers = []
         for layer in ifc_material_layers:
-            thickness = layer.LayerThickness
+            thickness = layer.LayerThickness * unit_factor
             layers.append(
                 LayerId(
                     id=layer.id(),

@@ -234,4 +234,4 @@ class Building(BaseShow):
 
     def save_model(self, library: Libraries = "Buildings") -> None:
         model_ = self.create_model(library)
-        Path(self.parent_folder.joinpath(f"{self.name}.mo")).write_text(model_)
+        Path(self.parent_folder.joinpath(f"{self.name}.mo")).write_text(model_.model())
