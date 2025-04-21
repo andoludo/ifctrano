@@ -1,105 +1,47 @@
+from itertools import combinations
 from logging import getLogger
-from typing import List, Optional, Any, Tuple, cast
+from typing import List, Optional, Any, Tuple
 
 import ifcopenshell
-import numpy as np
-from ifcopenshell import entity_instance
 import ifcopenshell.geom
+import ifcopenshell.util.placement
 import ifcopenshell.util.shape
+import numpy as np
+import open3d  # type: ignore
+from ifcopenshell import entity_instance
 from pydantic import (
     BaseModel,
     Field,
+    ConfigDict,
 )
 from shapely import Polygon  # type: ignore
+from vedo import Line  # type: ignore
 
 from ifctrano.base import (
     Point,
     Vector,
-    P,
-    Sign,
-    CoordinateSystem,
     Vertices,
     BaseModelConfig,
     settings,
     CommonSurface,
     AREA_TOLERANCE,
-    ROUNDING_FACTOR,
+    FaceVertices,
+    BaseShow,
 )
-from ifctrano.exceptions import BoundingBoxFaceError, VectorWithNansError
+from ifctrano.exceptions import VectorWithNansError
 
 logger = getLogger(__name__)
 
 
-def get_normal(
-    centroid: Point,
-    difference: Point,
-    face_signs: List[Sign],
-    coordinate_system: CoordinateSystem,
-) -> Vector:
-    point_0 = centroid + difference.s(face_signs[0])
-    point_1 = centroid + difference.s(face_signs[1])
-    point_2 = centroid + difference.s(face_signs[2])
-    vector_1 = coordinate_system.project((point_1 - point_0).to_array())
-    vector_2 = coordinate_system.project((point_2 - point_0).to_array())
-    array = (
-        (Vector.from_array(vector_1) * Vector.from_array(vector_2)).norm().to_array()
-    )
-    return Vector.from_array(array)
-
-
-class Polygon2D(BaseModelConfig):
-    polygon: Polygon
-    normal: Vector
-    length: float
-
-
 class BoundingBoxFace(BaseModelConfig):
-    vertices: Vertices
+    vertices: FaceVertices
     normal: Vector
-    coordinate_system: CoordinateSystem
 
     @classmethod
-    def build(
-        cls,
-        centroid: Point,
-        difference: Point,
-        face_signs: List[Sign],
-        coordinate_system: CoordinateSystem,
-    ) -> "BoundingBoxFace":
-        if len(face_signs) != len(set(face_signs)):
-            raise BoundingBoxFaceError("Face signs must be unique")
-        normal = get_normal(centroid, difference, face_signs, coordinate_system)
-        vertices_ = [(centroid + difference.s(s)).to_list() for s in face_signs]
-        vertices_ = [*vertices_, vertices_[0]]
-        vertices__ = [coordinate_system.project(v) for v in vertices_]
-        vertices = Vertices.from_arrays(vertices__)
+    def build(cls, vertices: Vertices) -> "BoundingBoxFace":
+        face_vertices = vertices.to_face_vertices()
 
-        return cls(
-            vertices=vertices, normal=normal, coordinate_system=coordinate_system
-        )
-
-    def get_face_area(self) -> float:
-        polygon_2d = self.get_2d_polygon(self.coordinate_system)
-        return cast(float, round(polygon_2d.polygon.area, ROUNDING_FACTOR))
-
-    def get_2d_polygon(self, coordinate_system: CoordinateSystem) -> Polygon2D:
-
-        projected_vertices = coordinate_system.inverse(self.vertices.to_array())
-        projected_normal_index = Vector.from_array(
-            coordinate_system.inverse(self.normal.to_array())
-        ).get_normal_index()
-        polygon = Polygon(
-            [
-                [v_ for i, v_ in enumerate(v) if i != projected_normal_index]
-                for v in projected_vertices.tolist()
-            ]
-        )
-
-        return Polygon2D(
-            polygon=polygon,
-            normal=self.normal,
-            length=projected_vertices.tolist()[0][projected_normal_index],
-        )
+        return cls(vertices=face_vertices, normal=face_vertices.get_normal())
 
 
 class BoundingBoxFaces(BaseModel):
@@ -110,56 +52,56 @@ class BoundingBoxFaces(BaseModel):
 
     @classmethod
     def build(
-        cls, centroid: Point, difference: Point, coordinate_system: CoordinateSystem
+        cls, box_points: np.ndarray[tuple[int, ...], np.dtype[np.float64]]
     ) -> "BoundingBoxFaces":
-        face_signs = [
-            [Sign(x=-1, y=-1, z=-1), Sign(y=-1, z=-1), Sign(z=-1), Sign(x=-1, z=-1)],
-            [Sign(x=-1, y=-1), Sign(y=-1), Sign(), Sign(x=-1)],
-            [
-                Sign(x=-1, y=-1, z=-1),
-                Sign(x=-1, y=1, z=-1),
-                Sign(x=-1, y=1, z=1),
-                Sign(x=-1, y=-1, z=1),
-            ],
-            [
-                Sign(x=1, y=-1, z=-1),
-                Sign(x=1, y=1, z=-1),
-                Sign(x=1, y=1, z=1),
-                Sign(x=1, y=-1, z=1),
-            ],
-            [
-                Sign(x=-1, y=-1, z=-1),
-                Sign(x=1, y=-1, z=-1),
-                Sign(x=1, y=-1, z=1),
-                Sign(x=-1, y=-1, z=1),
-            ],
-            [
-                Sign(x=-1, y=1, z=-1),
-                Sign(x=1, y=1, z=-1),
-                Sign(x=1, y=1, z=1),
-                Sign(x=-1, y=1, z=1),
-            ],
-        ]
         faces = [
-            BoundingBoxFace.build(centroid, difference, face_sign, coordinate_system)
-            for face_sign in face_signs
+            [0, 1, 6, 3],
+            [2, 5, 4, 7],
+            [0, 3, 5, 2],
+            [1, 7, 4, 6],
+            [0, 2, 7, 1],
+            [3, 6, 4, 5],
         ]
-        return cls(faces=faces)
+        faces_ = [
+            BoundingBoxFace.build(Vertices.from_arrays(np.array(box_points)[face]))
+            for face in faces
+        ]
+        return cls(faces=faces_)
 
 
 class ExtendCommonSurface(CommonSurface):
     distance: float
 
     def to_common_surface(self) -> CommonSurface:
-        return CommonSurface(area=self.area, orientation=self.orientation)
+        return CommonSurface(
+            area=self.area,
+            orientation=self.orientation,
+            main_vertices=self.main_vertices,
+            common_vertices=self.common_vertices,
+        )
 
 
-class OrientedBoundingBox(BaseModel):
+class OrientedBoundingBox(BaseShow):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     faces: BoundingBoxFaces
     centroid: Point
     area_tolerance: float = Field(default=AREA_TOLERANCE)
     volume: float
     height: float
+    entity: Optional[entity_instance] = None
+
+    def lines(self) -> List[Line]:
+        lines = []
+        for f in self.faces.faces:
+            face = f.vertices.to_list()
+            for a, b in combinations(face, 2):
+                lines.append(Line(a, b))
+        return lines
+
+    def contained(self, poly_1: Polygon, poly_2: Polygon) -> bool:
+        include_1_in_2 = poly_1.contains(poly_2)
+        include_2_in_1 = poly_2.contains(poly_1)
+        return bool(include_2_in_1 or include_1_in_2)
 
     def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
         extend_surfaces = []
@@ -168,26 +110,39 @@ class OrientedBoundingBox(BaseModel):
             for other_face in other.faces.faces:
                 vector = face.normal * other_face.normal
                 if vector.is_a_zero():
-                    polygon_1 = other_face.get_2d_polygon(face.coordinate_system)
-                    polygon_2 = face.get_2d_polygon(face.coordinate_system)
-                    intersection = polygon_2.polygon.intersection(polygon_1.polygon)
-                    if intersection.area > self.area_tolerance:
-                        distance = abs(polygon_1.length - polygon_2.length)
+                    projected_face_1 = face.vertices.project(face.vertices)
+                    projected_face_2 = face.vertices.project(other_face.vertices)
+                    polygon_1 = projected_face_1.to_polygon()
+                    polygon_2 = projected_face_2.to_polygon()
+                    intersection = polygon_2.intersection(polygon_1)
+                    if intersection.area > self.area_tolerance or self.contained(
+                        polygon_1, polygon_2
+                    ):
+                        distance = projected_face_1.get_distance(projected_face_2)
                         area = intersection.area
-                        direction_vector = (other.centroid - self.centroid).norm()
                         try:
+                            direction_vector = (other.centroid - self.centroid).norm()
                             orientation = direction_vector.project(face.normal).norm()
                         except VectorWithNansError as e:
-                            logger.error(
-                                "Orientation vector was not properly computed when computing the intersection between"
-                                f"two elements. Error: {e}"
+                            logger.warning(
+                                "Orientation vector was not properly computed when computing the intersection between "
+                                f"two elements "
+                                f"({(self.entity.GlobalId, self.entity.is_a(), self.entity.Name) if self.entity else None}"  # noqa: E501
+                                f", {(other.entity.GlobalId, other.entity.is_a(), other.entity.Name)if other.entity else None}). Error: {e}"  # noqa: E501
                             )
                             continue
                         extend_surfaces.append(
                             ExtendCommonSurface(
-                                distance=distance, area=area, orientation=orientation
+                                distance=distance,
+                                area=area,
+                                orientation=orientation,
+                                main_vertices=face.vertices,
+                                common_vertices=projected_face_1.common_vertices(
+                                    intersection
+                                ),
                             )
                         )
+
         if extend_surfaces:
             if not all(
                 e.orientation == extend_surfaces[0].orientation for e in extend_surfaces
@@ -199,69 +154,43 @@ class OrientedBoundingBox(BaseModel):
                 extend_surfaces, key=lambda x: x.distance, reverse=True
             )[-1]
             return extend_surface.to_common_surface()
+        else:
+            logger.warning(
+                "No common surfaces found between between "
+                f"two elements "
+                f"({(self.entity.GlobalId, self.entity.is_a(), self.entity.Name) if self.entity else None}, "
+                f"{(other.entity.GlobalId, other.entity.is_a(), other.entity.Name) if other.entity else None})."
+            )
         return None
 
     @classmethod
     def from_vertices(
-        cls, vertices: np.ndarray[tuple[int, ...], np.dtype[np.float64]]
+        cls,
+        vertices: np.ndarray[tuple[int, ...], np.dtype[np.float64]],
+        entity: Optional[entity_instance] = None,
     ) -> "OrientedBoundingBox":
-        vertices_np = np.array(vertices)
-        points = np.asarray(vertices_np)
-        cov = np.cov(points, y=None, rowvar=0, bias=0)  # type: ignore
-        v, vect = np.linalg.eig(np.round(cov, ROUNDING_FACTOR))
-        tvect = np.transpose(vect)
-        points_r = np.dot(points, np.linalg.inv(tvect))
-
-        co_min = np.min(points_r, axis=0)
-        co_max = np.max(points_r, axis=0)
-
-        xmin, xmax = co_min[0], co_max[0]
-        ymin, ymax = co_min[1], co_max[1]
-        zmin, zmax = co_min[2], co_max[2]
-
-        x_len = xmax - xmin
-        y_len = ymax - ymin
-        z_len = zmax - zmin
-        xdif = x_len * 0.5
-        ydif = y_len * 0.5
-        zdif = z_len * 0.5
-
-        cx = xmin + xdif
-        cy = ymin + ydif
-        cz = zmin + zdif
-        corners = np.array(
-            [
-                [cx - xdif, cy - ydif, cz - zdif],
-                [cx - xdif, cy + ydif, cz - zdif],
-                [cx - xdif, cy + ydif, cz + zdif],
-                [cx - xdif, cy - ydif, cz + zdif],
-                [cx + xdif, cy + ydif, cz + zdif],
-                [cx + xdif, cy + ydif, cz - zdif],
-                [cx + xdif, cy - ydif, cz + zdif],
-                [cx + xdif, cy - ydif, cz - zdif],
-            ]
-        )
-        corners_ = np.dot(corners, tvect)
-        dims = np.transpose(corners_)
-        x_size = np.max(dims[0]) - np.min(dims[0])
-        y_size = np.max(dims[1]) - np.min(dims[1])
-        z_size = np.max(dims[2]) - np.min(dims[2])
-        coordinate_system = CoordinateSystem.from_array(tvect)
-        c = P(x=cx, y=cy, z=cz)
-        d = P(x=xdif, y=ydif, z=zdif)
-        faces = BoundingBoxFaces.build(c, d, coordinate_system)
+        points_ = open3d.utility.Vector3dVector(vertices)
+        mobb = open3d.geometry.OrientedBoundingBox.create_from_points_minimal(points_)
+        height = (mobb.get_max_bound() - mobb.get_min_bound())[
+            2
+        ]  # assuming that height is the z axis
+        centroid = Point.from_array(mobb.get_center())
+        faces = BoundingBoxFaces.build(np.array(mobb.get_box_points()))
         return cls(
             faces=faces,
-            centroid=Point.from_array(coordinate_system.project(c.to_array())),
-            volume=x_size * y_size * z_size,
-            height=z_size,
+            centroid=centroid,
+            volume=mobb.volume(),
+            height=height,
+            entity=entity,
         )
 
     @classmethod
     def from_entity(cls, entity: entity_instance) -> "OrientedBoundingBox":
         entity_shape = ifcopenshell.geom.create_shape(settings, entity)
-
         vertices = ifcopenshell.util.shape.get_shape_vertices(
             entity_shape, entity_shape.geometry  # type: ignore
         )
-        return cls.from_vertices(vertices)
+        vertices_ = Vertices.from_arrays(np.asarray(vertices))
+
+        vertices_ = vertices_.get_bounding_box()
+        return cls.from_vertices(vertices_.to_array(), entity)

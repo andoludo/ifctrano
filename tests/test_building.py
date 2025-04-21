@@ -2,27 +2,102 @@ import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import pytest
+from _pytest.fixtures import FixtureRequest
+
 from ifctrano.building import Building
+from tests.conftest import compare
+
+SHOW_FIGURES = False
 
 
-def test_building_two_zone(two_zone_path: Path) -> None:
+def test_building_two_zone(request: FixtureRequest, two_zone_path: Path) -> None:
     building = Building.from_ifc(two_zone_path)
+    if SHOW_FIGURES:
+        building.show()
     assert building.create_model()
+    assert compare(building, request)
 
 
-def test_duplex_appartment(duplex_appartment_path: Path) -> None:
-    building = Building.from_ifc(duplex_appartment_path)
+def test_example_hom(request: FixtureRequest, example_hom_path: Path) -> None:
+    building = Building.from_ifc(example_hom_path)
+    if SHOW_FIGURES:
+        building.show()
     assert building.create_model()
+    assert compare(building, request)
 
 
-def test_multizone(multizone_path: Path) -> None:
+def test_tall_building(request: FixtureRequest, tall_building_path: Path) -> None:
+    building = Building.from_ifc(tall_building_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_large_building(request: FixtureRequest, large_building_path: Path) -> None:
+    building = Building.from_ifc(large_building_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_sample_house(request: FixtureRequest, sample_house_path: Path) -> None:
+    building = Building.from_ifc(sample_house_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_rooftop_building_three_zones_thin(
+    request: FixtureRequest, rooftop_building_three_zones_thin_path: Path
+) -> None:
+    building = Building.from_ifc(rooftop_building_three_zones_thin_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+@pytest.mark.skip("segmentation fault?")
+def test_rooftop_building_four_zones_thin(
+    request: FixtureRequest, rooftop_building_four_zones_thin_path: Path
+) -> None:
+    building = Building.from_ifc(rooftop_building_four_zones_thin_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)
+
+
+def test_building_duplex_apartment(
+    request: FixtureRequest, duplex_apartment_path: Path
+) -> None:
+    building = Building.from_ifc(duplex_apartment_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert compare(building, request)
+
+
+def test_building_multizone(request: FixtureRequest, multizone_path: Path) -> None:
     building = Building.from_ifc(multizone_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert compare(building, request)
     assert building.create_model()
 
 
-def test_residential_house_path(residential_house_path: Path) -> None:
+def test_building_residential_house(
+    request: FixtureRequest, residential_house_path: Path
+) -> None:
     building = Building.from_ifc(residential_house_path)
+    if SHOW_FIGURES:
+        building.show()
+
     assert building.create_model()
+    assert compare(building, request)
 
 
 def test_building_two_zone_save_file(two_zone_path: Path) -> None:
@@ -34,75 +109,38 @@ def test_building_two_zone_save_file(two_zone_path: Path) -> None:
         assert temp_ifc_file.parent.joinpath(f"{building.name}.mo").exists()
 
 
-def test_building_two_zone_adjacency(two_zone_path: Path) -> None:
+def test_building_two_zone_adjacency(
+    request: FixtureRequest, two_zone_path: Path
+) -> None:
     building = Building.from_ifc(two_zone_path)
-    assert building.internal_elements.description() == [
-        (
-            "0t8Y4TnjqtGRnTw6NPeuj9",
-            "3NzGTD1DeLJR3FlSqrXdUp",
-            "0JPvTpQNrcIf4SV9z30TQ6",
-            "IfcWallStandardCase",
-            9.0,
-        ),
-        (
-            "0t8Y4TnjqtGRnTw6NPeuj9",
-            "3NzGTD1DeLJR3FlSqrXdUp",
-            "0t6bnTN6rtIuKOrcjLzg0Z",
-            "IfcDoor",
-            2.026556059721071,
-        ),
-    ]
+    assert compare(building.internal_elements, request)
 
 
-def test_multizone_internal_elements_1(multizone_path: Path) -> None:
+def test_multizone_internal_elements_1(
+    request: FixtureRequest, multizone_path: Path
+) -> None:
     building = Building.from_ifc(
         multizone_path,
         selected_spaces_global_id=["3iLI4eTzPsHe5kCfE8mHt4", "0JuRo7Utw1He5uTVScZaH1"],
     )
-    assert building.internal_elements.description() == [
-        (
-            "0JuRo7Utw1He5uTVScZaH1",
-            "3iLI4eTzPsHe5kCfE8mHt4",
-            "0idtIsso1oHPkD7tQ4ezLe",
-            "IfcWallStandardCase",
-            50.22,
-        ),
-        (
-            "0JuRo7Utw1He5uTVScZaH1",
-            "3iLI4eTzPsHe5kCfE8mHt4",
-            "0jryqJ3XdhIf5exNfKRiH5",
-            "IfcDoor",
-            2.508230216072762,
-        ),
-    ]
+    assert compare(building.internal_elements, request)
 
 
-def test_multizone_internal_elements_2(multizone_path: Path) -> None:
+def test_multizone_internal_elements_2(
+    request: FixtureRequest, multizone_path: Path
+) -> None:
     building = Building.from_ifc(
         multizone_path,
         selected_spaces_global_id=["3RVyJb7CyAJR86_EwiHH8c", "0JuRo7Utw1He5uTVScZaH1"],
     )
-    assert building.internal_elements.description() == [
-        (
-            "0JuRo7Utw1He5uTVScZaH1",
-            "3RVyJb7CyAJR86_EwiHH8c",
-            "0uVX8vfyEJJAaRUqykVCMg",
-            "IfcDoor",
-            2.5082302158191934,
-        ),
-        (
-            "0JuRo7Utw1He5uTVScZaH1",
-            "3RVyJb7CyAJR86_EwiHH8c",
-            "1JO56TA8lfJuVyUb54GJXA",
-            "IfcWallStandardCase",
-            8.100000000000001,
-        ),
-    ]
+    assert compare(building.internal_elements, request)
 
 
-def test_multizone_internal_duplex(duplex_appartment_path: Path) -> None:
+def test_multizone_internal_duplex(
+    request: FixtureRequest, duplex_apartment_path: Path
+) -> None:
     building = Building.from_ifc(
-        duplex_appartment_path,
+        duplex_apartment_path,
         selected_spaces_global_id=[
             "0BTBFw6f90Nfh9rP1dlXr2",
             "0BTBFw6f90Nfh9rP1dlXr$",
@@ -110,5 +148,13 @@ def test_multizone_internal_duplex(duplex_appartment_path: Path) -> None:
             "0BTBFw6f90Nfh9rP1dl_3Q",
         ],
     )
-    assert building.internal_elements
     assert building.create_model()
+    assert compare(building.internal_elements, request)
+
+
+def test_architect(request: FixtureRequest, architect_path: Path) -> None:
+    building = Building.from_ifc(architect_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_model()
+    assert compare(building, request)

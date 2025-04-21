@@ -1,37 +1,31 @@
 import multiprocessing
-import re
-from typing import Optional, List, Tuple, Any
+from typing import Optional, List, Tuple, Any, Annotated
 
 import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.shape
 from ifcopenshell import entity_instance, file
-from pydantic import BaseModel, Field
+from pydantic import Field, BeforeValidator
 from trano.data_models.conversion import SpaceParameter  # type: ignore
 from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall, ExternalDoor  # type: ignore
-from trano.elements.construction import (  # type: ignore
-    Construction,
-    Layer,
-    Material,
-    Glass,
-    GlassLayer,
-    GasLayer,
-    GlassMaterial,
-    Gas,
-)
 from trano.elements.system import Occupancy  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
+from vedo import Line  # type: ignore
 
 from ifctrano.base import (
     GlobalId,
     settings,
     BaseModelConfig,
     CommonSurface,
-    ROUNDING_FACTOR,
     CLASH_CLEARANCE,
     Vector,
+    BaseShow,
 )
 from ifctrano.bounding_box import OrientedBoundingBox
+from ifctrano.construction import glass, Constructions
+from ifctrano.utils import remove_non_alphanumeric, _round, get_building_elements
+
+ROOF_VECTOR = Vector(x=0, y=0, z=1)
 
 
 def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
@@ -48,18 +42,14 @@ def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
     return tree
 
 
-def remove_non_alphanumeric(text: str) -> str:
-    return re.sub(r"[^a-zA-Z0-9]", "", text).lower()
-
-
 class Space(GlobalId):
     name: Optional[str] = None
     bounding_box: OrientedBoundingBox
     entity: entity_instance
-    average_room_height: float
-    floor_area: float
-    bounding_box_height: float
-    bounding_box_volume: float
+    average_room_height: Annotated[float, BeforeValidator(_round)]
+    floor_area: Annotated[float, BeforeValidator(_round)]
+    bounding_box_height: Annotated[float, BeforeValidator(_round)]
+    bounding_box_volume: Annotated[float, BeforeValidator(_round)]
 
     @classmethod
     def from_entity(cls, entity: entity_instance) -> "Space":
@@ -84,55 +74,13 @@ class Space(GlobalId):
         )
 
     def check_volume(self) -> bool:
-        return round(self.bounding_box_volume, ROUNDING_FACTOR) == round(
-            self.floor_area * self.average_room_height, ROUNDING_FACTOR
+        return round(self.bounding_box_volume) == round(
+            self.floor_area * self.average_room_height
         )
 
     def space_name(self) -> str:
         main_name = f"{remove_non_alphanumeric(self.name)}_" if self.name else ""
         return f"space_{main_name}{remove_non_alphanumeric(self.entity.GlobalId)}"
-
-
-material_1 = Material(
-    name="material_1",
-    thermal_conductivity=0.046,
-    specific_heat_capacity=940,
-    density=80,
-)
-construction = Construction(
-    name="construction_4",
-    layers=[
-        Layer(material=material_1, thickness=0.18),
-    ],
-)
-id_100 = GlassMaterial(
-    name="id_100",
-    thermal_conductivity=1,
-    density=2500,
-    specific_heat_capacity=840,
-    solar_transmittance=[0.646],
-    solar_reflectance_outside_facing=[0.062],
-    solar_reflectance_room_facing=[0.063],
-    infrared_transmissivity=0,
-    infrared_absorptivity_outside_facing=0.84,
-    infrared_absorptivity_room_facing=0.84,
-)
-
-air = Gas(
-    name="Air",
-    thermal_conductivity=0.025,
-    density=1.2,
-    specific_heat_capacity=1005,
-)
-glass = Glass(
-    name="double_glazing",
-    u_value_frame=1.4,
-    layers=[
-        GlassLayer(thickness=0.003, material=id_100),
-        GasLayer(thickness=0.0127, material=air),
-        GlassLayer(thickness=0.003, material=id_100),
-    ],
-)
 
 
 class SpaceBoundary(BaseModelConfig):
@@ -141,11 +89,17 @@ class SpaceBoundary(BaseModelConfig):
     common_surface: CommonSurface
     adjacent_spaces: List[Space] = Field(default_factory=list)
 
+    def __hash__(self) -> int:
+        return hash(self.common_surface)
+
     def boundary_name(self) -> str:
         return f"{self.entity.is_a()}_{remove_non_alphanumeric(self.entity.GlobalId)}"
 
-    def model_element(
-        self, exclude_entities: List[str], north_axis: Vector
+    def model_element(  # noqa: PLR0911
+        self,
+        exclude_entities: List[str],
+        north_axis: Vector,
+        constructions: Constructions,
     ) -> Optional[BaseWall]:
         if self.entity.GlobalId in exclude_entities:
             return None
@@ -156,7 +110,7 @@ class SpaceBoundary(BaseModelConfig):
                 surface=self.common_surface.area,
                 azimuth=azimuth,
                 tilt=Tilt.wall,
-                construction=construction,
+                construction=constructions.get_construction(self.entity),
             )
         if "door" in self.entity.is_a().lower():
             return ExternalDoor(
@@ -164,7 +118,7 @@ class SpaceBoundary(BaseModelConfig):
                 surface=self.common_surface.area,
                 azimuth=azimuth,
                 tilt=Tilt.wall,
-                construction=construction,
+                construction=constructions.get_construction(self.entity),
             )
         if "window" in self.entity.is_a().lower():
             return Window(
@@ -180,7 +134,16 @@ class SpaceBoundary(BaseModelConfig):
                 surface=self.common_surface.area,
                 azimuth=azimuth,
                 tilt=Tilt.ceiling,
-                construction=construction,
+                construction=constructions.get_construction(self.entity),
+            )
+        if "slab" in self.entity.is_a().lower():
+            orientation = self.common_surface.orientation.dot(ROOF_VECTOR)
+            return ExternalWall(
+                name=self.boundary_name(),
+                surface=self.common_surface.area,
+                azimuth=azimuth,
+                tilt=Tilt.ceiling if orientation > 0 else Tilt.floor,
+                construction=constructions.get_construction(self.entity),
             )
 
         return None
@@ -206,20 +169,59 @@ class SpaceBoundary(BaseModelConfig):
         )
 
 
-class SpaceBoundaries(BaseModel):
+def _reassign_constructions(external_boundaries: List[BaseWall]) -> None:
+    results = {
+        tuple(sorted([ex.name, ex_.name])): (ex, ex_)
+        for ex in external_boundaries
+        for ex_ in external_boundaries
+        if ex.construction.name != ex_.construction.name
+        and ex.azimuth == ex_.azimuth
+        and isinstance(ex, ExternalWall)
+        and isinstance(ex_, ExternalWall)
+        and ex.tilt == Tilt.wall
+        and ex_.tilt == Tilt.wall
+    }
+    if results:
+        for walls in results.values():
+            construction = next(w.construction for w in walls)
+            for w in walls:
+                w.construction = construction.model_copy(deep=True)
+
+
+class SpaceBoundaries(BaseShow):
     space: Space
     boundaries: List[SpaceBoundary] = Field(default_factory=list)
 
+    def description(self) -> set[tuple[float, tuple[float, ...], Any, str]]:
+        return {b.description() for b in self.boundaries}
+
+    def lines(self) -> List[Line]:
+        lines = []
+        for boundary in self.boundaries:
+            lines += boundary.common_surface.lines()
+        return lines
+
+    def remove(self, space_boundaries: List[SpaceBoundary]) -> None:
+        for space_boundary in space_boundaries:
+            if space_boundary in self.boundaries:
+                self.boundaries.remove(space_boundary)
+
     def model(
-        self, exclude_entities: List[str], north_axis: Vector
+        self,
+        exclude_entities: List[str],
+        north_axis: Vector,
+        constructions: Constructions,
     ) -> Optional[TranoSpace]:
-        external_boundaries = [
-            boundary.model_element(exclude_entities, north_axis)
-            for boundary in self.boundaries
-            if boundary.model_element(exclude_entities, north_axis)
-        ]
-        if not external_boundaries:
-            return None
+        external_boundaries = []
+        for boundary in self.boundaries:
+            boundary_model = boundary.model_element(
+                exclude_entities, north_axis, constructions
+            )
+            if boundary_model:
+                external_boundaries.append(boundary_model)
+
+        _reassign_constructions(external_boundaries)
+
         return TranoSpace(
             name=self.space.space_name(),
             occupancy=Occupancy(),
@@ -238,28 +240,28 @@ class SpaceBoundaries(BaseModel):
         space: entity_instance,
     ) -> "SpaceBoundaries":
         space_ = Space.from_entity(space)
+
+        elements = get_building_elements(ifcopenshell_file)
         clashes = tree.clash_clearance_many(
             [space],
-            ifcopenshell_file.by_type("IfcWall")
-            + ifcopenshell_file.by_type("IfcSlab")
-            + ifcopenshell_file.by_type("IfcRoof")
-            + ifcopenshell_file.by_type("IfcDoor")
-            + ifcopenshell_file.by_type("IfcWindow"),
+            elements,
             clearance=CLASH_CLEARANCE,
         )
         space_boundaries = []
-
-        for clash in clashes:
-            elements = [
-                ifcopenshell_file.by_guid(clash.a.get_argument(0)),
-                ifcopenshell_file.by_guid(clash.b.get_argument(0)),
+        elements_ = {
+            entity
+            for c in clashes
+            for entity in [
+                ifcopenshell_file.by_guid(c.a.get_argument(0)),
+                ifcopenshell_file.by_guid(c.b.get_argument(0)),
             ]
-            for element in elements:
-                if element.GlobalId == space.GlobalId:
-                    continue
-                space_boundary = SpaceBoundary.from_space_and_element(
-                    space_.bounding_box, element
-                )
-                if space_boundary:
-                    space_boundaries.append(space_boundary)
+            if entity.is_a() not in ["IfcSpace"]
+        }
+
+        for element in elements_:
+            space_boundary = SpaceBoundary.from_space_and_element(
+                space_.bounding_box, element
+            )
+            if space_boundary:
+                space_boundaries.append(space_boundary)
         return cls(space=space_, boundaries=space_boundaries)

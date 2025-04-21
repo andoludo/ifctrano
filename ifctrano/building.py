@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List, Tuple, Any, Optional
+from typing import List, Tuple, Any, Optional, Set
 
 import ifcopenshell
 from ifcopenshell import file, entity_instance
@@ -9,15 +9,16 @@ from trano.elements import InternalElement  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
 from trano.topology import Network  # type: ignore
+from vedo import Line  # type: ignore
 
-from ifctrano.base import BaseModelConfig, Libraries, Vector
+from ifctrano.base import BaseModelConfig, Libraries, Vector, BaseShow, CommonSurface
 from ifctrano.exceptions import IfcFileNotFoundError, NoIfcSpaceFoundError
 from ifctrano.space_boundary import (
     SpaceBoundaries,
     initialize_tree,
     Space,
-    construction,
 )
+from ifctrano.construction import Constructions, default_construction
 
 
 def get_spaces(ifcopenshell_file: file) -> List[entity_instance]:
@@ -28,6 +29,7 @@ class IfcInternalElement(BaseModelConfig):
     spaces: List[Space]
     element: entity_instance
     area: float
+    common_surface: CommonSurface
 
     def __hash__(self) -> int:
         return hash(
@@ -49,23 +51,108 @@ class IfcInternalElement(BaseModelConfig):
             self.area,
         )
 
+    def lines(self) -> List[Line]:
+        lines = []
+        if self.common_surface:
+            lines += self.common_surface.lines()
+        return lines
 
-class InternalElements(BaseModelConfig):
+
+class InternalElements(BaseShow):
     elements: List[IfcInternalElement] = Field(default_factory=list)
 
     def internal_element_ids(self) -> List[str]:
         return list({e.element.GlobalId for e in self.elements})
 
-    def description(self) -> List[Tuple[Any, Any, str, float]]:
-        return sorted([element.description() for element in self.elements])
+    def description(self) -> Set[Tuple[Any, Any, str, float]]:
+        return set(  # noqa: C414
+            sorted([element.description() for element in self.elements])
+        )
 
 
-class Building(BaseModelConfig):
+def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalElements:
+    elements = []
+    seen = set()
+    common_boundaries = []
+    for space_boundaries_ in space1_boundaries:
+        for space_boundaries__ in space1_boundaries:
+            space_1 = space_boundaries_.space
+            space_2 = space_boundaries__.space
+
+            if (
+                space_1.global_id == space_2.global_id
+                and (space_1.global_id, space_2.global_id) in seen
+            ):
+                continue
+            seen.update(
+                {
+                    (space_1.global_id, space_2.global_id),
+                    (space_2.global_id, space_1.global_id),
+                }
+            )
+            common_surface = space_1.bounding_box.intersect_faces(space_2.bounding_box)
+
+            for boundary in space_boundaries_.boundaries:
+                for boundary_ in space_boundaries__.boundaries:
+                    if (
+                        boundary.entity.GlobalId == boundary_.entity.GlobalId
+                        and boundary.common_surface
+                        and boundary_.common_surface
+                        and common_surface
+                        and (
+                            boundary.common_surface.orientation
+                            * common_surface.orientation
+                        ).is_a_zero()
+                        and (
+                            boundary_.common_surface.orientation
+                            * common_surface.orientation
+                        ).is_a_zero()
+                    ) and boundary.common_surface.orientation.dot(
+                        boundary_.common_surface.orientation
+                    ) < 0:
+                        common_boundaries.extend([boundary, boundary_])
+                        common_surface = sorted(
+                            [boundary.common_surface, boundary_.common_surface],
+                            key=lambda s: s.area,
+                        )[0]
+                        common_surface.exterior = False
+                        elements.append(
+                            IfcInternalElement(
+                                spaces=[space_1, space_2],
+                                element=boundary_.entity,
+                                area=common_surface.area,
+                                common_surface=common_surface,
+                            )
+                        )
+    for space_boundaries_ in space1_boundaries:
+        space_boundaries_.remove(common_boundaries)
+    return InternalElements(elements=list(set(elements)))
+
+
+class Building(BaseShow):
     name: str
     space_boundaries: List[SpaceBoundaries]
     ifc_file: file
     parent_folder: Path
     internal_elements: InternalElements = Field(default_factory=InternalElements)
+    constructions: Constructions
+
+    def get_boundaries(self, space_id: str) -> SpaceBoundaries:
+        return next(
+            sb for sb in self.space_boundaries if sb.space.global_id == space_id
+        )
+
+    def description(self) -> list[list[tuple[float, tuple[float, ...], Any, str]]]:
+        return sorted([sorted(b.description()) for b in self.space_boundaries])
+
+    def lines(self) -> List[Line]:
+        lines = []
+        for space_boundaries_ in [
+            *self.space_boundaries,
+            *self.internal_elements.elements,
+        ]:
+            lines += space_boundaries_.lines()  # type: ignore
+        return lines
 
     @field_validator("name")
     @classmethod
@@ -86,6 +173,7 @@ class Building(BaseModelConfig):
         ifc_file = ifcopenshell.open(str(ifc_file_path))
         tree = initialize_tree(ifc_file)
         spaces = get_spaces(ifc_file)
+        constructions = Constructions.from_ifc(ifc_file)
         if selected_spaces_global_id:
             spaces = [
                 space for space in spaces if space.GlobalId in selected_spaces_global_id
@@ -100,6 +188,7 @@ class Building(BaseModelConfig):
             ifc_file=ifc_file,
             parent_folder=ifc_file_path.parent,
             name=ifc_file_path.stem,
+            constructions=constructions,
         )
 
     @model_validator(mode="after")
@@ -108,58 +197,21 @@ class Building(BaseModelConfig):
         return self
 
     def get_adjacency(self) -> InternalElements:
-        elements = []
-        for space_boundaries_ in self.space_boundaries:
-            for space_boundaries__ in self.space_boundaries:
-                space_1 = space_boundaries_.space
-                space_2 = space_boundaries__.space
-                if space_1.global_id == space_2.global_id:
-                    continue
-                common_surface = space_1.bounding_box.intersect_faces(
-                    space_2.bounding_box
-                )
-                for boundary in space_boundaries_.boundaries:
-                    for boundary_ in space_boundaries__.boundaries:
-                        if (
-                            boundary.entity.GlobalId == boundary_.entity.GlobalId
-                            and boundary.common_surface
-                            and boundary_.common_surface
-                            and common_surface
-                            and (
-                                boundary.common_surface.orientation
-                                * common_surface.orientation
-                            ).is_a_zero()
-                            and (
-                                boundary_.common_surface.orientation
-                                * common_surface.orientation
-                            ).is_a_zero()
-                        ) and boundary.common_surface.orientation.dot(
-                            boundary_.common_surface.orientation
-                        ) < 0:
-                            elements.append(  # noqa: PERF401
-                                IfcInternalElement(
-                                    spaces=[space_1, space_2],
-                                    element=boundary_.entity,
-                                    area=min(
-                                        common_surface.area,
-                                        boundary.common_surface.area,
-                                        boundary_.common_surface.area,
-                                    ),
-                                )
-                            )
-        return InternalElements(elements=list(set(elements)))
+        return get_internal_elements(self.space_boundaries)
 
     @validate_call
     def create_model(
         self,
         library: Libraries = "Buildings",
         north_axis: Optional[Vector] = None,
-    ) -> str:
+    ) -> Network:
         north_axis = north_axis or Vector(x=0, y=1, z=0)
         network = Network(name=self.name, library=Library.from_configuration(library))
         spaces = {
             space_boundary.space.global_id: space_boundary.model(
-                self.internal_elements.internal_element_ids(), north_axis
+                self.internal_elements.internal_element_ids(),
+                north_axis,
+                self.constructions,
             )
             for space_boundary in self.space_boundaries
         }
@@ -173,13 +225,13 @@ class Building(BaseModelConfig):
                 spaces[space_2.global_id],
                 InternalElement(
                     azimuth=10,
-                    construction=construction,
+                    construction=default_construction,
                     surface=internal_element.area,
                     tilt=Tilt.wall,
                 ),
             )
-        return network.model()  # type: ignore
+        return network
 
     def save_model(self, library: Libraries = "Buildings") -> None:
         model_ = self.create_model(library)
-        Path(self.parent_folder.joinpath(f"{self.name}.mo")).write_text(model_)
+        Path(self.parent_folder.joinpath(f"{self.name}.mo")).write_text(model_.model())

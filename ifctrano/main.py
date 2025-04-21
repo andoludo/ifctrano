@@ -1,10 +1,16 @@
 import shutil
+import webbrowser
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, get_args
 
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from trano.reporting.html import to_html_reporting  # type: ignore
+from trano.reporting.reporting import ModelDocumentation  # type: ignore
+from trano.reporting.types import ResultFile  # type: ignore
+from trano.simulate.simulate import simulate  # type: ignore
+from trano.utils.utils import is_success  # type: ignore
 
 from ifctrano.base import Libraries
 from ifctrano.building import Building
@@ -25,6 +31,14 @@ def create(
         str,
         typer.Argument(help="Modelica library to be used for simulation."),
     ] = "Buildings",
+    show_space_boundaries: Annotated[
+        bool,
+        typer.Option(help="Show computed space boundaries."),
+    ] = True,
+    simulate_model: Annotated[
+        bool,
+        typer.Option(help="Simulate the generated model."),
+    ] = True,
 ) -> None:
     with Progress(
         SpinnerColumn(),
@@ -41,12 +55,47 @@ def create(
             total=None,
         )
         building = Building.from_ifc(Path(model))
-        modelica_model = building.create_model(library=library)  # type: ignore
+        if show_space_boundaries:
+            print(f"{CHECKMARK} Showing space boundaries.")
+            building.show()
+        modelica_network = building.create_model(library=library)  # type: ignore
         progress.update(task, completed=True)
         task = progress.add_task(description="Writing model to file...", total=None)
-        modelica_model_path.write_text(modelica_model)
+        modelica_model_path.write_text(modelica_network.model())
         progress.remove_task(task)
         print(f"{CHECKMARK} Model generated at {modelica_model_path}")
+        if simulate_model:
+            print("Simulating...")
+            results = simulate(
+                modelica_model_path.parent,
+                building.create_model(
+                    library=library  # type: ignore
+                ),  # TODO: cannot use the network after cretingt he model
+            )
+            if not is_success(results):
+                print(f"{CROSS_MARK} Simulation failed. See logs for more information.")
+                return
+
+            result_path = (
+                Path(modelica_model_path.parent)
+                / "results"
+                / f"{modelica_model_path.stem}.building_res.mat"
+            )
+            if not result_path.exists():
+                print(
+                    f"{CROSS_MARK} Simulation failed. Result file not found in {result_path}."
+                )
+                return
+            reporting = ModelDocumentation.from_network(
+                building.create_model(library=library),  # type: ignore
+                result=ResultFile(path=result_path),
+            )
+            html = to_html_reporting(reporting)
+            report_path = Path(
+                modelica_model_path.parent / f"{modelica_model_path.stem}.html"
+            )
+            report_path.write_text(html)
+            webbrowser.open(f"file://{report_path}")
 
 
 @app.command()
@@ -73,3 +122,7 @@ def verify() -> None:
             print(
                 f"{CROSS_MARK} Model could not be created... please check your system."
             )
+
+
+if __name__ == "__main__":
+    app()
