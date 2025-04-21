@@ -58,7 +58,7 @@ jobs:
         run: poetry run nox -s tests
 
   create-revision-and-tag:
-    if: startsWith(github.ref, 'refs/heads/master')
+    if: startsWith(github.ref, 'refs/heads/main')
     needs: [tests]
     runs-on: ubuntu-latest
     steps:
@@ -79,7 +79,7 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: ${{ github.ref == 'refs/heads/master' && 'Auto-increment release version' || 'Auto-increment prerelease version' }}
+          commit_message: ${{ github.ref == 'refs/heads/main' && 'Auto-increment release version' || 'Auto-increment prerelease version' }}
       - name: Create and Push Git Tag
         run: |
           NEW_TAG="${{ env.NEW_VERSION }}"
