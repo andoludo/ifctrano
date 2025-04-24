@@ -14,7 +14,7 @@ from pydantic import (
     Field,
     ConfigDict,
 )
-from shapely import Polygon  # type: ignore
+from scipy.spatial import ConvexHull  # type: ignore
 from vedo import Line  # type: ignore
 
 from ifctrano.base import (
@@ -98,31 +98,28 @@ class OrientedBoundingBox(BaseShow):
                 lines.append(Line(a, b))
         return lines
 
-    def contained(self, poly_1: Polygon, poly_2: Polygon) -> bool:
-        include_1_in_2 = poly_1.contains(poly_2)
-        include_2_in_1 = poly_2.contains(poly_1)
-        return bool(include_2_in_1 or include_1_in_2)
-
     def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
         extend_surfaces = []
         for face in self.faces.faces:
 
             for other_face in other.faces.faces:
                 vector = face.normal * other_face.normal
-                if vector.is_a_zero():
+                if vector.is_null():
                     projected_face_1 = face.vertices.project(face.vertices)
                     projected_face_2 = face.vertices.project(other_face.vertices)
                     polygon_1 = projected_face_1.to_polygon()
                     polygon_2 = projected_face_2.to_polygon()
                     intersection = polygon_2.intersection(polygon_1)
-                    if intersection.area > self.area_tolerance or self.contained(
-                        polygon_1, polygon_2
-                    ):
+                    if intersection.area > self.area_tolerance:
                         distance = projected_face_1.get_distance(projected_face_2)
                         area = intersection.area
                         try:
-                            direction_vector = (other.centroid - self.centroid).norm()
-                            orientation = direction_vector.project(face.normal).norm()
+                            direction_vector = (
+                                other.centroid - self.centroid
+                            ).normalize()
+                            orientation = direction_vector.project(
+                                face.normal
+                            ).normalize()
                         except VectorWithNansError as e:
                             logger.warning(
                                 "Orientation vector was not properly computed when computing the intersection between "
@@ -170,7 +167,9 @@ class OrientedBoundingBox(BaseShow):
         entity: Optional[entity_instance] = None,
     ) -> "OrientedBoundingBox":
         points_ = open3d.utility.Vector3dVector(vertices)
-        mobb = open3d.geometry.OrientedBoundingBox.create_from_points_minimal(points_)
+        mobb = open3d.geometry.OrientedBoundingBox.create_from_points_minimal(
+            points_, robust=True
+        )
         height = (mobb.get_max_bound() - mobb.get_min_bound())[
             2
         ]  # assuming that height is the z axis
@@ -191,6 +190,8 @@ class OrientedBoundingBox(BaseShow):
             entity_shape, entity_shape.geometry  # type: ignore
         )
         vertices_ = Vertices.from_arrays(np.asarray(vertices))
-
-        vertices_ = vertices_.get_bounding_box()
-        return cls.from_vertices(vertices_.to_array(), entity)
+        hull = ConvexHull(vertices_.to_array())
+        vertices_ = Vertices.from_arrays(vertices_.to_array()[hull.vertices])
+        points_ = open3d.utility.Vector3dVector(vertices_.to_array())
+        aab = open3d.geometry.AxisAlignedBoundingBox.create_from_points(points_)
+        return cls.from_vertices(aab.get_box_points(), entity)

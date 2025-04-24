@@ -1,5 +1,7 @@
 import json
 import math
+from itertools import combinations
+from multiprocessing import Process
 from pathlib import Path
 from typing import Tuple, Literal, List, Annotated, Any, Dict, cast
 
@@ -18,7 +20,6 @@ from shapely.geometry.polygon import Polygon  # type: ignore
 from vedo import Line, Arrow, Mesh, show, write  # type: ignore
 
 from ifctrano.exceptions import VectorWithNansError
-from multiprocessing import Process
 
 settings = ifcopenshell.geom.settings()  # type: ignore
 Coordinate = Literal["x", "y", "z"]
@@ -147,11 +148,14 @@ class Vector(BasePoint):
         a = self.dot(other) / other.dot(other)
         return Vector(x=a * other.x, y=a * other.y, z=a * other.z)
 
-    def norm(self) -> "Vector":
+    def normalize(self) -> "Vector":
         normalized_vector = self.to_array() / np.linalg.norm(self.to_array())
         return Vector(
             x=normalized_vector[0], y=normalized_vector[1], z=normalized_vector[2]
         )
+
+    def norm(self) -> float:
+        return float(np.linalg.norm(self.to_array()))
 
     def to_array(self) -> np.ndarray:  # type: ignore
         return np.array([self.x, self.y, self.z])
@@ -163,7 +167,7 @@ class Vector(BasePoint):
         normal_index_list = [abs(v) for v in self.to_list()]
         return normal_index_list.index(max(normal_index_list))
 
-    def is_a_zero(self, tolerance: float = 0.1) -> bool:
+    def is_null(self, tolerance: float = 0.1) -> bool:
         return all(abs(value) < tolerance for value in self.to_list())
 
     @classmethod
@@ -247,18 +251,23 @@ class Vertices(BaseModel):
         return FaceVertices(points=self.points)
 
     def get_local_coordinate_system(self) -> CoordinateSystem:
-        origin = self.points[0]
-        x = self.points[1] - origin
+        vectors = [
+            (a - b).normalize().to_array() for a, b in combinations(self.points, 2)
+        ]
         found = False
-        for point in self.points[2:]:
-            y = point - origin
-            if abs(x.dot(y)) < 0.00001:
+        for v1, v2, v3 in combinations(vectors, 3):
+            if (
+                np.isclose(abs(np.dot(v1, v2)), 0)
+                and np.isclose(abs(np.dot(v1, v3)), 0)
+                and np.isclose(abs(np.dot(v2, v3)), 0)
+            ):
                 found = True
+                x = Vector.from_array(v1)
+                y = Vector.from_array(v2)
+                z = Vector.from_array(v3)
                 break
         if not found:
-            raise ValueError("No orthogonal vectors found.")
-
-        z = x * y
+            raise ValueError("Cannot find coordinate system")
         return CoordinateSystem(x=x, y=y, z=z)
 
     def get_bounding_box(self) -> "Vertices":
