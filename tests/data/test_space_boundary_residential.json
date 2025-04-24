@@ -1,102 +1,102 @@
 [
     [
-        2.0,
+        0.6,
         [
-            0.0,
             -1.0,
+            0.0,
             0.0
         ],
-        "19B65EIi3EIh2tA$vM8ZgT",
+        "3jjW3rL656ex34Gws22EfM",
+        "IfcWallStandardCase"
+    ],
+    [
+        1.77885,
+        [
+            -1.0,
+            0.0,
+            0.0
+        ],
+        "1Oms875aH3Wg$9l65H2ZGw",
         "IfcDoor"
     ],
     [
-        2.0,
+        2.4,
+        [
+            0.0,
+            1.0,
+            0.0
+        ],
+        "1DiYqhfzH9xxuJdVHwXCNa",
+        "IfcWindow"
+    ],
+    [
+        2.4,
         [
             1.0,
             -0.0,
             0.0
         ],
-        "0jryqJ3XdhIf5exNfKRiH5",
-        "IfcDoor"
+        "13aSY79zb8fP4HApEJ0z_e",
+        "IfcWindow"
     ],
     [
-        7.75,
+        10.125,
+        [
+            0.0,
+            -1.0,
+            0.0
+        ],
+        "2XPyKWY018sA1ygZKgQPtU",
+        "IfcWallStandardCase"
+    ],
+    [
+        10.125,
         [
             0.0,
             1.0,
             0.0
         ],
-        "1X7PJ2zxFYJQJ7zr1nDhxn",
-        "IfcWindow"
-    ],
-    [
-        21.6,
-        [
-            0.0,
-            -1.0,
-            0.0
-        ],
-        "2Mx5O979lPJu$FydjHS6_e",
+        "1bzfVsJqn8De5PukCrqylz",
         "IfcWallStandardCase"
     ],
     [
-        21.6,
-        [
-            0.0,
-            1.0,
-            0.0
-        ],
-        "0gSvHU18p4HuqD4mS$gG8D",
-        "IfcWallStandardCase"
-    ],
-    [
-        39.2,
+        13.625,
         [
             -1.0,
             0.0,
             0.0
         ],
-        "1cMdolzEBzHfSYIkD4K2Kb",
-        "IfcWindow"
-    ],
-    [
-        50.22,
-        [
-            -1.0,
-            0.0,
-            0.0
-        ],
-        "1116XLLwKdJRZmM_rK_l4f",
+        "3PfS__Y_DBAfq5naM6zD2Z",
         "IfcWallStandardCase"
     ],
     [
-        50.22,
+        13.625,
         [
             1.0,
             -0.0,
             0.0
         ],
-        "0idtIsso1oHPkD7tQ4ezLe",
+        "25fsbPyk15VvuXI$yNKenK",
         "IfcWallStandardCase"
     ],
     [
-        148.8,
+        22.0725,
         [
-            0.0,
-            0.0,
+            -0.0,
+            -0.0,
             -1.0
         ],
-        "2f4B0EKma$Gf_OoOWMssbl",
+        "1pPHnf7cXCpPsNEnQf8_6B",
         "IfcSlab"
     ],
     [
-        148.8,
+        22.0725,
         [
             0.0,
             0.0,
             1.0
         ],
-        "1Hey_hGXaaIvKh948Y5lwS",
+        "2RGlQk4xH47RHK93zcTzUL",
         "IfcSlab"
     ]
 ]

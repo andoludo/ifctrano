@@ -47,6 +47,7 @@ def test_get_space_boundaries(request: FixtureRequest, duplex_apartment: file) -
 def test_get_space_boundaries_another_space(
     request: FixtureRequest, duplex_apartment: file
 ) -> None:
+
     tree = initialize_tree(duplex_apartment)
     space = duplex_apartment.by_guid("0BTBFw6f90Nfh9rP1dl_39")
     boundaries = SpaceBoundaries.from_space_entity(duplex_apartment, tree, space)
@@ -54,6 +55,62 @@ def test_get_space_boundaries_another_space(
         boundaries.show()
 
     assert compare(boundaries, request)
+
+
+def test_get_space_boundaries_another_space_0BTBFw6f90Nfh9rP1dl_3A(  # noqa: N802
+    request: FixtureRequest, duplex_apartment: file
+) -> None:
+    tree = initialize_tree(duplex_apartment)
+    space = duplex_apartment.by_guid("0BTBFw6f90Nfh9rP1dl_3A")
+    boundaries = SpaceBoundaries.from_space_entity(duplex_apartment, tree, space)
+    boundaries.model(
+        [], Vector(x=0, y=1, z=0), Constructions.from_ifc(duplex_apartment)
+    )
+    if SHOW_FIGURES:
+        boundaries.show()
+
+    assert compare(boundaries, request)
+
+
+def test_get_space_boundaries_another_space_0pNy6pOyf7JPmXRLgxs3sW(  # noqa: N802
+    request: FixtureRequest, duplex_apartment: file
+) -> None:
+    tree = initialize_tree(duplex_apartment)
+    space = duplex_apartment.by_guid("0pNy6pOyf7JPmXRLgxs3sW")
+    boundaries = SpaceBoundaries.from_space_entity(duplex_apartment, tree, space)
+
+    if SHOW_FIGURES:
+        boundaries.show()
+
+    assert compare(boundaries, request)
+
+
+def test_intersection_space_iinternal_wall_0pNy6pOyf7JPmXRLgxs3sW(  # noqa: N802
+    request: FixtureRequest, duplex_apartment: file
+) -> None:
+    space = duplex_apartment.by_guid("0pNy6pOyf7JPmXRLgxs3sW")
+    door = duplex_apartment.by_guid("2O2Fr$t4X7Zf8NOew3FLPP")
+    space_bbox = OrientedBoundingBox.from_entity(space)
+    door_bbox = OrientedBoundingBox.from_entity(door)
+    intersection = space_bbox.intersect_faces(door_bbox)
+
+    assert intersection is None
+
+
+def test_intersection_space_internal_wall(
+    request: FixtureRequest, duplex_apartment: file
+) -> None:
+    space_1 = duplex_apartment.by_guid("10mjSDZJj9gPS2PrQaxa4o")
+    space_2 = duplex_apartment.by_guid("0pNy6pOyf7JPmXRLgxs3sW")
+    tree = initialize_tree(duplex_apartment)
+    space_1_boundaries = SpaceBoundaries.from_space_entity(
+        duplex_apartment, tree, space_1
+    )
+    space_2_boundaries = SpaceBoundaries.from_space_entity(
+        duplex_apartment, tree, space_2
+    )
+    internal_elements = get_internal_elements([space_1_boundaries, space_2_boundaries])
+    assert len(internal_elements.elements) == 1
 
 
 def test_intersection_another_space_window(
@@ -77,6 +134,7 @@ def test_intersection_another_space_small_window(
     space_bbox = OrientedBoundingBox.from_entity(space)
     window_bbox = OrientedBoundingBox.from_entity(window)
     intersection = space_bbox.intersect_faces(window_bbox)
+
     if SHOW_FIGURES:
         intersection.show()
     assert compare(intersection, request)
@@ -270,4 +328,30 @@ def test_intersection_residential(
     space_2_bbox = OrientedBoundingBox.from_entity(space_2)
 
     intersection = space_1_bbox.intersect_faces(space_2_bbox)
+    if SHOW_FIGURES:
+        intersection.show()
     assert compare(intersection, request)
+
+
+def test_intersection_residential_2(
+    request: FixtureRequest, residential_house: file
+) -> None:
+    space_1 = residential_house.by_guid("347jFE2yX7IhCEIALmupEH")
+    space_2 = residential_house.by_guid("25fsbPyk15VvuXI$yNKenK")
+    space_1_bbox = OrientedBoundingBox.from_entity(space_1)
+    space_2_bbox = OrientedBoundingBox.from_entity(space_2)
+    intersection = space_1_bbox.intersect_faces(space_2_bbox)
+    if SHOW_FIGURES:
+        intersection.show()
+    assert compare(intersection, request)
+
+
+def test_space_boundary_residential(
+    request: FixtureRequest, residential_house: file
+) -> None:
+    tree = initialize_tree(residential_house)
+    space = residential_house.by_guid("347jFE2yX7IhCEIALmupEH")
+    boundaries = SpaceBoundaries.from_space_entity(residential_house, tree, space)
+    if SHOW_FIGURES:
+        boundaries.show()
+    assert compare(boundaries, request)

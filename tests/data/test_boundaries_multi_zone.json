@@ -4,17 +4,17 @@
         [
             1.0,
             0.0,
-            0.0
+            -0.0
         ],
         "31piOLXIOhIvlWhb_0MB3v",
         "IfcWindow"
     ],
     [
-        8.10005,
+        8.1,
         [
             1.0,
             0.0,
-            0.0
+            -0.0
         ],
         "2LoN2uHldAJvCljpLuBYpe",
         "IfcWallStandardCase"
@@ -22,25 +22,25 @@
     [
         10.8,
         [
-            0.0,
-            -1.0,
-            0.0
-        ],
-        "0phJUBGPTVIx8YU7$$JBIw",
-        "IfcWallStandardCase"
-    ],
-    [
-        10.8,
-        [
             -0.0,
             1.0,
-            0.0
+            -0.0
         ],
         "2O0btSj9v4IAyQOwaLLsxq",
         "IfcWallStandardCase"
     ],
     [
-        12.00008,
+        10.8,
+        [
+            1e-10,
+            -1.0,
+            1e-10
+        ],
+        "0phJUBGPTVIx8YU7$$JBIw",
+        "IfcWallStandardCase"
+    ],
+    [
+        12.0,
         [
             0.0,
             0.0,
@@ -50,7 +50,7 @@
         "IfcSlab"
     ],
     [
-        12.00008,
+        12.0,
         [
             0.0,
             0.0,

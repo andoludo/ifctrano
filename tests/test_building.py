@@ -15,7 +15,7 @@ def test_building_two_zone(request: FixtureRequest, two_zone_path: Path) -> None
     building = Building.from_ifc(two_zone_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -23,7 +23,7 @@ def test_example_hom(request: FixtureRequest, example_hom_path: Path) -> None:
     building = Building.from_ifc(example_hom_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -31,7 +31,7 @@ def test_tall_building(request: FixtureRequest, tall_building_path: Path) -> Non
     building = Building.from_ifc(tall_building_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -39,7 +39,7 @@ def test_large_building(request: FixtureRequest, large_building_path: Path) -> N
     building = Building.from_ifc(large_building_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -47,7 +47,7 @@ def test_sample_house(request: FixtureRequest, sample_house_path: Path) -> None:
     building = Building.from_ifc(sample_house_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -57,7 +57,7 @@ def test_rooftop_building_three_zones_thin(
     building = Building.from_ifc(rooftop_building_three_zones_thin_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -68,7 +68,7 @@ def test_rooftop_building_four_zones_thin(
     building = Building.from_ifc(rooftop_building_four_zones_thin_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -78,6 +78,7 @@ def test_building_duplex_apartment(
     building = Building.from_ifc(duplex_apartment_path)
     if SHOW_FIGURES:
         building.show()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -86,7 +87,7 @@ def test_building_multizone(request: FixtureRequest, multizone_path: Path) -> No
     if SHOW_FIGURES:
         building.show()
     assert compare(building, request)
-    assert building.create_model()
+    assert building.get_model()
 
 
 def test_building_residential_house(
@@ -96,7 +97,7 @@ def test_building_residential_house(
     if SHOW_FIGURES:
         building.show()
 
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)
 
 
@@ -148,7 +149,7 @@ def test_multizone_internal_duplex(
             "0BTBFw6f90Nfh9rP1dl_3Q",
         ],
     )
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building.internal_elements, request)
 
 
@@ -156,5 +157,5 @@ def test_architect(request: FixtureRequest, architect_path: Path) -> None:
     building = Building.from_ifc(architect_path)
     if SHOW_FIGURES:
         building.show()
-    assert building.create_model()
+    assert building.get_model()
     assert compare(building, request)

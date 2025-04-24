@@ -58,7 +58,7 @@ def create(
         if show_space_boundaries:
             print(f"{CHECKMARK} Showing space boundaries.")
             building.show()
-        modelica_network = building.create_model(library=library)  # type: ignore
+        modelica_network = building.create_network(library=library)  # type: ignore
         progress.update(task, completed=True)
         task = progress.add_task(description="Writing model to file...", total=None)
         modelica_model_path.write_text(modelica_network.model())
@@ -68,7 +68,7 @@ def create(
             print("Simulating...")
             results = simulate(
                 modelica_model_path.parent,
-                building.create_model(
+                building.create_network(
                     library=library  # type: ignore
                 ),  # TODO: cannot use the network after cretingt he model
             )
@@ -79,7 +79,7 @@ def create(
             result_path = (
                 Path(modelica_model_path.parent)
                 / "results"
-                / f"{modelica_model_path.stem}.building_res.mat"
+                / f"{modelica_model_path.stem.lower()}.building_res.mat"
             )
             if not result_path.exists():
                 print(
@@ -87,7 +87,7 @@ def create(
                 )
                 return
             reporting = ModelDocumentation.from_network(
-                building.create_model(library=library),  # type: ignore
+                building.create_network(library=library),  # type: ignore
                 result=ResultFile(path=result_path),
             )
             html = to_html_reporting(reporting)

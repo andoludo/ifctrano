@@ -1,25 +1,117 @@
 [
     [
         [
-            0.2145,
+            0.5684,
             [
-                1.0,
                 0.0,
-                -0.0
-            ],
-            "3RXApn8BzA28s$aAMW9Zdh",
-            "IfcDoor"
-        ],
-        [
-            0.377,
-            [
-                1.0,
                 0.0,
-                -0.0
+                -1.0
             ],
-            "3gqxsjZJv1pP9JDscybiVb",
+            "09$9TU2RnA7uVsw1y4WBdo",
             "IfcWall"
         ],
+        [
+            0.5684,
+            [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "0m6wiaeFTF6vXPevNm4cDw",
+            "IfcWall"
+        ],
+        [
+            0.5684,
+            [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "1r2oaAtO5CaAAIGrraBzmt",
+            "IfcWall"
+        ],
+        [
+            1.0805,
+            [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "2edrs8Mbz0UuV5hXEjNs05",
+            "IfcSlab"
+        ],
+        [
+            2.21503,
+            [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "3XSqHULMP6J8r3N9cLrHS3",
+            "IfcWall"
+        ],
+        [
+            3.0254,
+            [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "2KowSgZsjATBWJuHpDdycr",
+            "IfcWall"
+        ],
+        [
+            3.02551,
+            [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "3aUt73ErfBoeTz3k$uBH8t",
+            "IfcWall"
+        ],
+        [
+            36.59276,
+            [
+                0.0,
+                -1.0,
+                0.0
+            ],
+            "0pmrpPspb0hfqIAd9aAwhp",
+            "IfcWall"
+        ],
+        [
+            36.59276,
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "1mfCZ7$$j04PMO3L3OQYqk",
+            "IfcWall"
+        ],
+        [
+            46.48851,
+            [
+                -0.0,
+                -0.0,
+                1.0
+            ],
+            "1Rs0ndn7z688NTK0dAZOcM",
+            "IfcSlab"
+        ],
+        [
+            46.48851,
+            [
+                -0.0,
+                -0.0,
+                1.0
+            ],
+            "2APfpKYC18Lu4otH$17hsg",
+            "IfcSlab"
+        ]
+    ],
+    [
         [
             1.08,
             [
@@ -61,7 +153,7 @@
             "IfcWindow"
         ],
         [
-            10.19192,
+            10.192,
             [
                 0.0,
                 1.0,
@@ -81,10 +173,10 @@
             "IfcWall"
         ],
         [
-            23.06902,
+            23.0692,
             [
-                0.0,
                 -0.0,
+                0.0,
                 -1.0
             ],
             "0wF9WZQAjBUw89jQBTkb9a",
@@ -92,16 +184,6 @@
         ]
     ],
     [
-        [
-            0.21452,
-            [
-                1.0,
-                0.0,
-                -0.0
-            ],
-            "2pcwSoMdr3T9TsnamrgWqy",
-            "IfcDoor"
-        ],
         [
             1.08,
             [
@@ -133,7 +215,7 @@
             "IfcWindow"
         ],
         [
-            10.19173,
+            10.192,
             [
                 0.0,
                 -1.0,
@@ -143,7 +225,7 @@
             "IfcWall"
         ],
         [
-            12.41464,
+            12.415,
             [
                 -1.0,
                 0.0,
@@ -153,7 +235,7 @@
             "IfcWall"
         ],
         [
-            18.71796,
+            18.718,
             [
                 0.0,
                 0.0,
@@ -161,182 +243,6 @@
             ],
             "0wF9WZQAjBUw89jQBTkb9a",
             "IfcSlab"
-        ]
-    ],
-    [
-        [
-            0.377,
-            [
-                -1.0,
-                0.0,
-                0.0
-            ],
-            "2Kfp6xHLX0_85Lp29zOGqO",
-            "IfcWall"
-        ],
-        [
-            2.16644,
-            [
-                1.0,
-                0.0,
-                -0.0
-            ],
-            "2gEe9MX_v1FOijY1nLhBJO",
-            "IfcDoor"
-        ],
-        [
-            10.17916,
-            [
-                1.0,
-                0.0,
-                -0.0
-            ],
-            "2768Soa9z9iQrvPRPVIDZe",
-            "IfcWall"
-        ],
-        [
-            15.34704,
-            [
-                0.0,
-                0.0,
-                -1.0
-            ],
-            "0wF9WZQAjBUw89jQBTkb9a",
-            "IfcSlab"
-        ]
-    ],
-    [
-        [
-            0.377,
-            [
-                1.0,
-                0.0,
-                0.0
-            ],
-            "09$9TU2RnA7uVsw1y4WBdo",
-            "IfcWall"
-        ],
-        [
-            1.08,
-            [
-                0.0,
-                1.0,
-                0.0
-            ],
-            "0QkQ$kNzLD6QqvsMIqr3WO",
-            "IfcWindow"
-        ],
-        [
-            10.19251,
-            [
-                0.0,
-                1.0,
-                0.0
-            ],
-            "1TBmxcn394JwANuj17Kasq",
-            "IfcWall"
-        ],
-        [
-            10.19251,
-            [
-                0.0,
-                1.0,
-                0.0
-            ],
-            "1mfCZ7$$j04PMO3L3OQYqk",
-            "IfcWall"
-        ],
-        [
-            23.06908,
-            [
-                0.0,
-                -0.0,
-                1.0
-            ],
-            "191PJ9N3r75fcm3TpdUOKa",
-            "IfcSlab"
-        ],
-        [
-            23.0692,
-            [
-                0.0,
-                -0.0,
-                1.0
-            ],
-            "1Rs0ndn7z688NTK0dAZOcM",
-            "IfcSlab"
-        ]
-    ],
-    [
-        [
-            0.53299,
-            [
-                -0.0,
-                1.0,
-                0.0
-            ],
-            "3XSqHULMP6J8r3N9cLrHS3",
-            "IfcWall"
-        ],
-        [
-            9.25565,
-            [
-                -0.0,
-                1.0,
-                -0.0
-            ],
-            "2APfpKYC18Lu4otH$17hsg",
-            "IfcSlab"
-        ],
-        [
-            9.25743,
-            [
-                -0.0,
-                1.0,
-                -0.0
-            ],
-            "1Rs0ndn7z688NTK0dAZOcM",
-            "IfcSlab"
-        ],
-        [
-            16.50872,
-            [
-                0.0,
-                -1.0,
-                0.0
-            ],
-            "3mHHp7K4z3Xf81K0kot9SP",
-            "IfcWall"
-        ],
-        [
-            16.50872,
-            [
-                -0.0,
-                1.0,
-                0.0
-            ],
-            "1TBmxcn394JwANuj17Kasq",
-            "IfcWall"
-        ],
-        [
-            37.02363,
-            [
-                0.0,
-                -1.0,
-                0.0
-            ],
-            "0pmrpPspb0hfqIAd9aAwhp",
-            "IfcWall"
-        ],
-        [
-            37.02363,
-            [
-                -0.0,
-                1.0,
-                0.0
-            ],
-            "1mfCZ7$$j04PMO3L3OQYqk",
-            "IfcWall"
         ]
     ],
     [
@@ -351,17 +257,7 @@
             "IfcWindow"
         ],
         [
-            10.19173,
-            [
-                0.0,
-                -1.0,
-                0.0
-            ],
-            "0pmrpPspb0hfqIAd9aAwhp",
-            "IfcWall"
-        ],
-        [
-            10.19173,
+            10.19203,
             [
                 0.0,
                 -1.0,
@@ -371,20 +267,20 @@
             "IfcWall"
         ],
         [
-            18.71804,
+            12.415,
             [
+                -1.0,
                 0.0,
-                -0.0,
-                1.0
+                0.0
             ],
-            "191PJ9N3r75fcm3TpdUOKa",
-            "IfcSlab"
+            "3aUt73ErfBoeTz3k$uBH8t",
+            "IfcWall"
         ],
         [
-            18.71804,
+            18.71805,
             [
                 0.0,
-                -0.0,
+                0.0,
                 1.0
             ],
             "1Rs0ndn7z688NTK0dAZOcM",
@@ -406,24 +302,14 @@
             8.58,
             [
                 1.0,
-                0.0,
-                -0.0
+                -0.0,
+                0.0
             ],
             "2KowSgZsjATBWJuHpDdycr",
             "IfcWall"
         ],
         [
-            10.19203,
-            [
-                0.0,
-                -1.0,
-                0.0
-            ],
-            "0pmrpPspb0hfqIAd9aAwhp",
-            "IfcWall"
-        ],
-        [
-            10.19203,
+            10.192,
             [
                 0.0,
                 -1.0,
@@ -433,17 +319,7 @@
             "IfcWall"
         ],
         [
-            12.93603,
-            [
-                0.0,
-                0.0,
-                1.0
-            ],
-            "191PJ9N3r75fcm3TpdUOKa",
-            "IfcSlab"
-        ],
-        [
-            12.93603,
+            12.936,
             [
                 0.0,
                 0.0,
@@ -461,21 +337,11 @@
                 1.0,
                 0.0
             ],
-            "2FPJZhbcj7bRXBURoz0E5R",
+            "0QkQ$kNzLD6QqvsMIqr3WO",
             "IfcWindow"
         ],
         [
-            8.58003,
-            [
-                1.0,
-                0.0,
-                -0.0
-            ],
-            "2KowSgZsjATBWJuHpDdycr",
-            "IfcWall"
-        ],
-        [
-            10.19204,
+            10.192,
             [
                 0.0,
                 1.0,
@@ -485,30 +351,62 @@
             "IfcWall"
         ],
         [
-            10.19204,
+            15.301,
             [
+                -1.0,
                 0.0,
-                1.0,
                 0.0
             ],
-            "1mfCZ7$$j04PMO3L3OQYqk",
+            "3aUt73ErfBoeTz3k$uBH8t",
             "IfcWall"
         ],
         [
-            12.93584,
+            23.0692,
             [
                 0.0,
                 0.0,
                 1.0
             ],
-            "191PJ9N3r75fcm3TpdUOKa",
+            "1Rs0ndn7z688NTK0dAZOcM",
             "IfcSlab"
+        ]
+    ],
+    [
+        [
+            1.08,
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "2FPJZhbcj7bRXBURoz0E5R",
+            "IfcWindow"
+        ],
+        [
+            8.58,
+            [
+                1.0,
+                -0.0,
+                0.0
+            ],
+            "2KowSgZsjATBWJuHpDdycr",
+            "IfcWall"
+        ],
+        [
+            10.192,
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "1TBmxcn394JwANuj17Kasq",
+            "IfcWall"
         ],
         [
             12.936,
             [
-                0.0,
-                0.0,
+                1e-10,
+                1e-10,
                 1.0
             ],
             "2APfpKYC18Lu4otH$17hsg",
@@ -530,14 +428,14 @@
             8.58,
             [
                 1.0,
-                0.0,
+                -0.0,
                 0.0
             ],
             "2768Soa9z9iQrvPRPVIDZe",
             "IfcWall"
         ],
         [
-            10.19208,
+            10.192,
             [
                 0.0,
                 1.0,
@@ -547,10 +445,10 @@
             "IfcWall"
         ],
         [
-            12.9361,
+            12.936,
             [
                 0.0,
-                -0.0,
+                0.0,
                 -1.0
             ],
             "0wF9WZQAjBUw89jQBTkb9a",
@@ -562,14 +460,14 @@
             1.08,
             [
                 1.0,
-                0.0,
-                -0.0
+                -0.0,
+                0.0
             ],
             "2yKdFp8GT3MuN3WhaCVstk",
             "IfcWindow"
         ],
         [
-            2.16644,
+            2.16645,
             [
                 0.0,
                 -1.0,
@@ -579,17 +477,17 @@
             "IfcDoor"
         ],
         [
-            8.5801,
+            8.58,
             [
                 1.0,
-                0.0,
-                -0.0
+                -0.0,
+                0.0
             ],
             "2768Soa9z9iQrvPRPVIDZe",
             "IfcWall"
         ],
         [
-            10.19203,
+            10.192,
             [
                 0.0,
                 -1.0,
@@ -599,10 +497,10 @@
             "IfcWall"
         ],
         [
-            12.93631,
+            12.936,
             [
                 0.0,
-                -0.0,
+                0.0,
                 -1.0
             ],
             "0wF9WZQAjBUw89jQBTkb9a",
@@ -611,27 +509,49 @@
     ],
     [
         [
-            10.17861,
+            2.16645,
             [
                 1.0,
+                -0.0,
+                0.0
+            ],
+            "2gEe9MX_v1FOijY1nLhBJO",
+            "IfcDoor"
+        ],
+        [
+            10.179,
+            [
+                1.0,
+                -0.0,
+                0.0
+            ],
+            "2768Soa9z9iQrvPRPVIDZe",
+            "IfcWall"
+        ],
+        [
+            15.3468,
+            [
                 0.0,
+                0.0,
+                -1.0
+            ],
+            "0wF9WZQAjBUw89jQBTkb9a",
+            "IfcSlab"
+        ]
+    ],
+    [
+        [
+            10.179,
+            [
+                1.0,
+                -0.0,
                 0.0
             ],
             "2KowSgZsjATBWJuHpDdycr",
             "IfcWall"
         ],
         [
-            15.34684,
-            [
-                0.0,
-                0.0,
-                1.0
-            ],
-            "191PJ9N3r75fcm3TpdUOKa",
-            "IfcSlab"
-        ],
-        [
-            15.34684,
+            15.3468,
             [
                 0.0,
                 0.0,

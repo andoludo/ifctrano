@@ -24,3 +24,7 @@ class InvalidLibraryError(Exception):
 
 class VectorWithNansError(Exception):
     pass
+
+
+class HasWindowsWithoutWallsError(Exception):
+    pass

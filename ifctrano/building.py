@@ -102,11 +102,11 @@ def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalE
                         and (
                             boundary.common_surface.orientation
                             * common_surface.orientation
-                        ).is_a_zero()
+                        ).is_null()
                         and (
                             boundary_.common_surface.orientation
                             * common_surface.orientation
-                        ).is_a_zero()
+                        ).is_null()
                     ) and boundary.common_surface.orientation.dot(
                         boundary_.common_surface.orientation
                     ) < 0:
@@ -200,7 +200,7 @@ class Building(BaseShow):
         return get_internal_elements(self.space_boundaries)
 
     @validate_call
-    def create_model(
+    def create_network(
         self,
         library: Libraries = "Buildings",
         north_axis: Optional[Vector] = None,
@@ -232,6 +232,9 @@ class Building(BaseShow):
             )
         return network
 
+    def get_model(self) -> str:
+        return str(self.create_network().model())
+
     def save_model(self, library: Libraries = "Buildings") -> None:
-        model_ = self.create_model(library)
+        model_ = self.create_network(library)
         Path(self.parent_folder.joinpath(f"{self.name}.mo")).write_text(model_.model())
