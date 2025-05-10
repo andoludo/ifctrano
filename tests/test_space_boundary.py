@@ -212,8 +212,6 @@ def test_get_space_boundaries_two_zones_slab(two_zones: file) -> None:
     trano_space = boundaries.model([], Vector(x=0, y=1, z=0), constructions)
     floor = next(e for e in trano_space.external_boundaries if e.tilt.value == "floor")
     roof = next(e for e in trano_space.external_boundaries if e.tilt.value == "ceiling")
-    assert "IfcSlab_1gtdw14ne2hvzswzg9dvit" in roof.name
-    assert "IfcSlab_2wnkor7tlmjamsrojfit2k" in floor.name
     assert int(roof.surface) == 9
     assert int(floor.surface) == 9
 

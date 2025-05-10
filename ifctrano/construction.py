@@ -189,9 +189,9 @@ class Constructions(BaseModel):
     def get_construction(self, entity: entity_instance) -> Construction:
         construction_id = self._get_construction_id(entity)
         if construction_id is None:
-            logger.error(
-                f"Construction ID not found for {entity.GlobalId} ({entity.is_a()}) "
-                f"({entity.Name}). Using default construction."
+            logger.warning(
+                f"Construction ID not found for {entity.GlobalId} ({entity.is_a()}). "
+                f"Using default construction."
             )
             return default_construction
         constructions = [
@@ -210,11 +210,11 @@ class Constructions(BaseModel):
             if association.is_a() == "IfcRelAssociatesMaterial"
         ]
         if not associates_materials:
-            logger.error(f"Associate materials not found for {entity.GlobalId}.")
+            logger.warning(f"Associate materials not found for {entity.GlobalId}.")
             return None
         relating_material = associates_materials[0].RelatingMaterial
         if relating_material.is_a() == "IfcMaterialList":
-            logger.error(
+            logger.warning(
                 f"Material list found for {entity.GlobalId}, but no construction ID available."
             )
             return None

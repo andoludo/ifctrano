@@ -1,29 +1,7 @@
-# Installation
-## Optional dependencies
 
-### Graphviz
+# 🚀 Installation
 
-`ifctrano` utilizes Graphviz to arrange various Modelica components within the model. While installation is not mandatory, it is advisable for improved visualization. 
-
-You can install Graphviz by following the instructions on the [official website](https://graphviz.org/download/). For Windows installation, ensure that the Graphviz `bin` folder is added to the system path.
-
-To install Graphviz on Linux, use the following command:
-
-```bash
-sudo apt-get install graphviz
-```
-
-
-```bash
-
-sudo apt update
-sudo apt install graphviz
-                
-```
-            
-
-## Python package
-
+## 📦 Install `ifctrano`
 
 !!! warning
     Trano requires python 3.9 or higher and docker to be installed on the system.
@@ -31,31 +9,91 @@ sudo apt install graphviz
 
 ifctrano is a Python package that can be installed via pip.
 
-
 ```bash
 pip install ifctrano
 ```
-            
 
-`ifctrano` can also be utilized with Poetry.
+## ✅ Verify Installation
 
-
-```bash
-poetry add ifctrano
-```
-            
-
-To verify the installation, execute the following command in the terminal.
-
+Run the following commands to ensure everything is working:
 
 ```bash
 ifctrano --help
-```
-            
-
-
-```bash
 ifctrano verify
 ```
-            
 
+---
+
+# 🔧 Optional Dependencies
+
+## 🐳 Docker (for simulation)
+
+To enable model simulation using the official OpenModelica Docker image, install Docker Desktop:
+
+👉 [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)
+
+Required for using the `--simulate-model` flag.
+
+---
+
+## 🧠 Graphviz (for layout visualization)
+
+`ifctrano` leverages Graphviz to optimize component layout in generated Modelica models. It is optional, but **recommended**.
+
+### 📥 Install on Windows
+
+- Download and install from: [https://graphviz.org/download/](https://graphviz.org/download/)
+- Add the Graphviz `bin` folder to your **system `PATH`**.
+
+### 🐧 Install on Linux
+
+```bash
+sudo apt update
+sudo apt install graphviz
+```
+
+---
+
+# ⚙️ Usage
+
+## 📁 Generate Modelica models from IFC
+
+### 🏢 Using the **Buildings** library
+
+```bash
+ifctrano create /path/to/your.ifc
+```
+
+### 🏫 Using the **IDEAS** library
+
+```bash
+ifctrano create /path/to/your.ifc IDEAS
+```
+
+### 🧮 Using the **Reduced Order** library
+
+```bash
+ifctrano create /path/to/your.ifc reduced_order
+```
+
+---
+
+## 🧱 Show Space Boundaries
+
+To visualize the computed space boundaries:
+
+```bash
+ifctrano create /path/to/your.ifc --show-space-boundaries
+```
+
+---
+
+## 🔁 Simulate the Model
+
+Run a full simulation after model generation:
+
+```bash
+ifctrano create /path/to/your.ifc --simulate-model
+```
+
+Make sure Docker is installed and running before simulating.

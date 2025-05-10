@@ -15,6 +15,7 @@ from trano.utils.utils import is_success  # type: ignore
 from ifctrano.base import Libraries
 from ifctrano.building import Building
 from ifctrano.exceptions import InvalidLibraryError
+from rich import print
 
 app = typer.Typer()
 CHECKMARK = "[green]✔[/green]"
@@ -34,11 +35,11 @@ def create(
     show_space_boundaries: Annotated[
         bool,
         typer.Option(help="Show computed space boundaries."),
-    ] = True,
+    ] = False,
     simulate_model: Annotated[
         bool,
         typer.Option(help="Simulate the generated model."),
-    ] = True,
+    ] = False,
 ) -> None:
     with Progress(
         SpinnerColumn(),
@@ -66,12 +67,16 @@ def create(
         print(f"{CHECKMARK} Model generated at {modelica_model_path}")
         if simulate_model:
             print("Simulating...")
-            results = simulate(
-                modelica_model_path.parent,
-                building.create_network(
-                    library=library  # type: ignore
-                ),  # TODO: cannot use the network after cretingt he model
-            )
+            try:
+                results = simulate(
+                    modelica_model_path.parent,
+                    building.create_network(
+                        library=library  # type: ignore
+                    ),  # TODO: cannot use the network after creating he model
+                )
+            except Exception as e:
+                print(f"{CROSS_MARK} Simulation failed: {e}")
+                return
             if not is_success(results):
                 print(f"{CROSS_MARK} Simulation failed. See logs for more information.")
                 return

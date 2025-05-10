@@ -1,4 +1,6 @@
+import random
 import re
+import string
 import uuid
 from typing import get_args
 
@@ -11,6 +13,12 @@ from ifctrano.types import BuildingElements
 def remove_non_alphanumeric(text: str) -> str:
     text = text.replace(" ", "_")
     return re.sub(r"[^a-zA-Z0-9_]", "", text).lower()
+
+
+def short_uuid() -> str:
+    return "".join(
+        random.choices(string.ascii_letters + string.digits, k=3)  # noqa: S311
+    )
 
 
 def generate_alphanumeric_uuid() -> str:
