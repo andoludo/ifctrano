@@ -1,5 +1,6 @@
 import json
 import math
+import sys
 from itertools import combinations
 from multiprocessing import Process
 from pathlib import Path
@@ -54,6 +55,9 @@ class BaseShow(BaseModel):
     def description(self) -> Any: ...  # noqa: ANN401
 
     def show(self, interactive: bool = True) -> None:
+        if sys.platform == "win32":
+            _show(self.lines(), interactive)
+            return
         p = Process(target=_show, args=(self.lines(), interactive))
         p.start()
 

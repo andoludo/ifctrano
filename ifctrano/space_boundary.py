@@ -24,7 +24,12 @@ from ifctrano.base import (
 from ifctrano.bounding_box import OrientedBoundingBox
 from ifctrano.construction import glass, Constructions
 from ifctrano.exceptions import HasWindowsWithoutWallsError
-from ifctrano.utils import remove_non_alphanumeric, _round, get_building_elements
+from ifctrano.utils import (
+    remove_non_alphanumeric,
+    _round,
+    get_building_elements,
+    short_uuid,
+)
 
 ROOF_VECTOR = Vector(x=0, y=0, z=1)
 
@@ -175,7 +180,10 @@ class SpaceBoundary(BaseModelConfig):
         return hash(self.common_surface)
 
     def boundary_name(self) -> str:
-        return f"{self.entity.is_a()}_{remove_non_alphanumeric(self.entity.GlobalId)}"
+        return (
+            f"{remove_non_alphanumeric(self.entity.Name) or self.entity.is_a().lower()}_"
+            f"__{remove_non_alphanumeric(self.entity.GlobalId)}{short_uuid()}"
+        )
 
     def model_element(  # noqa: PLR0911
         self,

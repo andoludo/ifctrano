@@ -14,7 +14,7 @@ from pydantic import (
     Field,
     ConfigDict,
 )
-from scipy.spatial import ConvexHull  # type: ignore
+from scipy.spatial import ConvexHull, QhullError  # type: ignore
 from vedo import Line  # type: ignore
 
 from ifctrano.base import (
@@ -190,8 +190,14 @@ class OrientedBoundingBox(BaseShow):
             entity_shape, entity_shape.geometry  # type: ignore
         )
         vertices_ = Vertices.from_arrays(np.asarray(vertices))
-        hull = ConvexHull(vertices_.to_array())
-        vertices_ = Vertices.from_arrays(vertices_.to_array()[hull.vertices])
+        try:
+            hull = ConvexHull(vertices_.to_array())
+            vertices_ = Vertices.from_arrays(vertices_.to_array()[hull.vertices])
+
+        except QhullError:
+            logger.error(
+                f"Convex hull failed for {entity.GlobalId} ({entity.is_a()}).... Continuing without it."
+            )
         points_ = open3d.utility.Vector3dVector(vertices_.to_array())
         aab = open3d.geometry.AxisAlignedBoundingBox.create_from_points(points_)
         return cls.from_vertices(aab.get_box_points(), entity)
