@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../two_zones_model/">
+        <link rel="prev" href="../use_different_libraries/">
       
       
-        <link rel="next" href="../../how-to%20guides/">
+        <link rel="next" href="../realistic_model/">
       
       
       <link rel="icon" href="../../img/ifctrano.webp">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Multizone model - ifctrano</title>
+        <title>Many zones model - ifctrano</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#multizone-model" class="md-skip">
+        <a href="#many-zones-model" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Multizone model
+              Many zones model
             
           </span>
         </div>
@@ -490,6 +490,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -554,6 +558,29 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_different_libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Use different libraries
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -571,13 +598,36 @@
   
   
   <span class="md-ellipsis">
-    Multizone model
+    Many zones model
     
   </span>
   
 
       </a>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../realistic_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Realistic model
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -671,16 +721,24 @@
   
 
 
-<h1 id="multizone-model">Multizone model</h1>
-<p>This tutorial demonstrates how to generate a Modelica model and open it with OpenModelica for the two-zone BIM model shown below.</p>
+<h1 id="many-zones-model">Many zones model</h1>
+<p>This tutorial demonstrates how to generate a Modelica model and open it with OpenModelica for the multizone BIM model displayed below.</p>
 <p><img alt="Generated model" src="../img/multizone_1.png" /></p>
 <p><img alt="Generated model" src="../img/multizone_2.png" /></p>
-<p>The file is located in the <code>tests</code> folder of the repository.</p>
+<p>The file can be found in the repository's <code>tests</code> folder.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span><span class="n">path_to_ifc_file</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">building</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
 </span></code></pre></div>
-<p>The code snippet above will create a Modelica model of the IFC file in the same folder as the IFC file. You can then open the model in OpenModelica as demonstrated below.</p>
+<p>The code snippet above creates a Modelica model from the IFC file in the same folder. You can then open this model in OpenModelica.</p>
+<p><img alt="Generated model" src="../img/multizone_5.png" /></p>
+<p>To display the generated space boundaries alongside the Modelica model and simulate simultaneously from the command line, use the following command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>path_to_ifc_file.ifc<span class="w"> </span>--show-space-boundaries<span class="w"> </span>--simulate-model
+</span></code></pre></div>
+<p>The generated space boundaries will be displayed as illustrated in the figure below.</p>
+<p><img alt="Space boundaries" src="../img/multizone_3.png" /></p>
+<p>The simulation output will open automatically.</p>
+<p><img alt="Space boundaries" src="../img/multizone_4.png" /></p>
 
 
 
@@ -718,7 +776,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../two_zones_model/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Two zones model">
+          <a href="../use_different_libraries/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Use different libraries">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -728,20 +786,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Two zones model
+                Use different libraries
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../how-to%20guides/" class="md-footer__link md-footer__link--next" aria-label="Next: How-to Guides">
+          <a href="../realistic_model/" class="md-footer__link md-footer__link--next" aria-label="Next: Realistic model">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                How-to Guides
+                Realistic model
               </div>
             </div>
             <div class="md-footer__button md-icon">

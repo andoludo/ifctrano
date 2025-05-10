@@ -14,7 +14,7 @@
         <link rel="prev" href="../../getting-started/installation/">
       
       
-        <link rel="next" href="../multizone_model/">
+        <link rel="next" href="../use_different_libraries/">
       
       
       <link rel="icon" href="../../img/ifctrano.webp">
@@ -490,6 +490,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -567,12 +571,58 @@
   
   
     <li class="md-nav__item">
-      <a href="../multizone_model/" class="md-nav__link">
+      <a href="../use_different_libraries/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Multizone model
+    Use different libraries
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../many_zones_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Many zones model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../realistic_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Realistic model
     
   </span>
   
@@ -678,16 +728,29 @@
 <p>The file is located in the repository's tests folder.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span><span class="n">path_to_ifc_file</span><span class="p">)</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">building</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">building</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">building</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
 </span></code></pre></div>
-<p>The code snippet above creates a Modelica model of the IFC file in the same directory. You can open the model in OpenModelica as demonstrated below.</p>
+<p>The code snippet above generates a Modelica model of the IFC file in the same directory. You can then open this model in OpenModelica. Use the command <code>building.show()</code> to display the generated space boundaries, as illustrated in the figure below.</p>
+<p><img alt="Space boundary" src="../img/two_zones_4.png" /></p>
 <p>Ifctrano can also be executed via the command line interface, as demonstrated below.</p>
+<p>Run the <code>help</code> command to view the available options.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>--help
 </span></code></pre></div>
+<p>To create a model, run the following command:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>path_to_ifc_file.ifc
 </span></code></pre></div>
+<p>To display the generated space boundaries alongside the Modelica model, run the following command.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>path_to_ifc_file.ifc<span class="w"> </span>--show-space-boundaries
+</span></code></pre></div>
+<p>This command displays the space boundary shown in the figure above.</p>
+<p>The generated model, as shown in the figure below, can be opened in OpenModelica, provided the relevant libraries are loaded. By default, Ifctrano utilizes the Buildings library. You can open the model in OpenModelica using the following command.</p>
 <p><img alt="Generated model" src="../img/two_zones_3.png" /></p>
-<p>Given that the relevant libraries are loaded, the figure above displays the generated model.</p>
+<p>Provided that Docker is installed on the host computer, Ifctrano can directly simulate the model with the following command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>path_to_ifc_file.ifc<span class="w"> </span>--show-space-boundaries<span class="w"> </span>--simulate-model
+</span></code></pre></div>
+<p>If the simulation is successful, the results will be saved locally, and an HTML report will be automatically generated to display key performance indicators (KPIs), as illustrated in the figure below.</p>
+<p><img alt="Simulation report" src="../img/two_zones_5.png" /></p>
 
 
 
@@ -742,13 +805,13 @@
         
         
           
-          <a href="../multizone_model/" class="md-footer__link md-footer__link--next" aria-label="Next: Multizone model">
+          <a href="../use_different_libraries/" class="md-footer__link md-footer__link--next" aria-label="Next: Use different libraries">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Multizone model
+                Use different libraries
               </div>
             </div>
             <div class="md-footer__button md-icon">
