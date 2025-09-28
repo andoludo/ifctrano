@@ -18,6 +18,10 @@ class NoIfcSpaceFoundError(Exception):
     pass
 
 
+class NoSpaceBoundariesError(Exception):
+    pass
+
+
 class InvalidLibraryError(Exception):
     pass
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Dict, Any
 
 import ifcopenshell
 import pytest
@@ -6,6 +7,8 @@ from _pytest.fixtures import FixtureRequest
 from ifcopenshell import file
 
 from ifctrano.base import BaseShow
+import json
+import difflib
 
 SPACE_BOUNDARY_IFC = Path(__file__).parent / "models" / "space_boundary"
 SPACE_ONLY = Path(__file__).parent / "models" / "space_only"
@@ -16,13 +19,25 @@ TEST_PATH = Path(__file__).parent.joinpath("data")
 TEST_PATH.mkdir(parents=True, exist_ok=True)
 
 
+def diff(output_1: Dict[str, Any], output_2: Dict[str, Any]) -> str:
+    diff_ = difflib.ndiff(
+        json.dumps(output_1, indent=2, sort_keys=True).splitlines(),
+        json.dumps(output_2, indent=2, sort_keys=True).splitlines(),
+    )
+    print("\n".join(diff_))
+    return "".join(diff_)
+
+
 def compare(elements: BaseShow, request: FixtureRequest) -> bool:
     if elements is None:
         raise ValueError("No intersection found")
     file_path = TEST_PATH.joinpath(f"{request.node.name}.json")
     if OVERWRITE_RESULTS:
         elements.save_description(file_path)
-    return elements.description_loaded() == elements.load_description(file_path)
+    output_2 = elements.description_loaded()
+    output_1 = elements.load_description(file_path)
+    diff(output_2, output_1)
+    return output_1 == output_2
 
 
 @pytest.fixture
@@ -140,6 +155,16 @@ def residential_house_path() -> Path:
 def residential_house(residential_house_path: Path) -> file:
     ifcopenshell_file = ifcopenshell.open(str(residential_house_path))
     return ifcopenshell_file
+
+
+@pytest.fixture
+def layer_path(residential_house_path: Path) -> Path:
+    return SPACE_BOUNDARY_IFC / "layer.ifc"
+
+
+@pytest.fixture
+def layer(layer_path: Path) -> file:
+    return ifcopenshell.open(str(layer_path))
 
 
 @pytest.fixture

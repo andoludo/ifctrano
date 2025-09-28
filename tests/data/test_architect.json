@@ -231,16 +231,6 @@
             ],
             "31XsfNdEvAKgV9i7b0gN_0",
             "IfcSlab"
-        ],
-        [
-            31.44169,
-            [
-                -0.0,
-                0.0,
-                -1.0
-            ],
-            "3XrBtx9eX7mQE6EqWHPeuA",
-            "IfcSlab"
         ]
     ],
     [
@@ -2101,16 +2091,6 @@
             "IfcWallStandardCase"
         ],
         [
-            6.11821,
-            [
-                -2e-10,
-                -2e-10,
-                -1.0
-            ],
-            "3XrBtx9eX7mQE6EqWHPev9",
-            "IfcSlab"
-        ],
-        [
             6.72331,
             [
                 0.0,
@@ -2851,16 +2831,6 @@
             ],
             "2dm9gRfxv6Pge2oc4rpyAP",
             "IfcSlab"
-        ],
-        [
-            79.39177,
-            [
-                -0.0,
-                0.0,
-                -1.0
-            ],
-            "3XrBtx9eX7mQE6EqWHPeuA",
-            "IfcSlab"
         ]
     ],
     [
@@ -2933,16 +2903,6 @@
             ],
             "3XrBtx9eX7mQE6EqWHPfNd",
             "IfcDoor"
-        ],
-        [
-            3.36842,
-            [
-                0.0,
-                -0.0,
-                -1.0
-            ],
-            "2fLRqCrjf0chb0vFRAXyJH",
-            "IfcSlab"
         ],
         [
             3.46765,
@@ -3123,16 +3083,6 @@
             ],
             "3XrBtx9eX7mQE6EqWHPfx1",
             "IfcWallStandardCase"
-        ],
-        [
-            25.61435,
-            [
-                0.0,
-                -0.0,
-                -1.0
-            ],
-            "3XrBtx9eX7mQE6EqWHPfMe",
-            "IfcSlab"
         ]
     ],
     [

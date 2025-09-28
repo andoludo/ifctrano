@@ -353,3 +353,13 @@ def test_space_boundary_residential(
     if SHOW_FIGURES:
         boundaries.show()
     assert compare(boundaries, request)
+
+
+def test_space_boundary_layer(request: FixtureRequest, layer: file) -> None:
+
+    tree = initialize_tree(layer)
+    space = layer.by_guid("2sostWXevAUhKvlEHMOPJI")
+    boundaries = SpaceBoundaries.from_space_entity(layer, tree, space)
+    if SHOW_FIGURES:
+        boundaries.show()
+    assert compare(boundaries, request)

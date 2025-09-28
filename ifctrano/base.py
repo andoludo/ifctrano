@@ -398,6 +398,7 @@ class CommonSurface(BaseShow):
     main_vertices: FaceVertices
     common_vertices: FaceVertices
     exterior: bool = True
+    polygon: str
 
     def __hash__(self) -> int:
         return hash(

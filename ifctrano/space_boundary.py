@@ -5,7 +5,8 @@ import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.shape
 from ifcopenshell import entity_instance, file
-from pydantic import Field, BeforeValidator, BaseModel
+from pydantic import Field, BeforeValidator, BaseModel, ConfigDict
+from shapely import wkt  # type: ignore
 from trano.data_models.conversion import SpaceParameter  # type: ignore
 from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall, ExternalDoor  # type: ignore
 from trano.elements.system import Occupancy  # type: ignore
@@ -340,4 +341,108 @@ class SpaceBoundaries(BaseShow):
             )
             if space_boundary:
                 space_boundaries.append(space_boundary)
-        return cls(space=space_, boundaries=space_boundaries)
+        merged_boundaries = MergedSpaceBoundaries.from_boundaries(space_boundaries)
+        space_boundaries_ = merged_boundaries.merge_boundaries_from_part()
+        space_boundaries__ = remove_duplicate_boundaries(space_boundaries_)
+        return cls(space=space_, boundaries=space_boundaries__)
+
+
+def remove_duplicate_boundaries(
+    boundaries: List[SpaceBoundary],
+) -> List[SpaceBoundary]:
+    types = ["IfcRoof", "IfcSlab"]
+    boundaries_without_types = [
+        sp for sp in boundaries if sp.entity.is_a() not in types
+    ]
+    new_boundaries = []
+    for type_ in types:
+        references = [sp for sp in boundaries if sp.entity.is_a() == type_]
+        while True:
+            reference = next(iter(references), None)
+            if not reference:
+                break
+            others = [p_ for p_ in references if p_ != reference]
+            intersecting = [
+                o
+                for o in others
+                if (
+                    wkt.loads(o.common_surface.polygon).intersects(
+                        wkt.loads(reference.common_surface.polygon)
+                    )
+                    and o.common_surface.orientation
+                    == reference.common_surface.orientation
+                )
+                and (
+                    wkt.loads(o.common_surface.polygon).intersection(
+                        wkt.loads(reference.common_surface.polygon)
+                    )
+                ).area
+                > 0
+            ]
+            current_group = sorted(
+                [*intersecting, reference], key=lambda p: p.entity.GlobalId
+            )
+            new_boundaries.append(next(iter(current_group)))
+            references = [p_ for p_ in references if p_ not in current_group]
+    return [*boundaries_without_types, *new_boundaries]
+
+
+class MergedSpaceBoundary(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    parent: entity_instance
+    related_boundaries: List[SpaceBoundary]
+
+    def get_new_boundary(self) -> Optional[SpaceBoundary]:
+        related_boundaries = sorted(
+            self.related_boundaries, key=lambda b: b.entity.GlobalId
+        )
+        boundary = next(iter(related_boundaries), None)
+        if boundary:
+            return SpaceBoundary.model_validate(
+                boundary.model_dump() | {"entity": self.parent}
+            )
+        return None
+
+
+class MergedSpaceBoundaries(BaseModel):
+    part_boundaries: List[MergedSpaceBoundary]
+    original_boundaries: List[SpaceBoundary]
+
+    @classmethod
+    def from_boundaries(
+        cls, space_boundaries: List[SpaceBoundary]
+    ) -> "MergedSpaceBoundaries":
+        building_element_part_boundaries = [
+            boundary
+            for boundary in space_boundaries
+            if boundary.entity.is_a() in ["IfcBuildingElementPart"]
+        ]
+        existing_parent_entities = {
+            decompose.RelatingObject
+            for b in building_element_part_boundaries
+            for decompose in b.entity.Decomposes
+        }
+        part_boundaries = [
+            MergedSpaceBoundary(
+                parent=parent,
+                related_boundaries=[
+                    b
+                    for b in building_element_part_boundaries
+                    for decompose in b.entity.Decomposes
+                    if decompose.RelatingObject == parent
+                ],
+            )
+            for parent in existing_parent_entities
+        ]
+        return cls(
+            part_boundaries=part_boundaries, original_boundaries=space_boundaries
+        )
+
+    def merge_boundaries_from_part(self) -> List[SpaceBoundary]:
+        new_boundaries = [b.get_new_boundary() for b in self.part_boundaries]
+        new_boundaries_ = [nb for nb in new_boundaries if nb is not None]
+        return [
+            b
+            for b in self.original_boundaries
+            if b.entity.is_a() not in ["IfcBuildingElementPart"]
+        ] + new_boundaries_

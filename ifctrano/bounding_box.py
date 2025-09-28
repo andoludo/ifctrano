@@ -78,6 +78,7 @@ class ExtendCommonSurface(CommonSurface):
             orientation=self.orientation,
             main_vertices=self.main_vertices,
             common_vertices=self.common_vertices,
+            polygon=self.polygon,
         )
 
 
@@ -137,6 +138,7 @@ class OrientedBoundingBox(BaseShow):
                                 common_vertices=projected_face_1.common_vertices(
                                     intersection
                                 ),
+                                polygon=intersection.wkt,
                             )
                         )
 

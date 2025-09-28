@@ -40,16 +40,6 @@
         "IfcWallStandardCase"
     ],
     [
-        1.12806,
-        [
-            0.0,
-            0.0,
-            -1.0
-        ],
-        "2OBrcmyk58NupXoVOHUt8s",
-        "IfcSlab"
-    ],
-    [
         1.65,
         [
             -1.0,
@@ -137,16 +127,6 @@
             -1.0
         ],
         "1hOSvn6df7F8_7GcBWlRqU",
-        "IfcSlab"
-    ],
-    [
-        23.17129,
-        [
-            0.0,
-            0.0,
-            -1.0
-        ],
-        "2OBrcmyk58NupXoVOHUtC0",
         "IfcSlab"
     ],
     [
