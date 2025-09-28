@@ -162,9 +162,15 @@ def test_architect(request: FixtureRequest, architect_path: Path) -> None:
 
 
 def test_building_layer(request: FixtureRequest, layer_path: Path) -> None:
-
     building = Building.from_ifc(layer_path)
     if SHOW_FIGURES:
         building.show()
     assert building.get_model()
     assert compare(building, request)
+
+
+def test_building_layer_configuration(request: FixtureRequest, layer_path: Path) -> None:
+    building = Building.from_ifc(layer_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert building.create_configuration()

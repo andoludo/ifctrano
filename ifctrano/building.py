@@ -216,6 +216,62 @@ class Building(BaseShow):
         return get_internal_elements(self.space_boundaries)
 
     @validate_call
+    def create_configuration(
+            self,
+            library: Libraries = "Buildings",
+            north_axis: Optional[Vector] = None,
+    ) -> Network:
+        north_axis = north_axis or Vector(x=0, y=1, z=0)
+        network = Network(name=self.name, library=Library.from_configuration(library))
+        self.space_boundaries[0].model(
+            self.internal_elements.internal_element_ids(),
+            north_axis,
+            self.constructions,
+        ).model_dump(
+            include={
+                "name": ...,
+                "occupancy": {
+                    "parameters": ...
+                },
+                "parameters": ...,
+                "external_boundaries": {
+                    "__all__": {
+                        "surface": ...,
+                        "azimuth": ...,
+                        "tilt": ...,
+                        "construction": {
+                            "name": ...
+                        },
+
+                    },
+                }}
+        )
+        spaces = {
+            space_boundary.space.global_id: space_boundary.model(
+                self.internal_elements.internal_element_ids(),
+                north_axis,
+                self.constructions,
+            )
+            for space_boundary in self.space_boundaries
+        }
+        spaces = {k: v for k, v in spaces.items() if v}
+        network.add_boiler_plate_spaces(list(spaces.values()), create_internal=False)
+        for internal_element in self.internal_elements.elements:
+            space_1 = internal_element.spaces[0]
+            space_2 = internal_element.spaces[1]
+            network.connect_spaces(
+                spaces[space_1.global_id],
+                spaces[space_2.global_id],
+                InternalElement(
+                    azimuth=10,
+                    construction=default_construction,
+                    surface=internal_element.area,
+                    tilt=Tilt.wall,
+                ),
+            )
+        return network
+
+    @validate_call
     def create_network(
         self,
         library: Libraries = "Buildings",
