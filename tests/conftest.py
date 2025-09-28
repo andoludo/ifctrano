@@ -158,9 +158,13 @@ def residential_house(residential_house_path: Path) -> file:
 
 
 @pytest.fixture
-def layer(residential_house_path: Path) -> file:
-    model_path = SPACE_BOUNDARY_IFC / "layer.ifc"
-    return ifcopenshell.open(str(model_path))
+def layer_path(residential_house_path: Path) -> Path:
+    return SPACE_BOUNDARY_IFC / "layer.ifc"
+
+
+@pytest.fixture
+def layer(layer_path: Path) -> file:
+    return ifcopenshell.open(str(layer_path))
 
 
 @pytest.fixture
