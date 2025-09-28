@@ -1,3 +1,4 @@
+import logging
 import re
 from pathlib import Path
 from typing import List, Tuple, Any, Optional, Set
@@ -12,13 +13,19 @@ from trano.topology import Network  # type: ignore
 from vedo import Line  # type: ignore
 
 from ifctrano.base import BaseModelConfig, Libraries, Vector, BaseShow, CommonSurface
-from ifctrano.exceptions import IfcFileNotFoundError, NoIfcSpaceFoundError
+from ifctrano.exceptions import (
+    IfcFileNotFoundError,
+    NoIfcSpaceFoundError,
+    NoSpaceBoundariesError,
+)
 from ifctrano.space_boundary import (
     SpaceBoundaries,
     initialize_tree,
     Space,
 )
 from ifctrano.construction import Constructions, default_construction
+
+logger = logging.getLogger(__name__)
 
 
 def get_spaces(ifcopenshell_file: file) -> List[entity_instance]:
@@ -180,9 +187,18 @@ class Building(BaseShow):
             ]
         if not spaces:
             raise NoIfcSpaceFoundError("No IfcSpace found in the file.")
-        space_boundaries = [
-            SpaceBoundaries.from_space_entity(ifc_file, tree, space) for space in spaces
-        ]
+        space_boundaries = []
+        for space in spaces:
+            try:
+                space_boundaries.append(
+                    SpaceBoundaries.from_space_entity(ifc_file, tree, space)
+                )
+            except Exception as e:  # noqa: PERF203
+                logger.error(f"Cannot process space {space.id()}. Reason {e}")
+                continue
+        if not space_boundaries:
+            raise NoSpaceBoundariesError("No valid space boundaries found.")
+
         return cls(
             space_boundaries=space_boundaries,
             ifc_file=ifc_file,
