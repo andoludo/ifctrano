@@ -365,12 +365,22 @@ def remove_duplicate_boundaries(
             intersecting = [
                 o
                 for o in others
-                if wkt.loads(o.common_surface.polygon).intersects(
-                    wkt.loads(reference.common_surface.polygon)
+                if (
+                    wkt.loads(o.common_surface.polygon).intersects(
+                        wkt.loads(reference.common_surface.polygon)
+                    )
+                    and o.common_surface.orientation
+                    == reference.common_surface.orientation
                 )
+                and (
+                    wkt.loads(o.common_surface.polygon).intersection(
+                        wkt.loads(reference.common_surface.polygon)
+                    )
+                ).area
+                > 0
             ]
             current_group = sorted(
-                [*intersecting, reference], key=lambda p: p.common_surface.area
+                [*intersecting, reference], key=lambda p: p.entity.GlobalId
             )
             new_boundaries.append(next(iter(current_group)))
             references = [p_ for p_ in references if p_ not in current_group]
@@ -383,7 +393,10 @@ class MergedSpaceBoundary(BaseModel):
     related_boundaries: List[SpaceBoundary]
 
     def get_new_boundary(self) -> Optional[SpaceBoundary]:
-        boundary = next(iter(self.related_boundaries), None)
+        related_boundaries = sorted(
+            self.related_boundaries, key=lambda b: b.entity.GlobalId
+        )
+        boundary = next(iter(related_boundaries), None)
         if boundary:
             return SpaceBoundary.model_validate(
                 boundary.model_dump() | {"entity": self.parent}
