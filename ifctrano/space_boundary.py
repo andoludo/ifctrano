@@ -424,6 +424,7 @@ def remove_duplicate_boundaries(
     boundaries: List[SpaceBoundary],
 ) -> List[SpaceBoundary]:
     types = ["IfcRoof", "IfcSlab"]
+    boundaries = sorted(boundaries, key=lambda b: b.entity.GlobalId)
     boundaries_without_types = [
         sp for sp in boundaries if sp.entity.is_a() not in types
     ]
