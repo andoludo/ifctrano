@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from ifcopenshell import file, entity_instance
 
@@ -34,6 +34,12 @@ material_1 = Material(
 )
 default_construction = Construction(
     name="default_construction",
+    layers=[
+        Layer(material=material_1, thickness=0.18),
+    ],
+)
+default_internal_construction = Construction(
+    name="default_internal_construction",
     layers=[
         Layer(material=material_1, thickness=0.18),
     ],
@@ -186,14 +192,16 @@ class Constructions(BaseModel):
             )
         return cls(constructions=constructions)
 
-    def get_construction(self, entity: entity_instance) -> Construction:
+    def get_construction(
+        self, entity: entity_instance, default: Optional[Construction] = None
+    ) -> Construction:
         construction_id = self._get_construction_id(entity)
         if construction_id is None:
             logger.warning(
                 f"Construction ID not found for {entity.GlobalId} ({entity.is_a()}). "
                 f"Using default construction."
             )
-            return default_construction
+            return default or default_construction
         constructions = [
             construction.to_construction()
             for construction in self.constructions
@@ -225,3 +233,79 @@ class Constructions(BaseModel):
         else:
             logger.error("Unexpected material type found.")
             return None
+
+    def to_config(self) -> Dict[str, Any]:
+        constructions_all = [*self.constructions, default_construction, glass]
+        constructions = [
+            {
+                "id": construction.name,
+                "layers": [
+                    {"material": layer.material.name, "thickness": layer.thickness}
+                    for layer in construction.layers
+                ],
+            }
+            for construction in constructions_all
+            if isinstance(construction, Construction)
+        ]
+        glazings = [
+            {
+                "id": construction.name,
+                "layers": [
+                    {
+                        (
+                            "glass" if isinstance(layer, GlassLayer) else "gas"
+                        ): layer.material.name,
+                        "thickness": layer.thickness,
+                    }
+                    for layer in construction.layers
+                ],
+            }
+            for construction in constructions_all
+            if isinstance(construction, Glass)
+        ]
+        materials = {
+            layer.material
+            for construction in constructions_all
+            for layer in construction.layers
+            if type(layer.material) is Material
+        }
+        gas = {
+            layer.material
+            for construction in constructions_all
+            for layer in construction.layers
+            if type(layer.material) is Gas
+        }
+        glass_ = {
+            layer.material
+            for construction in constructions_all
+            for layer in construction.layers
+            if type(layer.material) is GlassMaterial
+        }
+
+        materials_ = [
+            (material.model_dump(exclude={"name"}) | {"id": material.name})
+            for material in materials
+        ]
+        gas_ = [
+            (material.model_dump(exclude={"name"}) | {"id": material.name})
+            for material in gas
+        ]
+        glass_material = [
+            (_convert_glass(material) | {"id": material.name}) for material in glass_
+        ]
+        return {
+            "constructions": constructions,
+            "material": materials_,
+            "glazings": glazings,
+            "gas": gas_,
+            "glass_material": glass_material,
+        }
+
+
+def _convert_glass(glass_: Material) -> Dict[str, Any]:
+    return {
+        key: (
+            value if not isinstance(value, list) else f"{{{','.join(map(str, value))}}}"
+        )
+        for key, value in glass_.model_dump().items()
+    }

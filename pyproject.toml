@@ -33,6 +33,7 @@ isort = "^5.13.2"
 jsf = "^0.11.2"
 black = "^24.10.0"
 pytest = "^7.4.3"
+deepdiff = "^8.6.1"
 
 [tool.poetry.scripts]
 ifctrano = "ifctrano.main:app"

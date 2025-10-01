@@ -23,6 +23,38 @@ CROSS_MARK = "[red]✘[/red]"
 
 
 @app.command()
+def config(
+    model: Annotated[
+        str,
+        typer.Argument(help="Local path to the ifc file."),
+    ],
+    show_space_boundaries: Annotated[
+        bool,
+        typer.Option(help="Show computed space boundaries."),
+    ] = False,
+) -> None:
+    working_directory = Path.cwd()
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        transient=True,
+    ) as progress:
+        modelica_model_path = Path(model).resolve().with_suffix(".mo")
+        config_path = working_directory.joinpath(f"{modelica_model_path.stem}.yaml")
+        task = progress.add_task(
+            description=f"Generating {config_path} configuration file.",
+            total=None,
+        )
+        building = Building.from_ifc(Path(model))
+        if show_space_boundaries:
+            print(f"{CHECKMARK} Showing space boundaries.")
+            building.show()
+        building.to_yaml(config_path)
+        progress.remove_task(task)
+        print(f"{CHECKMARK} configuration file generated: {config_path}.")
+
+
+@app.command()
 def create(
     model: Annotated[
         str,
