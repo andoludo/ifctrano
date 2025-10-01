@@ -1,0 +1,216 @@
+constructions:
+- id: default_construction
+  layers:
+  - material: material_1
+    thickness: 0.18
+gas:
+- density: 1.2
+  id: Air
+  longwave_emissivity: 0.85
+  shortwave_emissivity: 0.65
+  specific_heat_capacity: 1005.0
+  thermal_conductivity: 0.025
+glass_material:
+- density: 2500.0
+  id: id_100
+  infrared_absorptivity_outside_facing: 0.84
+  infrared_absorptivity_room_facing: 0.84
+  infrared_transmissivity: 0.0
+  longwave_emissivity: 0.85
+  name: id_100
+  shortwave_emissivity: 0.65
+  solar_reflectance_outside_facing: '{0.062}'
+  solar_reflectance_room_facing: '{0.063}'
+  solar_transmittance: '{0.646}'
+  specific_heat_capacity: 840.0
+  thermal_conductivity: 1.0
+glazings:
+- id: double_glazing
+  layers:
+  - glass: id_100
+    thickness: 0.003
+  - gas: Air
+    thickness: 0.0127
+  - glass: id_100
+    thickness: 0.003
+internal_walls:
+- construction: default_internal_construction
+  space_1: space003_tjv
+  space_2: space004_rqw
+  surface: 6.656
+- construction: default_internal_construction
+  space_1: space001_1of
+  space_2: space002_pji
+  surface: 6.266
+- construction: default_internal_construction
+  space_1: space002_pji
+  space_2: space003_tjv
+  surface: 6.656
+- construction: default_internal_construction
+  space_1: space001_1of
+  space_2: space004_rqw
+  surface: 5.486
+- construction: default_internal_construction
+  space_1: space001_1of
+  space_2: space003_tjv
+  surface: 7.046
+material:
+- density: 80.0
+  id: material_1
+  longwave_emissivity: 0.85
+  shortwave_emissivity: 0.65
+  specific_heat_capacity: 940.0
+  thermal_conductivity: 0.046
+spaces:
+- external_boundaries:
+    external_walls:
+    - azimuth: 4.71238898038469
+      construction: default_construction
+      surface: 9.386
+      tilt: wall
+    - azimuth: 1.5707963267948966
+      construction: default_construction
+      surface: 2.904
+      tilt: wall
+    - azimuth: 1.5707963267948966
+      construction: default_construction
+      surface: 8.664
+      tilt: wall
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 27.1111
+      tilt: ceiling
+    floor_on_grounds:
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 18.775
+      tilt: floor
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 27.0
+      tilt: floor
+    windows: []
+  id: space001_1of
+  occupancy:
+    parameters:
+      gain: '[35; 70; 30]'
+      heat_gain_if_occupied: 1/6/4
+      occupancy: 3600*{7, 19}
+  parameters:
+    average_room_height: 2.6
+    floor_area: 27.1111
+    linearize_emissive_power: 'true'
+    nominal_mass_flow_rate: 0.01
+    sensible_thermal_mass_scaling_factor: 1.0
+    temperature_initial: 294.15
+    volume: 70.48886
+- external_boundaries:
+    external_walls:
+    - azimuth: 4.71238898038469
+      construction: default_construction
+      surface: 1.911
+      tilt: wall
+    - azimuth: 3.141592653589793
+      construction: default_construction
+      surface: 6.162
+      tilt: wall
+    - azimuth: 1.5707963267948966
+      construction: default_construction
+      surface: 8.664
+      tilt: wall
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 8.7001
+      tilt: ceiling
+    floor_on_grounds:
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 8.664
+      tilt: floor
+    windows:
+    - azimuth: 3.141592653589793
+      construction: double_glazing
+      surface: 2.115
+      tilt: wall
+  id: space002_pji
+  occupancy:
+    parameters:
+      gain: '[35; 70; 30]'
+      heat_gain_if_occupied: 1/6/4
+      occupancy: 3600*{7, 19}
+  parameters:
+    average_room_height: 2.6
+    floor_area: 8.7001
+    linearize_emissive_power: 'true'
+    nominal_mass_flow_rate: 0.01
+    sensible_thermal_mass_scaling_factor: 1.0
+    temperature_initial: 294.15
+    volume: 22.620260000000002
+- external_boundaries:
+    external_walls:
+    - azimuth: 3.141592653589793
+      construction: default_construction
+      surface: 7.046
+      tilt: wall
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 6.9376
+      tilt: ceiling
+    floor_on_grounds:
+    - azimuth: 4.71238898038469
+      construction: default_construction
+      surface: 6.9376
+      tilt: floor
+    windows: []
+  id: space003_tjv
+  occupancy:
+    parameters:
+      gain: '[35; 70; 30]'
+      heat_gain_if_occupied: 1/6/4
+      occupancy: 3600*{7, 19}
+  parameters:
+    average_room_height: 2.6
+    floor_area: 6.9376
+    linearize_emissive_power: 'true'
+    nominal_mass_flow_rate: 0.01
+    sensible_thermal_mass_scaling_factor: 1.0
+    temperature_initial: 294.15
+    volume: 18.03776
+- external_boundaries:
+    external_walls:
+    - azimuth: 4.71238898038469
+      construction: default_construction
+      surface: 9.386
+      tilt: wall
+    - azimuth: 3.141592653589793
+      construction: default_construction
+      surface: 5.486
+      tilt: wall
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 7.6171
+      tilt: ceiling
+    floor_on_grounds:
+    - azimuth: 0.0
+      construction: default_construction
+      surface: 7.6171
+      tilt: floor
+    windows:
+    - azimuth: 3.141592653589793
+      construction: double_glazing
+      surface: 1.776
+      tilt: wall
+  id: space004_rqw
+  occupancy:
+    parameters:
+      gain: '[35; 70; 30]'
+      heat_gain_if_occupied: 1/6/4
+      occupancy: 3600*{7, 19}
+  parameters:
+    average_room_height: 2.6
+    floor_area: 7.6171
+    linearize_emissive_power: 'true'
+    nominal_mass_flow_rate: 0.01
+    sensible_thermal_mass_scaling_factor: 1.0
+    temperature_initial: 294.15
+    volume: 19.80446

@@ -1,5 +1,7 @@
+import logging
+import math
 import multiprocessing
-from typing import Optional, List, Tuple, Any, Annotated
+from typing import Optional, List, Tuple, Any, Annotated, Dict
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -33,6 +35,8 @@ from ifctrano.utils import (
 )
 
 ROOF_VECTOR = Vector(x=0, y=0, z=1)
+
+logger = logging.getLogger(__name__)
 
 
 def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
@@ -88,6 +92,14 @@ class Space(GlobalId):
     def space_name(self) -> str:
         main_name = f"{remove_non_alphanumeric(self.name)}_" if self.name else ""
         return f"space_{main_name}{remove_non_alphanumeric(self.entity.GlobalId)}"
+
+    def space_unique_name(self) -> str:
+        base_name = remove_non_alphanumeric(self.name) if self.name else ""
+        main_name = f"{base_name}_" if base_name else ""
+        space_name = f"{main_name}{remove_non_alphanumeric(self.entity.GlobalId)[-3:]}"
+        if "space" not in space_name:
+            return f"space_{space_name}"
+        return space_name
 
 
 class ExternalSpaceBoundaryGroup(BaseModelConfig):
@@ -145,6 +157,10 @@ class ExternalSpaceBoundaryGroups(BaseModelConfig):
             not (group.has_window() and not group.has_external_wall())
             for group in self.space_boundary_groups
         )
+
+
+def deg_to_rad(deg: float) -> float:
+    return deg * math.pi / 180.0
 
 
 class Azimuths(BaseModel):
@@ -277,6 +293,63 @@ class SpaceBoundaries(BaseShow):
         for space_boundary in space_boundaries:
             if space_boundary in self.boundaries:
                 self.boundaries.remove(space_boundary)
+
+    def to_config(
+        self,
+        exclude_entities: List[str],
+        north_axis: Vector,
+        constructions: Constructions,
+    ) -> Dict[str, Any]:
+        external_boundaries: Dict[str, Any] = {
+            "external_walls": [],
+            "floor_on_grounds": [],
+            "windows": [],
+        }
+        external_boundaries_check = []
+        for boundary in self.boundaries:
+            boundary_model = boundary.model_element(
+                exclude_entities, north_axis, constructions
+            )
+            if boundary_model:
+                external_boundaries_check.append(boundary_model)
+                element = {
+                    "surface": boundary_model.surface,
+                    "azimuth": deg_to_rad(boundary_model.azimuth),
+                    "tilt": boundary_model.tilt.value,
+                    "construction": boundary_model.construction.name,
+                }
+                if isinstance(
+                    boundary_model, (ExternalWall, ExternalDoor)
+                ) and boundary_model.tilt in [Tilt.wall, Tilt.ceiling]:
+                    external_boundaries["external_walls"].append(element)
+                elif isinstance(boundary_model, (Window)):
+                    external_boundaries["windows"].append(element)
+                elif isinstance(
+                    boundary_model, (ExternalWall)
+                ) and boundary_model.tilt in [Tilt.floor]:
+                    external_boundaries["floor_on_grounds"].append(element)
+                else:
+                    raise ValueError("Unknown boundary type")
+        external_space_boundaries_group = (
+            ExternalSpaceBoundaryGroups.from_external_boundaries(
+                external_boundaries_check
+            )
+        )
+        if not external_space_boundaries_group.has_windows_without_wall():
+            logger.error(
+                f"Space {self.space.global_id} has a boundary that has a windows but without walls."
+            )
+        occupancy_parameters = Occupancy().parameters.model_dump(mode="json")
+        space_parameters = SpaceParameter(
+            floor_area=self.space.floor_area,
+            average_room_height=self.space.average_room_height,
+        ).model_dump(mode="json")
+        return {
+            "id": self.space.space_unique_name(),
+            "occupancy": {"parameters": occupancy_parameters},
+            "parameters": space_parameters,
+            "external_boundaries": external_boundaries,
+        }
 
     def model(
         self,

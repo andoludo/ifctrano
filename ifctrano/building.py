@@ -1,9 +1,10 @@
 import logging
 import re
 from pathlib import Path
-from typing import List, Tuple, Any, Optional, Set
+from typing import List, Tuple, Any, Optional, Set, Dict
 
 import ifcopenshell
+import yaml
 from ifcopenshell import file, entity_instance
 from pydantic import validate_call, Field, model_validator, field_validator
 from trano.elements import InternalElement  # type: ignore
@@ -23,7 +24,11 @@ from ifctrano.space_boundary import (
     initialize_tree,
     Space,
 )
-from ifctrano.construction import Constructions, default_construction
+from ifctrano.construction import (
+    Constructions,
+    default_construction,
+    default_internal_construction,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -214,6 +219,71 @@ class Building(BaseShow):
 
     def get_adjacency(self) -> InternalElements:
         return get_internal_elements(self.space_boundaries)
+
+    @validate_call
+    def to_config(
+        self,
+        north_axis: Optional[Vector] = None,
+    ) -> Dict[str, Any]:
+        north_axis = north_axis or Vector(x=0, y=1, z=0)
+        spaces = [
+            space_boundary.to_config(
+                self.internal_elements.internal_element_ids(),
+                north_axis,
+                self.constructions,
+            )
+            for space_boundary in self.space_boundaries
+        ]
+        internal_walls = []
+        for internal_element in self.internal_elements.elements:
+            space_1 = internal_element.spaces[0]
+            space_2 = internal_element.spaces[1]
+            construction = self.constructions.get_construction(
+                internal_element.element, default_internal_construction
+            )
+            if internal_element.element.is_a() in ["IfcSlab"]:
+                space_1_tilt = (
+                    Tilt.floor.value
+                    if space_1.bounding_box.centroid.z > space_2.bounding_box.centroid.z
+                    else Tilt.ceiling.value
+                )
+                space_2_tilt = (
+                    Tilt.floor.value
+                    if space_2.bounding_box.centroid.z > space_1.bounding_box.centroid.z
+                    else Tilt.ceiling.value
+                )
+                if space_1_tilt == space_2_tilt:
+                    raise ValueError("Space tilts are not compatible.")
+                internal_walls.append(
+                    {
+                        "space_1": space_1.space_unique_name(),
+                        "space_2": space_2.space_unique_name(),
+                        "construction": construction.name,
+                        "surface": internal_element.area,
+                        "space_1_tilt": space_1_tilt,
+                        "space_2_tilt": space_2_tilt,
+                    }
+                )
+            else:
+                internal_walls.append(
+                    {
+                        "space_1": space_1.space_unique_name(),
+                        "space_2": space_2.space_unique_name(),
+                        "construction": construction.name,
+                        "surface": internal_element.area,
+                    }
+                )
+        construction_config = self.constructions.to_config()
+        return construction_config | {
+            "spaces": spaces,
+            "internal_walls": internal_walls,
+        }
+
+    @validate_call
+    def to_yaml(self, yaml_path: Path, north_axis: Optional[Vector] = None) -> None:
+        config = self.to_config(north_axis=north_axis)
+        yaml_data = yaml.dump(config)
+        yaml_path.write_text(yaml_data)
 
     @validate_call
     def create_network(

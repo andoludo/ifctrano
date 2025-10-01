@@ -3,15 +3,20 @@ from typing import Dict, Any
 
 import ifcopenshell
 import pytest
+import yaml
 from _pytest.fixtures import FixtureRequest
+from deepdiff import DeepDiff
 from ifcopenshell import file
 
 from ifctrano.base import BaseShow
 import json
 import difflib
 
+from ifctrano.building import Building
+
 SPACE_BOUNDARY_IFC = Path(__file__).parent / "models" / "space_boundary"
 SPACE_ONLY = Path(__file__).parent / "models" / "space_only"
+CONFIG_PATH = Path(__file__).parent / "config"
 
 SHOW_FIGURES = False
 OVERWRITE_RESULTS = False
@@ -38,6 +43,18 @@ def compare(elements: BaseShow, request: FixtureRequest) -> bool:
     output_1 = elements.load_description(file_path)
     diff(output_2, output_1)
     return output_1 == output_2
+
+
+def compare_config(building: Building, request: FixtureRequest) -> bool:
+
+    file_path = CONFIG_PATH.joinpath(f"{request.node.name}.yaml")
+    if OVERWRITE_RESULTS:
+        building.to_yaml(file_path)
+    with file_path.open("r") as file:
+        data = yaml.safe_load(file)
+
+    diff = DeepDiff(data, building.to_config(), ignore_order=True)
+    return not bool(diff)
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ import pytest
 from _pytest.fixtures import FixtureRequest
 
 from ifctrano.building import Building
-from tests.conftest import compare
+from tests.conftest import compare, compare_config
 
 SHOW_FIGURES = False
 
@@ -99,6 +99,7 @@ def test_building_residential_house(
 
     assert building.get_model()
     assert compare(building, request)
+    assert compare_config(building, request)
 
 
 def test_building_two_zone_save_file(two_zone_path: Path) -> None:
@@ -162,9 +163,17 @@ def test_architect(request: FixtureRequest, architect_path: Path) -> None:
 
 
 def test_building_layer(request: FixtureRequest, layer_path: Path) -> None:
-
     building = Building.from_ifc(layer_path)
     if SHOW_FIGURES:
         building.show()
     assert building.get_model()
     assert compare(building, request)
+
+
+def test_building_layer_configuration(
+    request: FixtureRequest, layer_path: Path
+) -> None:
+    building = Building.from_ifc(layer_path)
+    if SHOW_FIGURES:
+        building.show()
+    assert compare_config(building, request)
