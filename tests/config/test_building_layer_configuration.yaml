@@ -3,6 +3,10 @@ constructions:
   layers:
   - material: material_1
     thickness: 0.18
+- id: default_internal_construction
+  layers:
+  - material: material_1
+    thickness: 0.18
 gas:
 - density: 1.2
   id: Air
@@ -17,11 +21,13 @@ glass_material:
   infrared_absorptivity_room_facing: 0.84
   infrared_transmissivity: 0.0
   longwave_emissivity: 0.85
-  name: id_100
   shortwave_emissivity: 0.65
-  solar_reflectance_outside_facing: '{0.062}'
-  solar_reflectance_room_facing: '{0.063}'
-  solar_transmittance: '{0.646}'
+  solar_reflectance_outside_facing:
+  - 0.062
+  solar_reflectance_room_facing:
+  - 0.063
+  solar_transmittance:
+  - 0.646
   specific_heat_capacity: 840.0
   thermal_conductivity: 1.0
 glazings:
@@ -40,20 +46,20 @@ internal_walls:
   surface: 6.656
 - construction: default_internal_construction
   space_1: space001_1of
-  space_2: space002_pji
-  surface: 6.266
+  space_2: space004_rqw
+  surface: 5.486
 - construction: default_internal_construction
   space_1: space002_pji
   space_2: space003_tjv
   surface: 6.656
 - construction: default_internal_construction
   space_1: space001_1of
-  space_2: space004_rqw
-  surface: 5.486
-- construction: default_internal_construction
-  space_1: space001_1of
   space_2: space003_tjv
   surface: 7.046
+- construction: default_internal_construction
+  space_1: space001_1of
+  space_2: space002_pji
+  surface: 6.266
 material:
 - density: 80.0
   id: material_1
@@ -64,31 +70,27 @@ material:
 spaces:
 - external_boundaries:
     external_walls:
-    - azimuth: 4.71238898038469
+    - azimuth: 1.57
+      construction: default_construction
+      surface: 8.664
+      tilt: wall
+    - azimuth: 4.71
       construction: default_construction
       surface: 9.386
       tilt: wall
-    - azimuth: 1.5707963267948966
+    - azimuth: 1.57
       construction: default_construction
       surface: 2.904
-      tilt: wall
-    - azimuth: 1.5707963267948966
-      construction: default_construction
-      surface: 8.664
       tilt: wall
     - azimuth: 0.0
       construction: default_construction
       surface: 27.1111
       tilt: ceiling
     floor_on_grounds:
-    - azimuth: 0.0
-      construction: default_construction
-      surface: 18.775
-      tilt: floor
-    - azimuth: 0.0
-      construction: default_construction
+    - construction: default_construction
       surface: 27.0
-      tilt: floor
+    - construction: default_construction
+      surface: 18.775
     windows: []
   id: space001_1of
   occupancy:
@@ -99,36 +101,32 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 27.1111
-    linearize_emissive_power: 'true'
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
-    volume: 70.48886
 - external_boundaries:
     external_walls:
-    - azimuth: 4.71238898038469
+    - azimuth: 1.57
       construction: default_construction
-      surface: 1.911
+      surface: 8.664
       tilt: wall
-    - azimuth: 3.141592653589793
+    - azimuth: 3.14
       construction: default_construction
       surface: 6.162
       tilt: wall
-    - azimuth: 1.5707963267948966
+    - azimuth: 4.71
       construction: default_construction
-      surface: 8.664
+      surface: 1.911
       tilt: wall
     - azimuth: 0.0
       construction: default_construction
       surface: 8.7001
       tilt: ceiling
     floor_on_grounds:
-    - azimuth: 0.0
-      construction: default_construction
+    - construction: default_construction
       surface: 8.664
-      tilt: floor
     windows:
-    - azimuth: 3.141592653589793
+    - azimuth: 3.14
       construction: double_glazing
       surface: 2.115
       tilt: wall
@@ -141,14 +139,12 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 8.7001
-    linearize_emissive_power: 'true'
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
-    volume: 22.620260000000002
 - external_boundaries:
     external_walls:
-    - azimuth: 3.141592653589793
+    - azimuth: 3.14
       construction: default_construction
       surface: 7.046
       tilt: wall
@@ -157,10 +153,8 @@ spaces:
       surface: 6.9376
       tilt: ceiling
     floor_on_grounds:
-    - azimuth: 4.71238898038469
-      construction: default_construction
+    - construction: default_construction
       surface: 6.9376
-      tilt: floor
     windows: []
   id: space003_tjv
   occupancy:
@@ -171,32 +165,28 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 6.9376
-    linearize_emissive_power: 'true'
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
-    volume: 18.03776
 - external_boundaries:
     external_walls:
-    - azimuth: 4.71238898038469
-      construction: default_construction
-      surface: 9.386
-      tilt: wall
-    - azimuth: 3.141592653589793
+    - azimuth: 3.14
       construction: default_construction
       surface: 5.486
+      tilt: wall
+    - azimuth: 4.71
+      construction: default_construction
+      surface: 9.386
       tilt: wall
     - azimuth: 0.0
       construction: default_construction
       surface: 7.6171
       tilt: ceiling
     floor_on_grounds:
-    - azimuth: 0.0
-      construction: default_construction
+    - construction: default_construction
       surface: 7.6171
-      tilt: floor
     windows:
-    - azimuth: 3.141592653589793
+    - azimuth: 3.14
       construction: double_glazing
       surface: 1.776
       tilt: wall
@@ -209,8 +199,6 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 7.6171
-    linearize_emissive_power: 'true'
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
-    volume: 19.80446

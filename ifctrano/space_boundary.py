@@ -25,8 +25,7 @@ from ifctrano.base import (
     BaseShow,
 )
 from ifctrano.bounding_box import OrientedBoundingBox
-from ifctrano.construction import glass, Constructions
-from ifctrano.exceptions import HasWindowsWithoutWallsError
+from ifctrano.construction import glass, Constructions, default_construction
 from ifctrano.utils import (
     remove_non_alphanumeric,
     _round,
@@ -121,11 +120,57 @@ class ExternalSpaceBoundaryGroup(BaseModelConfig):
             for construction in self.constructions
         )
 
+    def _merge(
+        self,
+        constructions: List[Window | ExternalWall],
+        construction_type: type[Window | ExternalWall],
+    ) -> List[Window | ExternalWall]:
+        construction_types = [
+            c for c in self.constructions if isinstance(c, construction_type)
+        ]
+        reference = next(iter(construction_types), None)
+        if not reference:
+            return []
+        surface = sum([construction.surface for construction in construction_types])
+        azimuth = reference.azimuth
+        tilt = reference.tilt
+        return [
+            construction_type(
+                surface=surface,
+                azimuth=azimuth,
+                tilt=tilt,
+                construction=reference.construction,
+            )
+        ]
+
+    def merge(self) -> None:
+        self.constructions = [
+            *self._merge(self.constructions, Window),
+            *self._merge(self.constructions, ExternalWall),
+        ]
+
+    def add_external_wall(self) -> None:
+        reference = next(iter(self.constructions))
+        surface = sum([construction.surface for construction in self.constructions]) * (
+            0.7 / 0.3
+        )
+        azimuth = reference.azimuth
+        tilt = reference.tilt
+        self.constructions.append(
+            ExternalWall(
+                surface=surface,
+                azimuth=azimuth,
+                tilt=tilt,
+                construction=default_construction,
+            )
+        )
+
 
 class ExternalSpaceBoundaryGroups(BaseModelConfig):
     space_boundary_groups: List[ExternalSpaceBoundaryGroup] = Field(
         default_factory=list
     )
+    remaining_constructions: List[BaseWall]
 
     @classmethod
     def from_external_boundaries(
@@ -135,6 +180,11 @@ class ExternalSpaceBoundaryGroups(BaseModelConfig):
             ex
             for ex in external_boundaries
             if isinstance(ex, (ExternalWall, Window)) and ex.tilt == Tilt.wall
+        ]
+        remaining_constructions = [
+            ex
+            for ex in external_boundaries
+            if not (isinstance(ex, (ExternalWall, Window)) and ex.tilt == Tilt.wall)
         ]
         space_boundary_groups = list(
             {
@@ -150,7 +200,12 @@ class ExternalSpaceBoundaryGroups(BaseModelConfig):
                 for ex in boundary_walls
             }
         )
-        return cls(space_boundary_groups=space_boundary_groups)
+        groups = cls(
+            space_boundary_groups=space_boundary_groups,
+            remaining_constructions=remaining_constructions,
+        )
+        groups.merge()
+        return groups
 
     def has_windows_without_wall(self) -> bool:
         return all(
@@ -158,9 +213,23 @@ class ExternalSpaceBoundaryGroups(BaseModelConfig):
             for group in self.space_boundary_groups
         )
 
+    def add_external_walls(self) -> None:
+        for group in self.space_boundary_groups:
+            group.add_external_wall()
+
+    def get_constructions(self) -> List[ExternalWall | Window]:
+        return [
+            *[c for group in self.space_boundary_groups for c in group.constructions],
+            *self.remaining_constructions,
+        ]
+
+    def merge(self) -> None:
+        for g in self.space_boundary_groups:
+            g.merge()
+
 
 def deg_to_rad(deg: float) -> float:
-    return deg * math.pi / 180.0
+    return round(deg * math.pi / 180.0, 2)
 
 
 class Azimuths(BaseModel):
@@ -299,7 +368,7 @@ class SpaceBoundaries(BaseShow):
         exclude_entities: List[str],
         north_axis: Vector,
         constructions: Constructions,
-    ) -> Dict[str, Any]:
+    ) -> Optional[Dict[str, Any]]:
         external_boundaries: Dict[str, Any] = {
             "external_walls": [],
             "floor_on_grounds": [],
@@ -312,38 +381,45 @@ class SpaceBoundaries(BaseShow):
             )
             if boundary_model:
                 external_boundaries_check.append(boundary_model)
-                element = {
-                    "surface": boundary_model.surface,
-                    "azimuth": deg_to_rad(boundary_model.azimuth),
-                    "tilt": boundary_model.tilt.value,
-                    "construction": boundary_model.construction.name,
-                }
-                if isinstance(
-                    boundary_model, (ExternalWall, ExternalDoor)
-                ) and boundary_model.tilt in [Tilt.wall, Tilt.ceiling]:
-                    external_boundaries["external_walls"].append(element)
-                elif isinstance(boundary_model, (Window)):
-                    external_boundaries["windows"].append(element)
-                elif isinstance(
-                    boundary_model, (ExternalWall)
-                ) and boundary_model.tilt in [Tilt.floor]:
-                    external_boundaries["floor_on_grounds"].append(element)
-                else:
-                    raise ValueError("Unknown boundary type")
+        if not external_boundaries_check:
+            return None
         external_space_boundaries_group = (
             ExternalSpaceBoundaryGroups.from_external_boundaries(
                 external_boundaries_check
             )
         )
         if not external_space_boundaries_group.has_windows_without_wall():
+            external_space_boundaries_group.add_external_walls()
             logger.error(
                 f"Space {self.space.global_id} has a boundary that has a windows but without walls."
             )
+        for boundary_model in external_space_boundaries_group.get_constructions():
+            element = {
+                "surface": boundary_model.surface,
+                "azimuth": deg_to_rad(boundary_model.azimuth),
+                "tilt": boundary_model.tilt.value,
+                "construction": boundary_model.construction.name,
+            }
+            if isinstance(
+                boundary_model, (ExternalWall, ExternalDoor)
+            ) and boundary_model.tilt in [Tilt.wall, Tilt.ceiling]:
+                external_boundaries["external_walls"].append(element)
+            elif isinstance(boundary_model, (Window)):
+                external_boundaries["windows"].append(element)
+            elif isinstance(boundary_model, (ExternalWall)) and boundary_model.tilt in [
+                Tilt.floor
+            ]:
+                element.pop("azimuth")
+                element.pop("tilt")
+                external_boundaries["floor_on_grounds"].append(element)
+            else:
+                raise ValueError("Unknown boundary type")
+
         occupancy_parameters = Occupancy().parameters.model_dump(mode="json")
         space_parameters = SpaceParameter(
             floor_area=self.space.floor_area,
             average_room_height=self.space.average_room_height,
-        ).model_dump(mode="json")
+        ).model_dump(mode="json", exclude={"linearize_emissive_power", "volume"})
         return {
             "id": self.space.space_unique_name(),
             "occupancy": {"parameters": occupancy_parameters},
@@ -364,12 +440,15 @@ class SpaceBoundaries(BaseShow):
             )
             if boundary_model:
                 external_boundaries.append(boundary_model)
+        if not external_boundaries:
+            return None
 
         external_space_boundaries_group = (
             ExternalSpaceBoundaryGroups.from_external_boundaries(external_boundaries)
         )
         if not external_space_boundaries_group.has_windows_without_wall():
-            raise HasWindowsWithoutWallsError(
+            external_space_boundaries_group.add_external_walls()
+            logger.error(
                 f"Space {self.space.global_id} has a boundary that has a windows but without walls."
             )
         return TranoSpace(
