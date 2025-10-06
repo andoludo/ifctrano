@@ -235,7 +235,12 @@ class Constructions(BaseModel):
             return None
 
     def to_config(self) -> Dict[str, Any]:
-        constructions_all = [*self.constructions, default_construction, glass]
+        constructions_all = [
+            *self.constructions,
+            default_construction,
+            glass,
+            default_internal_construction,
+        ]
         constructions = [
             {
                 "id": construction.name,
@@ -304,8 +309,7 @@ class Constructions(BaseModel):
 
 def _convert_glass(glass_: Material) -> Dict[str, Any]:
     return {
-        key: (
-            value if not isinstance(value, list) else f"{{{','.join(map(str, value))}}}"
-        )
+        key: (value if not isinstance(value, list) else value)
         for key, value in glass_.model_dump().items()
+        if key not in ["name"]
     }

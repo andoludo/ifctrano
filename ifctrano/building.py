@@ -8,6 +8,7 @@ import yaml
 from ifcopenshell import file, entity_instance
 from pydantic import validate_call, Field, model_validator, field_validator
 from trano.elements import InternalElement  # type: ignore
+from trano.elements.envelope import SpaceTilt  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
 from trano.topology import Network  # type: ignore
@@ -234,10 +235,21 @@ class Building(BaseShow):
             )
             for space_boundary in self.space_boundaries
         ]
+        spaces = [sp for sp in spaces if sp is not None]
         internal_walls = []
+
         for internal_element in self.internal_elements.elements:
             space_1 = internal_element.spaces[0]
             space_2 = internal_element.spaces[1]
+            if any(
+                name not in [sp["id"] for sp in spaces]  # type: ignore
+                for name in [
+                    space_1.space_unique_name(),
+                    space_2.space_unique_name(),
+                ]
+            ):
+                continue
+
             construction = self.constructions.get_construction(
                 internal_element.element, default_internal_construction
             )
@@ -253,7 +265,8 @@ class Building(BaseShow):
                     else Tilt.ceiling.value
                 )
                 if space_1_tilt == space_2_tilt:
-                    raise ValueError("Space tilts are not compatible.")
+                    logger.error("Space tilts are not compatible.")
+                    continue
                 internal_walls.append(
                     {
                         "space_1": space_1.space_unique_name(),
@@ -306,6 +319,30 @@ class Building(BaseShow):
         for internal_element in self.internal_elements.elements:
             space_1 = internal_element.spaces[0]
             space_2 = internal_element.spaces[1]
+            if any(
+                global_id not in spaces
+                for global_id in [space_1.entity.GlobalId, space_2.entity.GlobalId]
+            ):
+                continue
+            space_tilts = []
+            if internal_element.element.is_a() in ["IfcSlab"]:
+                space_1_tilt = (
+                    Tilt.floor
+                    if space_1.bounding_box.centroid.z > space_2.bounding_box.centroid.z
+                    else Tilt.ceiling
+                )
+                space_2_tilt = (
+                    Tilt.floor
+                    if space_2.bounding_box.centroid.z > space_1.bounding_box.centroid.z
+                    else Tilt.ceiling
+                )
+                if space_1_tilt == space_2_tilt:
+                    logger.error("Space tilts are not compatible.")
+                    continue
+                space_tilts = [
+                    SpaceTilt(space_name=space_1.name, tilt=space_1_tilt),
+                    SpaceTilt(space_name=space_2.name, tilt=space_2_tilt),
+                ]
             network.connect_spaces(
                 spaces[space_1.global_id],
                 spaces[space_2.global_id],
@@ -314,6 +351,7 @@ class Building(BaseShow):
                     construction=default_construction,
                     surface=internal_element.area,
                     tilt=Tilt.wall,
+                    space_tilts=space_tilts,
                 ),
             )
         return network
