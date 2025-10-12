@@ -110,7 +110,21 @@ ifctrano create /path/to/your.ifc IDEAS
 ```bash
 ifctrano create /path/to/your.ifc reduced_order
 ```
+---
 
+### 📁 Generate yaml configuration from IFC
+
+Instead of directly generating a Modelica model from an IFC file, this command creates a configuration .yaml file compatible with the Trano
+ Python package (https://github.com/andoludo/trano). This configuration file can be reviewed, adapted, and enriched before generating the final Modelica model, allowing for verification and customization of the translation process.
+```bash
+ifctrano config /path/to/your.ifc
+```
+
+Once the YAML configuration file has been generated and adapted, the following command can be used to generate and/or simulate the model.
+
+```bash
+ifctrano from-config /path/to/your.yaml
+```
 ---
 
 ### 🧱 Show Space Boundaries
