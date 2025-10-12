@@ -2,14 +2,17 @@ import shutil
 import webbrowser
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Annotated, get_args
+from typing import Annotated, get_args, Callable
 
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from trano.data_models.conversion import convert_network  # type: ignore
+from trano.elements.library.library import Library  # type: ignore
 from trano.reporting.html import to_html_reporting  # type: ignore
 from trano.reporting.reporting import ModelDocumentation  # type: ignore
 from trano.reporting.types import ResultFile  # type: ignore
 from trano.simulate.simulate import simulate  # type: ignore
+from trano.topology import Network  # type: ignore
 from trano.utils.utils import is_success  # type: ignore
 
 from ifctrano.base import Libraries
@@ -20,6 +23,45 @@ from rich import print
 app = typer.Typer()
 CHECKMARK = "[green]✔[/green]"
 CROSS_MARK = "[red]✘[/red]"
+
+
+def _create_network(model: str, library: str) -> Network:
+    library_ = Library.from_configuration(library)
+    model_ = Path(model).resolve()
+    return convert_network(str(model_.stem), model_, library=library_)
+
+
+def _simulate(
+    modelica_model_path: Path, create_network_callable: Callable[[], Network]
+) -> None:
+    print("Simulating...")
+    try:
+        results = simulate(modelica_model_path.parent, create_network_callable())
+    except Exception as e:
+        print(f"{CROSS_MARK} Simulation failed: {e}")
+        return
+    if not is_success(results):
+        print(f"{CROSS_MARK} Simulation failed. See logs for more information.")
+        return
+
+    result_path = (
+        Path(modelica_model_path.parent)
+        / "results"
+        / f"{modelica_model_path.stem.lower()}.building_res.mat"
+    )
+    if not result_path.exists():
+        print(
+            f"{CROSS_MARK} Simulation failed. Result file not found in {result_path}."
+        )
+        return
+    reporting = ModelDocumentation.from_network(
+        create_network_callable(),
+        result=ResultFile(path=result_path),
+    )
+    html = to_html_reporting(reporting)
+    report_path = Path(modelica_model_path.parent / f"{modelica_model_path.stem}.html")
+    report_path.write_text(html)
+    webbrowser.open(f"file://{report_path}")
 
 
 @app.command()
@@ -52,6 +94,43 @@ def config(
         building.to_yaml(config_path)
         progress.remove_task(task)
         print(f"{CHECKMARK} configuration file generated: {config_path}.")
+
+
+@app.command()
+def from_config(
+    model: Annotated[
+        str,
+        typer.Argument(help="Path to the configuration yaml file."),
+    ],
+    library: Annotated[
+        str,
+        typer.Argument(help="Modelica library to be used for simulation."),
+    ] = "Buildings",
+    simulate_model: Annotated[
+        bool,
+        typer.Option(help="Simulate the generated model."),
+    ] = False,
+) -> None:
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        transient=True,
+    ) as progress:
+        modelica_model_path = Path(model).resolve().with_suffix(".mo")
+        task = progress.add_task(
+            description=f"Generating model {modelica_model_path.name} with library {library}",
+            total=None,
+        )
+        network = _create_network(model, library)
+        modelica_model = network.model()
+        progress.update(task, completed=True)
+        task = progress.add_task(description="Writing model to file...", total=None)
+        modelica_model_path.write_text(modelica_model)
+        progress.remove_task(task)
+        print(f"{CHECKMARK} Model generated at {modelica_model_path}")
+        create_network_callable = lambda: _create_network(model, library)  # noqa: E731
+        if simulate_model:
+            _simulate(modelica_model_path, create_network_callable)
 
 
 @app.command()
@@ -97,42 +176,11 @@ def create(
         modelica_model_path.write_text(modelica_network.model())
         progress.remove_task(task)
         print(f"{CHECKMARK} Model generated at {modelica_model_path}")
+        create_network_callable = lambda: building.create_network(  # noqa: E731
+            library=library  # type: ignore
+        )
         if simulate_model:
-            print("Simulating...")
-            try:
-                results = simulate(
-                    modelica_model_path.parent,
-                    building.create_network(
-                        library=library  # type: ignore
-                    ),  # TODO: cannot use the network after creating he model
-                )
-            except Exception as e:
-                print(f"{CROSS_MARK} Simulation failed: {e}")
-                return
-            if not is_success(results):
-                print(f"{CROSS_MARK} Simulation failed. See logs for more information.")
-                return
-
-            result_path = (
-                Path(modelica_model_path.parent)
-                / "results"
-                / f"{modelica_model_path.stem.lower()}.building_res.mat"
-            )
-            if not result_path.exists():
-                print(
-                    f"{CROSS_MARK} Simulation failed. Result file not found in {result_path}."
-                )
-                return
-            reporting = ModelDocumentation.from_network(
-                building.create_network(library=library),  # type: ignore
-                result=ResultFile(path=result_path),
-            )
-            html = to_html_reporting(reporting)
-            report_path = Path(
-                modelica_model_path.parent / f"{modelica_model_path.stem}.html"
-            )
-            report_path.write_text(html)
-            webbrowser.open(f"file://{report_path}")
+            _simulate(modelica_model_path, create_network_callable)
 
 
 @app.command()
