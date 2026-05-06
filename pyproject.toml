@@ -1,62 +1,77 @@
-[tool.poetry]
+[project]
 name = "ifctrano"
 version = "0.11.0"
 description = "Package for generating building energy simulation model from IFC"
-authors = ["Ando Andriamamonjy <andoludovic.andriamamonjy@gmail.com>"]
-license = "GPL V3"
+authors = [
+    { name = "Ando Andriamamonjy", email = "andoludovic.andriamamonjy@gmail.com" },
+]
+license = { text = "GPL V3" }
 readme = "README.md"
-repository = "https://github.com/andoludo/ifctrano"
-keywords = ["BIM","IFC","energy simulation", "modelica", "building energy simulation", "buildings", "ideas"]
+keywords = [
+    "BIM",
+    "IFC",
+    "energy simulation",
+    "modelica",
+    "building energy simulation",
+    "buildings",
+    "ideas",
+]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "ifcopenshell>=0.8.1.post1,<0.9.0",
+    "trano>=0.13.0,<0.14.0",
+    "shapely>=2.0.7,<3.0.0",
+    "typer>=0.19.2,<0.20.0",
+    "vedo>=2025.5.3,<2026.0.0",
+    "open3d>=0.19.0,<0.20.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-ifcopenshell = "^0.8.1.post1"
-trano = "^0.13.0"
-shapely = "^2.0.7"
-typer = "^0.19.2"
-vedo = "^2025.5.3"
-open3d = "^0.19.0"
+[project.urls]
+Repository = "https://github.com/andoludo/ifctrano"
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.8.0"
-nox = "^2023.4.22"
-ruff = "^0.3.0"
-pre-commit = "^3.6.2"
-pandas-stubs = "^2.2.0.240218"
-types-simplejson = "^3.19.0.20240218"
-types-beautifulsoup4 = "^4.12.0.20240229"
-pytest-mongo = "^3.1.0"
-networkx-stubs = "^0.0.1"
-pytest-ordering = "^0.6"
-types-pyyaml = "^6.0.12.20240808"
-isort = "^5.13.2"
-jsf = "^0.11.2"
-black = "^24.10.0"
-pytest = "^7.4.3"
-deepdiff = "^8.6.1"
-
-[tool.poetry.scripts]
+[project.scripts]
 ifctrano = "ifctrano.main:app"
 
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.1"
-mkdocs-material = "^9.5.42"
-mkdocstrings = "^0.26.2"
-mkdocstrings-python = "^1.12.2"
-markdown-include = "^0.8.1"
-mkdocs-gen-files = "^0.5.0"
-openai = "^1.52.2"
-python-dotenv = "^1.0.1"
+[dependency-groups]
+dev = [
+    "mypy>=1.8.0,<2.0.0",
+    "nox>=2023.4.22",
+    "ruff>=0.3.0,<0.4.0",
+    "pre-commit>=3.6.2,<4.0.0",
+    "pandas-stubs>=2.2.0.240218,<3.0.0",
+    "types-simplejson>=3.19.0.20240218,<4.0.0",
+    "types-beautifulsoup4>=4.12.0.20240229,<5.0.0",
+    "pytest-mongo>=3.1.0,<4.0.0",
+    "networkx-stubs>=0.0.1,<0.0.2",
+    "pytest-ordering>=0.6,<0.7",
+    "types-pyyaml>=6.0.12.20240808,<7.0.0",
+    "isort>=5.13.2,<6.0.0",
+    "jsf>=0.11.2,<0.12.0",
+    "black>=24.10.0,<25.0.0",
+    "pytest>=7.4.3,<8.0.0",
+    "deepdiff>=8.6.1,<9.0.0",
+]
+docs = [
+    "mkdocs>=1.6.1,<2.0.0",
+    "mkdocs-material>=9.5.42,<10.0.0",
+    "mkdocstrings>=0.26.2,<0.27.0",
+    "mkdocstrings-python>=1.12.2,<2.0.0",
+    "markdown-include>=0.8.1,<0.9.0",
+    "mkdocs-gen-files>=0.5.0,<0.6.0",
+    "openai>=1.52.2,<2.0.0",
+    "python-dotenv>=1.0.1,<2.0.0",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["ifctrano"]
 
 [tool.mypy]
 plugins = "pydantic.mypy"
-packages= "ifctrano"
+packages = "ifctrano"
 
 follow_imports = "silent"
 warn_redundant_casts = true
