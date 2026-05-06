@@ -150,12 +150,22 @@ class Layers(BaseModel):
     ) -> "Layers":
         layers = []
         for layer in ifc_material_layers:
+            if layer.Material is None:
+                logger.warning(
+                    f"IfcMaterialLayer {layer.id()} has no associated material; "
+                    f"falling back to default material."
+                )
+                material = Material.model_validate(
+                    {"name": f"default_material_{layer.id()}", **DEFAULT_MATERIAL}
+                )
+            else:
+                material = materials.get_material(layer.Material.id())
             thickness = layer.LayerThickness * unit_factor
             layers.append(
                 LayerId(
                     id=layer.id(),
                     thickness=thickness,
-                    material=materials.get_material(layer.Material.id()),
+                    material=material,
                 )
             )
         return cls(layers=layers)
