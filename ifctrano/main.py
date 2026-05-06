@@ -2,7 +2,8 @@ import shutil
 import webbrowser
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Annotated, get_args, Callable
+from typing import Annotated, get_args
+from collections.abc import Callable
 
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -186,11 +187,14 @@ def create(
 @app.command()
 def verify() -> None:
     verification_ifc = Path(__file__).parent / "example" / "verification.ifc"
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        transient=True,
-    ) as progress, TemporaryDirectory() as temp_dir:
+    with (
+        Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            transient=True,
+        ) as progress,
+        TemporaryDirectory() as temp_dir,
+    ):
         temp_ifc_file = Path(temp_dir) / verification_ifc.name
         shutil.copy(verification_ifc, temp_ifc_file)
         task = progress.add_task(

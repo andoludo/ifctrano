@@ -1,7 +1,7 @@
 import logging
 import re
 from pathlib import Path
-from typing import List, Tuple, Any, Optional, Set, Dict
+from typing import Any
 
 import ifcopenshell
 import yaml
@@ -34,12 +34,12 @@ from ifctrano.construction import (
 logger = logging.getLogger(__name__)
 
 
-def get_spaces(ifcopenshell_file: file) -> List[entity_instance]:
+def get_spaces(ifcopenshell_file: file) -> list[entity_instance]:
     return ifcopenshell_file.by_type("IfcSpace")
 
 
 class IfcInternalElement(BaseModelConfig):
-    spaces: List[Space]
+    spaces: list[Space]
     element: entity_instance
     area: float
     common_surface: CommonSurface
@@ -56,7 +56,7 @@ class IfcInternalElement(BaseModelConfig):
     def __eq__(self, other: "IfcInternalElement") -> bool:  # type: ignore
         return hash(self) == hash(other)
 
-    def description(self) -> Tuple[Any, Any, str, float]:
+    def description(self) -> tuple[Any, Any, str, float]:
         return (
             *sorted([space.global_id for space in self.spaces]),
             self.element.GlobalId,
@@ -64,7 +64,7 @@ class IfcInternalElement(BaseModelConfig):
             self.area,
         )
 
-    def lines(self) -> List[Line]:
+    def lines(self) -> list[Line]:
         lines = []
         if self.common_surface:
             lines += self.common_surface.lines()
@@ -72,18 +72,18 @@ class IfcInternalElement(BaseModelConfig):
 
 
 class InternalElements(BaseShow):
-    elements: List[IfcInternalElement] = Field(default_factory=list)
+    elements: list[IfcInternalElement] = Field(default_factory=list)
 
-    def internal_element_ids(self) -> List[str]:
+    def internal_element_ids(self) -> list[str]:
         return list({e.element.GlobalId for e in self.elements})
 
-    def description(self) -> Set[Tuple[Any, Any, str, float]]:
+    def description(self) -> set[tuple[Any, Any, str, float]]:
         return set(  # noqa: C414
             sorted([element.description() for element in self.elements])
         )
 
 
-def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalElements:
+def get_internal_elements(space1_boundaries: list[SpaceBoundaries]) -> InternalElements:
     elements = []
     seen = set()
     common_boundaries = []
@@ -144,7 +144,7 @@ def get_internal_elements(space1_boundaries: List[SpaceBoundaries]) -> InternalE
 
 class Building(BaseShow):
     name: str
-    space_boundaries: List[SpaceBoundaries]
+    space_boundaries: list[SpaceBoundaries]
     ifc_file: file
     parent_folder: Path
     internal_elements: InternalElements = Field(default_factory=InternalElements)
@@ -158,7 +158,7 @@ class Building(BaseShow):
     def description(self) -> list[list[tuple[float, tuple[float, ...], Any, str]]]:
         return sorted([sorted(b.description()) for b in self.space_boundaries])
 
-    def lines(self) -> List[Line]:
+    def lines(self) -> list[Line]:
         lines = []
         for space_boundaries_ in [
             *self.space_boundaries,
@@ -176,7 +176,7 @@ class Building(BaseShow):
 
     @classmethod
     def from_ifc(
-        cls, ifc_file_path: Path, selected_spaces_global_id: Optional[List[str]] = None
+        cls, ifc_file_path: Path, selected_spaces_global_id: list[str] | None = None
     ) -> "Building":
         selected_spaces_global_id = selected_spaces_global_id or []
         if not ifc_file_path.exists():
@@ -199,7 +199,7 @@ class Building(BaseShow):
                 space_boundaries.append(
                     SpaceBoundaries.from_space_entity(ifc_file, tree, space)
                 )
-            except Exception as e:  # noqa: PERF203
+            except Exception as e:
                 logger.error(f"Cannot process space {space.id()}. Reason {e}")
                 continue
         if not space_boundaries:
@@ -224,8 +224,8 @@ class Building(BaseShow):
     @validate_call
     def to_config(
         self,
-        north_axis: Optional[Vector] = None,
-    ) -> Dict[str, Any]:
+        north_axis: Vector | None = None,
+    ) -> dict[str, Any]:
         north_axis = north_axis or Vector(x=0, y=1, z=0)
         spaces = [
             space_boundary.to_config(
@@ -293,7 +293,7 @@ class Building(BaseShow):
         }
 
     @validate_call
-    def to_yaml(self, yaml_path: Path, north_axis: Optional[Vector] = None) -> None:
+    def to_yaml(self, yaml_path: Path, north_axis: Vector | None = None) -> None:
         config = self.to_config(north_axis=north_axis)
         yaml_data = yaml.dump(config)
         yaml_path.write_text(yaml_data)
@@ -302,7 +302,7 @@ class Building(BaseShow):
     def create_network(
         self,
         library: Libraries = "Buildings",
-        north_axis: Optional[Vector] = None,
+        north_axis: Vector | None = None,
     ) -> Network:
         north_axis = north_axis or Vector(x=0, y=1, z=0)
         network = Network(name=self.name, library=Library.from_configuration(library))
