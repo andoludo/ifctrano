@@ -1,7 +1,6 @@
 import ast
 import os
 from pathlib import Path
-from typing import List, Optional, Union
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -30,8 +29,8 @@ class CleanedText(Text):
 
 
 class DisplayObject(BaseModel):
-    object: Union[Path, str]
-    language: Optional[str] = None
+    object: Path | str
+    language: str | None = None
 
     def write(self) -> str:
         object = (
@@ -48,7 +47,7 @@ class DisplayObject(BaseModel):
 
 class DisplayImage(BaseModel):
     title: str
-    path: Union[Path, str]
+    path: Path | str
 
     def write(self) -> str:
         return f"""![{self.title}]({self.path})"""
@@ -84,16 +83,14 @@ And if have to use title tags, use tags "###" or "####".
 
 class Tutorial(BaseModel):
     title: str
-    contents: List[
-        Union[
-            Text,
-            TitleText,
-            CleanedText,
-            CommentObject,
-            CommentCodeObject,
-            DisplayObject,
-            DisplayImage,
-        ]
+    contents: list[
+        Text
+        | TitleText
+        | CleanedText
+        | CommentObject
+        | CommentCodeObject
+        | DisplayObject
+        | DisplayImage
     ]
 
     def build(self) -> str:
@@ -109,7 +106,7 @@ class Tutorial(BaseModel):
         return self.title.replace(" ", "_").lower()
 
 
-def extract_function_snippet(file_path: Path, function_name: str) -> Optional[str]:
+def extract_function_snippet(file_path: Path, function_name: str) -> str | None:
     file_content = file_path.read_text()
     tree = ast.parse(file_content)
     for node in ast.walk(tree):

@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Dict, Any
+from typing import Any
 
 from ifcopenshell import file, entity_instance
 
@@ -95,7 +95,7 @@ class ConstructionId(Construction):  # type: ignore
 
 
 class Materials(BaseModel):
-    materials: List[MaterialId]
+    materials: list[MaterialId]
 
     @classmethod
     def from_ifc(cls, ifc_file: file) -> "Materials":
@@ -103,7 +103,7 @@ class Materials(BaseModel):
         return cls.from_ifc_materials(materials)
 
     @classmethod
-    def from_ifc_materials(cls, ifc_materials: List[entity_instance]) -> "Materials":
+    def from_ifc_materials(cls, ifc_materials: list[entity_instance]) -> "Materials":
         materials = []
         for material in ifc_materials:
             material_name = remove_non_alphanumeric(material.Name)
@@ -131,7 +131,7 @@ def _get_unit_factor(ifc_file: file) -> float:
 
 
 class Layers(BaseModel):
-    layers: List[LayerId]
+    layers: list[LayerId]
 
     @classmethod
     def from_ifc(cls, ifc_file: file, materials: Materials) -> "Layers":
@@ -144,7 +144,7 @@ class Layers(BaseModel):
     @classmethod
     def from_ifc_material_layers(
         cls,
-        ifc_material_layers: List[entity_instance],
+        ifc_material_layers: list[entity_instance],
         materials: Materials,
         unit_factor: float = 1,
     ) -> "Layers":
@@ -160,12 +160,12 @@ class Layers(BaseModel):
             )
         return cls(layers=layers)
 
-    def from_ids(self, ids: List[int]) -> List[Layer]:
+    def from_ids(self, ids: list[int]) -> list[Layer]:
         return [layer.to_layer() for layer in self.layers if layer.id in ids]
 
 
 class Constructions(BaseModel):
-    constructions: List[ConstructionId]
+    constructions: list[ConstructionId]
 
     @classmethod
     def from_ifc(cls, ifc_file: file) -> "Constructions":
@@ -176,7 +176,7 @@ class Constructions(BaseModel):
 
     @classmethod
     def from_ifc_material_layer_sets(
-        cls, ifc_material_layer_sets: List[entity_instance], layers: Layers
+        cls, ifc_material_layer_sets: list[entity_instance], layers: Layers
     ) -> "Constructions":
         constructions = []
         for layer_set in ifc_material_layer_sets:
@@ -193,7 +193,7 @@ class Constructions(BaseModel):
         return cls(constructions=constructions)
 
     def get_construction(
-        self, entity: entity_instance, default: Optional[Construction] = None
+        self, entity: entity_instance, default: Construction | None = None
     ) -> Construction:
         construction_id = self._get_construction_id(entity)
         if construction_id is None:
@@ -211,7 +211,7 @@ class Constructions(BaseModel):
             raise ValueError(f"No construction found for {entity.GlobalId}")
         return constructions[0]
 
-    def _get_construction_id(self, entity: entity_instance) -> Optional[int]:
+    def _get_construction_id(self, entity: entity_instance) -> int | None:
         associates_materials = [
             association
             for association in entity.HasAssociations
@@ -234,7 +234,7 @@ class Constructions(BaseModel):
             logger.error("Unexpected material type found.")
             return None
 
-    def to_config(self) -> Dict[str, Any]:
+    def to_config(self) -> dict[str, Any]:
         constructions_all = [
             *self.constructions,
             default_construction,
@@ -307,7 +307,7 @@ class Constructions(BaseModel):
         }
 
 
-def _convert_glass(glass_: Material) -> Dict[str, Any]:
+def _convert_glass(glass_: Material) -> dict[str, Any]:
     return {
         key: (value if not isinstance(value, list) else value)
         for key, value in glass_.model_dump().items()

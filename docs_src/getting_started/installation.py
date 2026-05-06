@@ -37,8 +37,8 @@ sudo apt install graphviz
                 content="""ifctrano is a python package that can be installed using pip."""
             ),
             DisplayObject(language="bash", object="pip install ifctrano"),
-            CleanedText(content="""ifctrano can also be used using poetry."""),
-            DisplayObject(language="bash", object="poetry add ifctrano"),
+            CleanedText(content="""ifctrano can also be used using uv."""),
+            DisplayObject(language="bash", object="uv add ifctrano"),
             CleanedText(
                 content="""To check the installation, run the following command in the terminal."""
             ),
