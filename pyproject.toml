@@ -5,7 +5,8 @@ description = "Package for generating building energy simulation model from IFC"
 authors = [
     { name = "Ando Andriamamonjy", email = "andoludovic.andriamamonjy@gmail.com" },
 ]
-license = { text = "GPL V3" }
+license = "LGPL-3.0-or-later"
+license-files = ["LICENSE"]
 readme = "README.md"
 keywords = [
     "BIM",
