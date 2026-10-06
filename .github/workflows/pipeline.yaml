@@ -120,6 +120,7 @@ jobs:
       - name: Upload Wheel to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.ACCESS_TOKEN }}
           tag_name: ${{ env.NEW_VERSION }}
           name: Release ${{ env.NEW_VERSION }}
           body: |
