@@ -415,11 +415,17 @@ class SpaceBoundaries(BaseShow):
             else:
                 raise ValueError("Unknown boundary type")
 
-        occupancy_parameters = Occupancy().parameters.model_dump(mode="json")
+        occupancy_parameters = Occupancy().parameters.model_dump(
+            mode="json", exclude_none=True
+        )
         space_parameters = SpaceParameter(
             floor_area=self.space.floor_area,
             average_room_height=self.space.average_room_height,
-        ).model_dump(mode="json", exclude={"linearize_emissive_power", "volume"})
+        ).model_dump(
+            mode="json",
+            exclude={"linearize_emissive_power", "volume"},
+            exclude_none=True,
+        )
         return {
             "id": self.space.space_unique_name(),
             "occupancy": {"parameters": occupancy_parameters},
