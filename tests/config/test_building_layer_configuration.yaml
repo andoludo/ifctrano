@@ -95,6 +95,7 @@ spaces:
   id: space001_1of
   occupancy:
     parameters:
+      ach: 0.9
       gain: '[35; 70; 30]'
       heat_gain_if_occupied: 1/6/4
       occupancy: 3600*{7, 19}
@@ -133,6 +134,7 @@ spaces:
   id: space002_pji
   occupancy:
     parameters:
+      ach: 0.9
       gain: '[35; 70; 30]'
       heat_gain_if_occupied: 1/6/4
       occupancy: 3600*{7, 19}
@@ -159,6 +161,7 @@ spaces:
   id: space003_tjv
   occupancy:
     parameters:
+      ach: 0.9
       gain: '[35; 70; 30]'
       heat_gain_if_occupied: 1/6/4
       occupancy: 3600*{7, 19}
@@ -193,6 +196,7 @@ spaces:
   id: space004_rqw
   occupancy:
     parameters:
+      ach: 0.9
       gain: '[35; 70; 30]'
       heat_gain_if_occupied: 1/6/4
       occupancy: 3600*{7, 19}

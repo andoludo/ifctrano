@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.12"
       - name: Install dependencies
         run: poetry install
 
@@ -39,8 +39,6 @@ jobs:
           ref: ${{ github.ref_name }}
       - name: Install Poetry
         uses: snok/install-poetry@v1
-        with:
-          version: 1.3.2
       - name: Install graphviz
         run: |
             sudo apt update
@@ -48,7 +46,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.12"
       - name: Install dependencies
         run: poetry install
 

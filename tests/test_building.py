@@ -5,6 +5,9 @@ from tempfile import TemporaryDirectory
 import pytest
 from _pytest.fixtures import FixtureRequest
 
+from trano.data_models.conversion import convert_network  # type: ignore
+from trano.elements.library.library import Library  # type: ignore
+
 from ifctrano.building import Building
 from tests.conftest import compare, compare_config
 
@@ -177,3 +180,17 @@ def test_building_layer_configuration(
     if SHOW_FIGURES:
         building.show()
     assert compare_config(building, request)
+
+
+@pytest.mark.parametrize(
+    "library", ["Buildings", "IDEAS", "reduced_order", "iso_13790"]
+)
+def test_building_configuration_round_trip(two_zone_path: Path, library: str) -> None:
+    building = Building.from_ifc(two_zone_path)
+    with TemporaryDirectory() as temp_dir:
+        config_path = Path(temp_dir) / f"{building.name}.yaml"
+        building.to_yaml(config_path)
+        network = convert_network(
+            config_path.stem, config_path, library=Library.from_configuration(library)
+        )
+        assert network.model()

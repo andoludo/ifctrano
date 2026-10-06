@@ -9,9 +9,9 @@ repository = "https://github.com/andoludo/ifctrano"
 keywords = ["BIM","IFC","energy simulation", "modelica", "building energy simulation", "buildings", "ideas"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.11,<3.13"
 ifcopenshell = "^0.8.1.post1"
-trano = "^0.13.0"
+trano = "^0.35.0"
 shapely = "^2.0.7"
 typer = "^0.19.2"
 vedo = "^2025.5.3"
