@@ -1,0 +1,189 @@
+emissions:
+  space_bath9_pla:
+  - radiator:
+      id: radiator_space_bath9_pla
+      parameters:
+        nominal_heating_power_positive_for_heating: 1010.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_bath9_pla
+      id: valve_space_bath9_pla
+  space_bedroom6_x8a:
+  - radiator:
+      id: radiator_space_bedroom6_x8a
+      parameters:
+        nominal_heating_power_positive_for_heating: 1680.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_bedroom6_x8a
+      id: valve_space_bedroom6_x8a
+  space_children10_ufa:
+  - radiator:
+      id: radiator_space_children10_ufa
+      parameters:
+        nominal_heating_power_positive_for_heating: 1010.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_children10_ufa
+      id: valve_space_children10_ufa
+  space_children7_ttq:
+  - radiator:
+      id: radiator_space_children7_ttq
+      parameters:
+        nominal_heating_power_positive_for_heating: 1010.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_children7_ttq
+      id: valve_space_children7_ttq
+  space_corridor3_n2a:
+  - radiator:
+      id: radiator_space_corridor3_n2a
+      parameters:
+        nominal_heating_power_positive_for_heating: 380.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_corridor3_n2a
+      id: valve_space_corridor3_n2a
+  space_corridor8_xaa:
+  - radiator:
+      id: radiator_space_corridor8_xaa
+      parameters:
+        nominal_heating_power_positive_for_heating: 380.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_corridor8_xaa
+      id: valve_space_corridor8_xaa
+  space_hobby2_uxa:
+  - radiator:
+      id: radiator_space_hobby2_uxa
+      parameters:
+        nominal_heating_power_positive_for_heating: 1010.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_hobby2_uxa
+      id: valve_space_hobby2_uxa
+  space_kitchen5_dsw:
+  - radiator:
+      id: radiator_space_kitchen5_dsw
+      parameters:
+        nominal_heating_power_positive_for_heating: 1010.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_kitchen5_dsw
+      id: valve_space_kitchen5_dsw
+  space_living1_v3g:
+  - radiator:
+      id: radiator_space_living1_v3g
+      parameters:
+        nominal_heating_power_positive_for_heating: 3360.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_living1_v3g
+      id: valve_space_living1_v3g
+  space_wc4_pwg:
+  - radiator:
+      id: radiator_space_wc4_pwg
+      parameters:
+        nominal_heating_power_positive_for_heating: 380.0
+  - valve:
+      control:
+        emission_control:
+          id: emission_control_space_wc4_pwg
+      id: valve_space_wc4_pwg
+systems:
+- boiler:
+    control:
+      boiler_control:
+        id: boiler_control_boiler_1
+    id: boiler_1
+    inlets:
+    - split_valve_1
+    - split_valve_2
+    parameters:
+      nominal_heating_power: 18000.0
+    variant: without_storage
+- pump:
+    control:
+      collector_control:
+        id: collector_control_pump_1
+    id: pump_1
+    inlets:
+    - boiler_1
+    parameters:
+      dp_nominal: 40000.0
+      m_flow_nominal: 0.25
+- three_way_valve:
+    control:
+      three_way_valve_control:
+        id: three_way_valve_control_1
+    id: three_way_valve_1
+    inlets:
+    - split_valve_1
+    - pump_1
+    outlets:
+    - temperature_sensor_1
+- temperature_sensor:
+    id: temperature_sensor_1
+    outlets:
+    - radiator_space_bath9_pla
+    - radiator_space_bedroom6_x8a
+    - radiator_space_children10_ufa
+    - radiator_space_children7_ttq
+    - radiator_space_corridor8_xaa
+- split_valve:
+    id: split_valve_1
+    inlets:
+    - valve_space_bath9_pla
+    - valve_space_bedroom6_x8a
+    - valve_space_children10_ufa
+    - valve_space_children7_ttq
+    - valve_space_corridor8_xaa
+    outlets:
+    - boiler_1
+- pump:
+    control:
+      collector_control:
+        id: collector_control_pump_2
+    id: pump_2
+    inlets:
+    - boiler_1
+    parameters:
+      dp_nominal: 40000.0
+      m_flow_nominal: 0.25
+- three_way_valve:
+    control:
+      three_way_valve_control:
+        id: three_way_valve_control_2
+    id: three_way_valve_2
+    inlets:
+    - split_valve_2
+    - pump_2
+    outlets:
+    - temperature_sensor_2
+- temperature_sensor:
+    id: temperature_sensor_2
+    outlets:
+    - radiator_space_corridor3_n2a
+    - radiator_space_hobby2_uxa
+    - radiator_space_kitchen5_dsw
+    - radiator_space_living1_v3g
+    - radiator_space_wc4_pwg
+- split_valve:
+    id: split_valve_2
+    inlets:
+    - valve_space_corridor3_n2a
+    - valve_space_hobby2_uxa
+    - valve_space_kitchen5_dsw
+    - valve_space_living1_v3g
+    - valve_space_wc4_pwg
+    outlets:
+    - boiler_1

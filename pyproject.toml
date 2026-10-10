@@ -105,6 +105,11 @@ exclude = [
     "venv",
 ]
 
+[tool.pytest.ini_options]
+markers = [
+    "large: slow tests on large IFC models, deselected in CI (-m 'not large')",
+]
+
 [tool.isort]
 skip = ["models"]
 
