@@ -94,10 +94,11 @@ def test_simulate_heating_model(tmp_path: Path) -> None:
         assert last_day.mean() > 17.0, (space_id, last_day.mean())
         assert last_day.max() < 30.0, (space_id, last_day.max())
 
-    # The radiators deliver heat.
+    # The radiators deliver heat. In Buildings, Q_flow is the heat input into
+    # the water: negative when the radiator heats the room.
     flows = _series(reader, r"radiator_space_[a-z0-9_]+\.Q_flow$")
     assert flows, [n for n in reader.varNames() if "radiator" in n][:50]
-    delivered = sum(
+    delivered = -sum(
         _last_day(time, values, end).mean() for time, values in flows.values()
     )
     assert delivered > 0
