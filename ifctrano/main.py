@@ -18,10 +18,15 @@ from trano.utils.utils import is_success  # type: ignore
 from ifctrano.base import Libraries
 from ifctrano.building import Building
 from ifctrano.exceptions import InvalidLibraryError
+from ifctrano.hvac import HeatingOptions, ProductionKind
 from rich import print
 
 app = typer.Typer()
 CHECKMARK = "[green]✔[/green]"
+HEAT_GENERATOR_OPTION_HELP = (
+    "Kind of the heat generators, overriding the detection from the model "
+    "(IFC has no heat-pump class)."
+)
 HVAC_OPTION_HELP = (
     "IFC file of a federated HVAC discipline model (e.g. heating), sharing the "
     "coordinates of the architecture model. Can be given several times."
@@ -82,6 +87,10 @@ def config(
         Optional[list[Path]],
         typer.Option(help=HVAC_OPTION_HELP),
     ] = None,
+    heat_generator: Annotated[
+        Optional[ProductionKind],
+        typer.Option(help=HEAT_GENERATOR_OPTION_HELP),
+    ] = None,
 ) -> None:
     working_directory = Path.cwd()
     with Progress(
@@ -95,7 +104,11 @@ def config(
             description=f"Generating {config_path} configuration file.",
             total=None,
         )
-        building = Building.from_ifc(Path(model), hvac_file_paths=hvac)
+        building = Building.from_ifc(
+            Path(model),
+            hvac_file_paths=hvac,
+            heating_options=HeatingOptions(heat_generator=heat_generator),
+        )
         if show_space_boundaries:
             print(f"{CHECKMARK} Showing space boundaries.")
             building.show()
@@ -142,7 +155,7 @@ def from_config(
 
 
 @app.command()
-def create(
+def create(  # noqa: PLR0913
     model: Annotated[
         str,
         typer.Argument(help="Local path to the ifc file."),
@@ -163,6 +176,10 @@ def create(
         Optional[list[Path]],
         typer.Option(help=HVAC_OPTION_HELP),
     ] = None,
+    heat_generator: Annotated[
+        Optional[ProductionKind],
+        typer.Option(help=HEAT_GENERATOR_OPTION_HELP),
+    ] = None,
 ) -> None:
     with Progress(
         SpinnerColumn(),
@@ -178,7 +195,11 @@ def create(
             description=f"Generating model {modelica_model_path.name} with library {library} from {model}",
             total=None,
         )
-        building = Building.from_ifc(Path(model), hvac_file_paths=hvac)
+        building = Building.from_ifc(
+            Path(model),
+            hvac_file_paths=hvac,
+            heating_options=HeatingOptions(heat_generator=heat_generator),
+        )
         if show_space_boundaries:
             print(f"{CHECKMARK} Showing space boundaries.")
             building.show()
