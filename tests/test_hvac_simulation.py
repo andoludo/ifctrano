@@ -17,7 +17,6 @@ from trano.simulate.simulate import (  # type: ignore
     container,
     simulate,
 )
-from trano.topology import Network  # type: ignore
 from trano.utils.utils import is_success  # type: ignore
 
 from ifctrano.building import Building
@@ -34,8 +33,12 @@ def _series(reader: Reader, pattern: str) -> dict[str, tuple[np.ndarray, np.ndar
     return {name: reader.values(name) for name in names}
 
 
-def _diagnose(network: Network, project: Path) -> str:
-    """OpenModelica messages when loading and checking the generated model."""
+def _diagnose(building: Building, project: Path) -> str:
+    """OpenModelica messages when loading and checking the generated model.
+
+    A trano network can only produce its model once, so a new one is built.
+    """
+    network = building.create_network(library="Buildings")
     (project / "diagnostic.mo").write_text(network.model())
     (project / "diagnostic.mos").write_text(
         f'loadModel(Modelica, {{"{MODELICA_ENVIRONMENT.modelica_version}"}});\n'
@@ -75,7 +78,7 @@ def test_simulate_heating_model(tmp_path: Path) -> None:
     if not is_success(results, options=options):
         pytest.fail(
             f"{results.output.decode()[-3000:]}\n--- diagnostic ---\n"
-            f"{_diagnose(network, project)[-8000:]}"
+            f"{_diagnose(building, project)[-8000:]}"
         )
     result_files = list(project.rglob("*building_res.mat"))
     assert result_files, f"No result file in {list(project.rglob('*'))}"
