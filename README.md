@@ -127,6 +127,24 @@ ifctrano from-config /path/to/your.yaml
 ```
 ---
 
+### 🔥 Include the heating system
+
+Hydronic heating systems modelled with IFC4 MEP conventions (heat generator, circulators, mixing valves, radiators, connected
+through `IfcDistributionPort`s) are translated into trano emissions and systems. Heating elements are read from the
+architecture file itself, or from federated discipline models sharing its coordinates:
+
+```bash
+ifctrano create /path/to/architecture.ifc --hvac /path/to/heating.ifc
+ifctrano config /path/to/architecture.ifc --hvac /path/to/heating.ifc
+```
+
+Radiators are assigned to spaces by `IfcRelReferencedInSpatialStructure`/`IfcRelContainedInSpatialStructure`, or from
+their location. Radiators of a space are lumped into one emitter (`Pset_SpaceHeaterTypeCommon.OutputCapacity` summed),
+and each circuit (heat generator, circulator and mixing valve) becomes trano's hydronic circuit. Radiators not connected
+to a heat generator become ideal emitters. Values missing from the model fall back to trano defaults, and are logged.
+
+---
+
 ### 🧱 Show Space Boundaries
 
 To visualize the computed space boundaries:

@@ -1,12 +1,15 @@
 import logging
 import re
+from collections.abc import Sequence
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import List, Tuple, Any, Optional, Set, Dict
 
 import ifcopenshell
 import yaml
 from ifcopenshell import file, entity_instance
 from pydantic import validate_call, Field, model_validator, field_validator
+from trano.data_models.conversion import convert_network  # type: ignore
 from trano.elements import InternalElement  # type: ignore
 from trano.elements.envelope import SpaceTilt  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
@@ -30,6 +33,7 @@ from ifctrano.construction import (
     default_construction,
     default_internal_construction,
 )
+from ifctrano.hvac import HeatingSystem
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +153,8 @@ class Building(BaseShow):
     parent_folder: Path
     internal_elements: InternalElements = Field(default_factory=InternalElements)
     constructions: Constructions
+    hvac_files: List[file] = Field(default_factory=list)
+    heating: Optional[HeatingSystem] = None
 
     def get_boundaries(self, space_id: str) -> SpaceBoundaries:
         return next(
@@ -176,14 +182,23 @@ class Building(BaseShow):
 
     @classmethod
     def from_ifc(
-        cls, ifc_file_path: Path, selected_spaces_global_id: Optional[List[str]] = None
+        cls,
+        ifc_file_path: Path,
+        selected_spaces_global_id: Optional[List[str]] = None,
+        hvac_file_paths: Optional[Sequence[Path]] = None,
     ) -> "Building":
+        """Building from an architecture IFC file.
+
+        ``hvac_file_paths`` are optional federated discipline models (e.g. a
+        heating model) sharing the coordinate system of the architecture model.
+        Heating elements are also read from the architecture file itself.
+        """
         selected_spaces_global_id = selected_spaces_global_id or []
-        if not ifc_file_path.exists():
-            raise IfcFileNotFoundError(
-                f"File specified {ifc_file_path} does not exist."
-            )
+        for path in [ifc_file_path, *(hvac_file_paths or [])]:
+            if not path.exists():
+                raise IfcFileNotFoundError(f"File specified {path} does not exist.")
         ifc_file = ifcopenshell.open(str(ifc_file_path))
+        hvac_files = [ifcopenshell.open(str(path)) for path in hvac_file_paths or []]
         tree = initialize_tree(ifc_file)
         spaces = get_spaces(ifc_file)
         constructions = Constructions.from_ifc(ifc_file)
@@ -211,6 +226,10 @@ class Building(BaseShow):
             parent_folder=ifc_file_path.parent,
             name=ifc_file_path.stem,
             constructions=constructions,
+            hvac_files=hvac_files,
+            heating=HeatingSystem.from_ifc(
+                [ifc_file, *hvac_files], [sb.space for sb in space_boundaries]
+            ),
         )
 
     @model_validator(mode="after")
@@ -287,10 +306,20 @@ class Building(BaseShow):
                     }
                 )
         construction_config = self.constructions.to_config()
-        return construction_config | {
+        config = construction_config | {
             "spaces": spaces,
             "internal_walls": internal_walls,
         }
+        if self.heating is not None:
+            emissions, systems = self.heating.to_config(
+                [sp["id"] for sp in spaces]  # type: ignore
+            )
+            for space in spaces:
+                if space["id"] in emissions:  # type: ignore
+                    space["emissions"] = emissions[space["id"]]  # type: ignore
+            if systems:
+                config["systems"] = systems
+        return config
 
     @validate_call
     def to_yaml(self, yaml_path: Path, north_axis: Optional[Vector] = None) -> None:
@@ -305,6 +334,8 @@ class Building(BaseShow):
         north_axis: Optional[Vector] = None,
     ) -> Network:
         north_axis = north_axis or Vector(x=0, y=1, z=0)
+        if self.heating is not None:
+            return self._network_from_config(library, north_axis)
         network = Network(name=self.name, library=Library.from_configuration(library))
         spaces = {
             space_boundary.space.global_id: space_boundary.model(
@@ -355,6 +386,15 @@ class Building(BaseShow):
                 ),
             )
         return network
+
+    def _network_from_config(self, library: Libraries, north_axis: Vector) -> Network:
+        """Network built by trano from the configuration, systems included."""
+        with TemporaryDirectory() as directory:
+            config_path = Path(directory) / f"{self.name}.yaml"
+            self.to_yaml(config_path, north_axis=north_axis)
+            return convert_network(
+                self.name, config_path, library=Library.from_configuration(library)
+            )
 
     def get_model(self) -> str:
         return str(self.create_network().model())

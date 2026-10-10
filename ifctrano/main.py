@@ -2,7 +2,7 @@ import shutil
 import webbrowser
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Annotated, get_args, Callable
+from typing import Annotated, Optional, get_args, Callable
 
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -22,6 +22,10 @@ from rich import print
 
 app = typer.Typer()
 CHECKMARK = "[green]✔[/green]"
+HVAC_OPTION_HELP = (
+    "IFC file of a federated HVAC discipline model (e.g. heating), sharing the "
+    "coordinates of the architecture model. Can be given several times."
+)
 CROSS_MARK = "[red]✘[/red]"
 
 
@@ -74,6 +78,10 @@ def config(
         bool,
         typer.Option(help="Show computed space boundaries."),
     ] = False,
+    hvac: Annotated[
+        Optional[list[Path]],
+        typer.Option(help=HVAC_OPTION_HELP),
+    ] = None,
 ) -> None:
     working_directory = Path.cwd()
     with Progress(
@@ -87,7 +95,7 @@ def config(
             description=f"Generating {config_path} configuration file.",
             total=None,
         )
-        building = Building.from_ifc(Path(model))
+        building = Building.from_ifc(Path(model), hvac_file_paths=hvac)
         if show_space_boundaries:
             print(f"{CHECKMARK} Showing space boundaries.")
             building.show()
@@ -151,6 +159,10 @@ def create(
         bool,
         typer.Option(help="Simulate the generated model."),
     ] = False,
+    hvac: Annotated[
+        Optional[list[Path]],
+        typer.Option(help=HVAC_OPTION_HELP),
+    ] = None,
 ) -> None:
     with Progress(
         SpinnerColumn(),
@@ -166,7 +178,7 @@ def create(
             description=f"Generating model {modelica_model_path.name} with library {library} from {model}",
             total=None,
         )
-        building = Building.from_ifc(Path(model))
+        building = Building.from_ifc(Path(model), hvac_file_paths=hvac)
         if show_space_boundaries:
             print(f"{CHECKMARK} Showing space boundaries.")
             building.show()
