@@ -3,6 +3,13 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import ifcopenshell
+import ifcopenshell.api.classification
+import ifcopenshell.api.project
+import ifcopenshell.api.pset
+import ifcopenshell.api.root
+import ifcopenshell.api.system
+import ifcopenshell.util.element
+import ifcopenshell.util.system
 import ifcopenshell.validate
 import pytest
 import yaml
@@ -11,9 +18,11 @@ from _pytest.fixtures import FixtureRequest
 from trano.data_models.conversion import convert_network  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
 
+from ifctrano.base import Vector
 from ifctrano.building import Building
 from ifctrano.exceptions import IfcFileNotFoundError, NoIfcSpaceFoundError
-from ifctrano.hvac.network import DistributionNetwork, Role
+from ifctrano.hvac import HeatingOptions, ProductionKind
+from ifctrano.hvac.network import DistributionNetwork, Role, production_kind
 from ifctrano.hvac.spaces import SpaceLocator
 from tests.conftest import CONFIG_PATH, OVERWRITE_RESULTS, SPACE_BOUNDARY_IFC
 from tests.hvac import example_hom_heating
@@ -240,21 +249,223 @@ def test_digitalhub_federated_heating() -> None:
     building = Building.from_ifc(
         SPACE_BOUNDARY_IFC / "FM_ARC_DigitalHub_with_SB_neu.ifc",
         hvac_file_paths=[heating_path],
+        # The Vitocal 350-G is a ground source heat pump, exported as an
+        # IfcUnitaryEquipment whose name does not say so (IFC has no heat-pump
+        # class): its kind is given explicitly.
+        heating_options=HeatingOptions(
+            heat_generator=ProductionKind.water_water_heat_pump
+        ),
     )
     heating = building.heating
     assert heating is not None
     emitters = [e for c in heating.circuits for e in c.emitters]
     # Real-world Revit export: 63 radiators, one of them not connected to the
-    # heat pump, four circuits behind 3-way valves, one of them without its own
-    # circulator (trano's circuit template adds one).
+    # heat pump, four circuits behind 3-way valves. Part of the pipes are drawn
+    # against the flow; every circuit is still found with the circulator
+    # driving it.
     assert len(heating.unassigned_emitters) == 0
     assert len(heating.ideal_emitters) == 1
     assert len(emitters) == 62
     assert len(heating.circuits) == 4
     assert all(c.mixing_valve is not None for c in heating.circuits)
-    assert sum(c.pump is not None for c in heating.circuits) == 3
-    # IFC4 has no heat-pump class; the Vitocal heat pump is an
-    # IfcUnitaryEquipment whose name does not say "heat pump".
+    assert all(c.pump is not None for c in heating.circuits)
     assert {c.production.is_a() for c in heating.circuits} == {"IfcUnitaryEquipment"}
+    config = building.to_config()
+    assert config["systems"][0]["boiler"]["variant"] == "water_water_heat_pump"
+    # The model has no radiator outputs nor pump flows: they are sized from the
+    # design heat loads of the spaces.
+    assert any("design heat load" in a for a in heating.assumptions)
+    pumps = [s["pump"] for s in config["systems"] if "pump" in s]
+    assert all(pump["parameters"]["m_flow_nominal"] > 0 for pump in pumps)
     assert building.create_network(library="Buildings").model()
-    assert any("no circulator" in assumption for assumption in heating.assumptions)
+
+
+@pytest.mark.parametrize(
+    ("ifc_class", "attributes", "classification", "kind"),
+    [
+        ("IfcBoiler", {"Name": "Gas boiler"}, None, ProductionKind.boiler),
+        (
+            "IfcUnitaryEquipment",
+            {
+                "Name": "HP-01",
+                "PredefinedType": "USERDEFINED",
+                "ObjectType": "HEATPUMP",
+            },
+            None,
+            ProductionKind.water_water_heat_pump,
+        ),
+        (
+            "IfcUnitaryEquipment",
+            {"Name": "Unit 2"},
+            "Air source heat pumps",
+            ProductionKind.air_water_heat_pump,
+        ),
+        (
+            "IfcUnitaryEquipment",
+            {"Name": "Viessmann Vitocal-350-G-Pro"},
+            None,
+            ProductionKind.generic,
+        ),
+    ],
+)
+def test_heat_generator_kind(
+    ifc_class: str,
+    attributes: dict,  # type: ignore[type-arg]
+    classification: str | None,
+    kind: ProductionKind,
+) -> None:
+    ifc_file = ifcopenshell.api.project.create_file(version="IFC4")
+    ifcopenshell.api.root.create_entity(ifc_file, ifc_class="IfcProject")
+    element = ifcopenshell.api.root.create_entity(ifc_file, ifc_class=ifc_class)
+    for name, value in attributes.items():
+        setattr(element, name, value)
+    if classification:
+        ifcopenshell.api.classification.add_reference(
+            ifc_file,
+            products=[element],
+            identification="HP",
+            name=classification,
+            classification=ifcopenshell.api.classification.add_classification(
+                ifc_file, classification="Uniclass"
+            ),
+        )
+    assert production_kind(element) == kind
+
+
+def test_heat_generator_override(example_hom_heating_path: Path) -> None:
+    building = Building.from_ifc(
+        EXAMPLE_HOM,
+        hvac_file_paths=[example_hom_heating_path],
+        heating_options=HeatingOptions(
+            heat_generator=ProductionKind.air_water_heat_pump
+        ),
+    )
+    boiler = building.to_config()["systems"][0]["boiler"]
+    assert boiler["variant"] == "air_water_heat_pump"
+    assert building.create_network(library="Buildings").model()
+
+
+def _mini_network(
+    reversed_supply: bool,
+) -> tuple[ifcopenshell.file, dict[str, ifcopenshell.entity_instance]]:
+    """Boiler, three supply pipes, pump, mixing valve and radiator; the return
+    goes through a tee whose branch is the bypass of the mixing valve.
+
+    With ``reversed_supply``, the supply pipes are drawn against the flow, as
+    some exporters do: the bypass is then the shortest undirected route from
+    the boiler to the radiator, although no circulator drives that flow.
+    """
+    ifc_file = ifcopenshell.api.project.create_file(version="IFC4")
+    elements: dict[str, ifcopenshell.entity_instance] = {}
+
+    def add(name: str, ifc_class: str, predefined_type: str) -> None:
+        elements[name] = ifcopenshell.api.root.create_entity(
+            ifc_file, ifc_class=ifc_class, name=name, predefined_type=predefined_type
+        )
+
+    def port(name: str) -> ifcopenshell.entity_instance:
+        return ifcopenshell.api.system.add_port(ifc_file, element=elements[name])
+
+    def connect(
+        source: ifcopenshell.entity_instance,
+        target: ifcopenshell.entity_instance,
+        direction: str = "SOURCE",
+    ) -> None:
+        ifcopenshell.api.system.connect_port(ifc_file, source, target, direction)
+
+    add("boiler", "IfcBoiler", "WATER")
+    add("pump", "IfcPump", "CIRCULATOR")
+    add("mixing", "IfcValve", "MIXING")
+    add("radiator", "IfcSpaceHeater", "RADIATOR")
+    add("tee", "IfcPipeFitting", "JUNCTION")
+    for name in ("pipe_1", "pipe_2", "pipe_3"):
+        add(name, "IfcPipeSegment", "RIGIDSEGMENT")
+    # Supply: boiler -> pipes -> pump, possibly drawn against the flow.
+    outlet = port("boiler")
+    for name in ("pipe_1", "pipe_2", "pipe_3", "pump"):
+        connect(outlet, port(name), "SINK" if reversed_supply else "SOURCE")
+        outlet = port(name)
+    mixing_inlet, mixing_bypass = port("mixing"), port("mixing")
+    connect(outlet, mixing_inlet)
+    connect(port("mixing"), port("radiator"))
+    # Return: radiator -> tee -> boiler, the tee branch is the mixing bypass.
+    connect(port("radiator"), port("tee"))
+    connect(port("tee"), mixing_bypass)
+    connect(port("tee"), port("boiler"))
+    return ifc_file, elements
+
+
+@pytest.mark.parametrize("reversed_supply", [False, True])
+def test_supply_path_goes_through_circulator(reversed_supply: bool) -> None:
+    ifc_file, elements = _mini_network(reversed_supply)
+    network = DistributionNetwork.from_ifc([ifc_file])
+    path = network.supply_path(elements["boiler"], elements["radiator"])
+    assert path is not None
+    assert [e.Name for e in path if network.roles[e] != Role.passive] == [
+        "boiler",
+        "pump",
+        "mixing",
+        "radiator",
+    ]
+
+
+def test_wrongly_directed_pipes(example_hom_heating_path: Path, tmp_path: Path) -> None:
+    """The ground floor flow pipes drawn against the flow do not change the circuits."""
+    heating = ifcopenshell.open(str(example_hom_heating_path))
+    supply = next(
+        system
+        for system in heating.by_type("IfcDistributionSystem")
+        if system.Name == "Heating flow GF"
+    )
+    flip = {"SOURCE": "SINK", "SINK": "SOURCE"}
+    for element in ifcopenshell.util.system.get_system_elements(supply):
+        if element.is_a() in (
+            "IfcPipeSegment",
+            "IfcPipeFitting",
+            "IfcPump",
+            "IfcSensor",
+        ):
+            for port in ifcopenshell.util.system.get_ports(element):
+                port.FlowDirection = flip[port.FlowDirection]
+    path = tmp_path / "reversed.ifc"
+    heating.write(str(path))
+    building = Building.from_ifc(EXAMPLE_HOM, hvac_file_paths=[path])
+    assert building.heating is not None
+    circuits = {
+        frozenset(e.space.name for e in c.emitters): c  # type: ignore[union-attr]
+        for c in building.heating.circuits
+    }
+    assert set(circuits) == {frozenset(GROUND_FLOOR), frozenset(FIRST_FLOOR)}
+    assert all(
+        c.pump is not None and c.mixing_valve is not None for c in circuits.values()
+    )
+
+
+def test_sizing_without_output_capacity(
+    example_hom_heating_path: Path, tmp_path: Path
+) -> None:
+    heating = ifcopenshell.open(str(example_hom_heating_path))
+    for radiator_type in heating.by_type("IfcSpaceHeaterType"):
+        pset = ifcopenshell.util.element.get_pset(
+            radiator_type, "Pset_SpaceHeaterTypeCommon"
+        )
+        ifcopenshell.api.pset.edit_pset(
+            heating,
+            pset=heating.by_id(pset["id"]),
+            properties={"OutputCapacity": None},
+        )
+    path = tmp_path / "without_capacities.ifc"
+    heating.write(str(path))
+    building = Building.from_ifc(EXAMPLE_HOM, hvac_file_paths=[path])
+    loads = building.design_heat_loads(Vector(x=0, y=1, z=0))
+    spaces = {space["id"]: space for space in _spaces(building)}
+    heated = {k: v for k, v in spaces.items() if "emissions" in v}
+    assert len(heated) == len(GROUND_FLOOR | FIRST_FLOOR)
+    for space_id, space in heated.items():
+        power = space["emissions"][0]["radiator"]["parameters"][
+            "nominal_heating_power_positive_for_heating"
+        ]
+        assert power == round(loads[space_id])
+        assert 100 < power < 2000
+    assert building.heating is not None
+    assert any("design heat load" in a for a in building.heating.assumptions)

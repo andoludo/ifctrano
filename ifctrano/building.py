@@ -33,7 +33,7 @@ from ifctrano.construction import (
     default_construction,
     default_internal_construction,
 )
-from ifctrano.hvac import HeatingSystem
+from ifctrano.hvac import HeatingOptions, HeatingSystem, design_heat_load
 
 logger = logging.getLogger(__name__)
 
@@ -186,12 +186,15 @@ class Building(BaseShow):
         ifc_file_path: Path,
         selected_spaces_global_id: Optional[List[str]] = None,
         hvac_file_paths: Optional[Sequence[Path]] = None,
+        heating_options: Optional[HeatingOptions] = None,
     ) -> "Building":
         """Building from an architecture IFC file.
 
         ``hvac_file_paths`` are optional federated discipline models (e.g. a
         heating model) sharing the coordinate system of the architecture model.
         Heating elements are also read from the architecture file itself.
+        ``heating_options`` override the detected heat generator kind and set
+        the design conditions used to size what the model does not specify.
         """
         selected_spaces_global_id = selected_spaces_global_id or []
         for path in [ifc_file_path, *(hvac_file_paths or [])]:
@@ -228,7 +231,9 @@ class Building(BaseShow):
             constructions=constructions,
             hvac_files=hvac_files,
             heating=HeatingSystem.from_ifc(
-                [ifc_file, *hvac_files], [sb.space for sb in space_boundaries]
+                [ifc_file, *hvac_files],
+                [sb.space for sb in space_boundaries],
+                heating_options,
             ),
         )
 
@@ -312,7 +317,8 @@ class Building(BaseShow):
         }
         if self.heating is not None:
             emissions, systems = self.heating.to_config(
-                [sp["id"] for sp in spaces]  # type: ignore
+                [sp["id"] for sp in spaces],  # type: ignore
+                self.design_heat_loads(north_axis),
             )
             for space in spaces:
                 if space["id"] in emissions:  # type: ignore
@@ -320,6 +326,26 @@ class Building(BaseShow):
             if systems:
                 config["systems"] = systems
         return config
+
+    def design_heat_loads(self, north_axis: Vector) -> Dict[str, float]:
+        """Design heat load (W) of each space, used to size heating components."""
+        conditions = (
+            self.heating.options.design
+            if self.heating is not None
+            else HeatingOptions().design
+        )
+        loads = {}
+        for space_boundaries in self.space_boundaries:
+            space = space_boundaries.model(
+                self.internal_elements.internal_element_ids(),
+                north_axis,
+                self.constructions,
+            )
+            if space is not None:
+                loads[space_boundaries.space.space_unique_name()] = design_heat_load(
+                    space, conditions
+                )
+        return loads
 
     @validate_call
     def to_yaml(self, yaml_path: Path, north_axis: Optional[Vector] = None) -> None:

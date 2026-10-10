@@ -108,6 +108,7 @@ exclude = [
 [tool.pytest.ini_options]
 markers = [
     "large: slow tests on large IFC models, deselected in CI (-m 'not large')",
+    "simulate: tests simulating models with OpenModelica, needs Docker (-m simulate)",
 ]
 
 [tool.isort]
