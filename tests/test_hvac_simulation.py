@@ -10,7 +10,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 from buildingspy.io.outputfile import Reader  # type: ignore
-from trano.simulate.simulate import SimulationOptions, simulate  # type: ignore
+from trano.simulate.simulate import (  # type: ignore
+    MODELICA_ENVIRONMENT,
+    SimulationOptions,
+    client,
+    container,
+    simulate,
+)
+from trano.topology import Network  # type: ignore
 from trano.utils.utils import is_success  # type: ignore
 
 from ifctrano.building import Building
@@ -25,6 +32,24 @@ def _series(reader: Reader, pattern: str) -> dict[str, tuple[np.ndarray, np.ndar
     """Time series of the result variables whose name matches ``pattern``."""
     names = [name for name in reader.varNames() if re.search(pattern, name)]
     return {name: reader.values(name) for name in names}
+
+
+def _diagnose(network: Network, project: Path) -> str:
+    """OpenModelica messages when loading and checking the generated model."""
+    (project / "diagnostic.mo").write_text(network.model())
+    (project / "diagnostic.mos").write_text(
+        f'loadModel(Modelica, {{"{MODELICA_ENVIRONMENT.modelica_version}"}});\n'
+        "getErrorString();\n"
+        'loadFile("/simulation/diagnostic.mo");\n'
+        "getErrorString();\n"
+        f"checkModel({network.name}.building);\n"
+        "getErrorString();\n"
+        "getAvailableLibraryVersions(Buildings);\n"
+    )
+    with container(client(), project) as container_:
+        return str(
+            container_.exec_run(cmd="omc /simulation/diagnostic.mos").output.decode()
+        )
 
 
 def _last_day(time: np.ndarray, values: np.ndarray, end: float) -> np.ndarray:
@@ -47,8 +72,11 @@ def test_simulate_heating_model(tmp_path: Path) -> None:
 
     results = simulate(project, network, options=options)
 
-    output = results.output.decode()
-    assert is_success(results, options=options), output[-5000:]
+    if not is_success(results, options=options):
+        pytest.fail(
+            f"{results.output.decode()[-3000:]}\n--- diagnostic ---\n"
+            f"{_diagnose(network, project)[-8000:]}"
+        )
     result_files = list(project.rglob("*building_res.mat"))
     assert result_files, f"No result file in {list(project.rglob('*'))}"
     reader = Reader(str(result_files[0]), "openmodelica")
