@@ -14,7 +14,7 @@ from trano.elements.construction import (  # type: ignore
     GlassLayer,
     GasLayer,
 )
-from ifctrano.utils import remove_non_alphanumeric, generate_alphanumeric_uuid
+from ifctrano.utils import modelica_identifier
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +106,9 @@ class Materials(BaseModel):
     def from_ifc_materials(cls, ifc_materials: List[entity_instance]) -> "Materials":
         materials = []
         for material in ifc_materials:
-            material_name = remove_non_alphanumeric(material.Name)
+            material_name = modelica_identifier(
+                material.Name, f"material_{material.id()}"
+            )
             materials.append(
                 MaterialId.model_validate(
                     {"name": material_name, "id": material.id(), **DEFAULT_MATERIAL}
@@ -180,8 +182,9 @@ class Constructions(BaseModel):
     ) -> "Constructions":
         constructions = []
         for layer_set in ifc_material_layer_sets:
-            name_ = layer_set.LayerSetName or generate_alphanumeric_uuid()
-            name = remove_non_alphanumeric(name_)
+            name = modelica_identifier(
+                layer_set.LayerSetName, f"construction_{layer_set.id()}"
+            )
             layer_ids = [
                 int(material_layer.id()) for material_layer in layer_set.MaterialLayers
             ]
