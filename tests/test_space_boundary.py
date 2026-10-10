@@ -1,11 +1,20 @@
+import pytest
 from _pytest.fixtures import FixtureRequest
 from ifcopenshell import file
+from trano.elements import ExternalWall, Window  # type: ignore
+from trano.elements.types import Tilt  # type: ignore
 
 from ifctrano.base import Vector
 from ifctrano.bounding_box import OrientedBoundingBox
 from ifctrano.building import get_internal_elements
-from ifctrano.construction import Constructions
-from ifctrano.space_boundary import initialize_tree, SpaceBoundaries, Space
+from ifctrano.construction import Constructions, default_construction, glass
+from ifctrano.space_boundary import (
+    MAX_WINDOW_TO_WALL_RATIO,
+    ExternalSpaceBoundaryGroups,
+    initialize_tree,
+    SpaceBoundaries,
+    Space,
+)
 from tests.conftest import SHOW_FIGURES, compare
 
 
@@ -363,3 +372,31 @@ def test_space_boundary_layer(request: FixtureRequest, layer: file) -> None:
     if SHOW_FIGURES:
         boundaries.show()
     assert compare(boundaries, request)
+
+
+def test_windows_are_kept_within_their_wall() -> None:
+    """Overlapping windows of a glazed facade cannot be larger than the facade."""
+    wall = ExternalWall(
+        surface=38.27, azimuth=0.0, tilt=Tilt.wall, construction=default_construction
+    )
+    windows = [
+        Window(surface=5.0, azimuth=0.0, tilt=Tilt.wall, construction=glass)
+        for _ in range(8)
+    ]
+    groups = ExternalSpaceBoundaryGroups.from_external_boundaries([wall, *windows])
+    (window,) = (c for c in groups.get_constructions() if isinstance(c, Window))
+    assert window.surface == pytest.approx(MAX_WINDOW_TO_WALL_RATIO * 38.27)
+    assert window.width * window.height == pytest.approx(window.surface)
+
+
+def test_windows_within_their_wall_are_unchanged() -> None:
+    wall = ExternalWall(
+        surface=10.0, azimuth=1.57, tilt=Tilt.wall, construction=default_construction
+    )
+    windows = [
+        Window(surface=2.0, azimuth=1.57, tilt=Tilt.wall, construction=glass)
+        for _ in range(2)
+    ]
+    groups = ExternalSpaceBoundaryGroups.from_external_boundaries([wall, *windows])
+    surfaces = {type(c): c.surface for c in groups.get_constructions()}
+    assert surfaces == {ExternalWall: 10.0, Window: 4.0}

@@ -88,3 +88,14 @@ def test_construction_names_are_stable_modelica_identifiers() -> None:
     again = [c.name for c in Constructions.from_ifc(ifc_file).constructions]
     assert names == again
     assert all(MODELICA_IDENTIFIER.match(name) for name in names), names
+
+
+def test_construction_names_are_unique() -> None:
+    """Layer sets sharing a name (Background Fill 350 of 350 and 350.5 mm) get
+    distinct names, so the configuration has no duplicate construction."""
+    ifc_file = ifcopenshell.open(
+        str(SPACE_BOUNDARY_IFC / "RooftopBuilding3ZonesThin.ifc")
+    )
+    names = [c.name for c in Constructions.from_ifc(ifc_file).constructions]
+    assert len(names) == len(set(names))
+    assert {"background_fill_350", "background_fill_350_88204"} <= set(names)

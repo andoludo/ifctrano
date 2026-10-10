@@ -10,8 +10,6 @@ import yaml
 from ifcopenshell import file, entity_instance
 from pydantic import validate_call, Field, model_validator, field_validator
 from trano.data_models.conversion import convert_network  # type: ignore
-from trano.elements import InternalElement  # type: ignore
-from trano.elements.envelope import SpaceTilt  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
 from trano.topology import Network  # type: ignore
@@ -30,7 +28,6 @@ from ifctrano.space_boundary import (
 )
 from ifctrano.construction import (
     Constructions,
-    default_construction,
     default_internal_construction,
 )
 from ifctrano.hvac import HeatingOptions, HeatingSystem, design_heat_load
@@ -359,62 +356,11 @@ class Building(BaseShow):
         library: Libraries = "Buildings",
         north_axis: Optional[Vector] = None,
     ) -> Network:
-        north_axis = north_axis or Vector(x=0, y=1, z=0)
-        if self.heating is not None:
-            return self._network_from_config(library, north_axis)
-        network = Network(name=self.name, library=Library.from_configuration(library))
-        spaces = {
-            space_boundary.space.global_id: space_boundary.model(
-                self.internal_elements.internal_element_ids(),
-                north_axis,
-                self.constructions,
-            )
-            for space_boundary in self.space_boundaries
-        }
-        spaces = {k: v for k, v in spaces.items() if v}
-        network.add_boiler_plate_spaces(list(spaces.values()), create_internal=False)
-        for internal_element in self.internal_elements.elements:
-            space_1 = internal_element.spaces[0]
-            space_2 = internal_element.spaces[1]
-            if any(
-                global_id not in spaces
-                for global_id in [space_1.entity.GlobalId, space_2.entity.GlobalId]
-            ):
-                continue
-            space_tilts = []
-            if internal_element.element.is_a() in ["IfcSlab"]:
-                space_1_tilt = (
-                    Tilt.floor
-                    if space_1.bounding_box.centroid.z > space_2.bounding_box.centroid.z
-                    else Tilt.ceiling
-                )
-                space_2_tilt = (
-                    Tilt.floor
-                    if space_2.bounding_box.centroid.z > space_1.bounding_box.centroid.z
-                    else Tilt.ceiling
-                )
-                if space_1_tilt == space_2_tilt:
-                    logger.error("Space tilts are not compatible.")
-                    continue
-                space_tilts = [
-                    SpaceTilt(space_name=space_1.name, tilt=space_1_tilt),
-                    SpaceTilt(space_name=space_2.name, tilt=space_2_tilt),
-                ]
-            network.connect_spaces(
-                spaces[space_1.global_id],
-                spaces[space_2.global_id],
-                InternalElement(
-                    azimuth=10,
-                    construction=default_construction,
-                    surface=internal_element.area,
-                    tilt=Tilt.wall,
-                    space_tilts=space_tilts,
-                ),
-            )
-        return network
+        """trano network of the building, built from its configuration.
 
-    def _network_from_config(self, library: Libraries, north_axis: Vector) -> Network:
-        """Network built by trano from the configuration, systems included."""
+        Going through ``to_config`` keeps one translation of the building: the
+        generated model is the one ``ifctrano config`` describes.
+        """
         with TemporaryDirectory() as directory:
             config_path = Path(directory) / f"{self.name}.yaml"
             self.to_yaml(config_path, north_axis=north_axis)

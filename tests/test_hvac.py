@@ -16,12 +16,22 @@ import yaml
 from deepdiff import DeepDiff
 from _pytest.fixtures import FixtureRequest
 from trano.data_models.conversion import convert_network  # type: ignore
+from trano.data_models.conversion import SpaceParameter  # type: ignore
+from trano.elements import ExternalWall, Space as TranoSpace, Window  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
+from trano.elements.system import Occupancy  # type: ignore
+from trano.elements.types import Tilt  # type: ignore
 
 from ifctrano.base import Vector
 from ifctrano.building import Building
 from ifctrano.exceptions import IfcFileNotFoundError, NoIfcSpaceFoundError
-from ifctrano.hvac import HeatingOptions, ProductionKind
+from ifctrano.construction import default_construction, glass
+from ifctrano.hvac import (
+    DesignConditions,
+    HeatingOptions,
+    ProductionKind,
+    design_heat_load,
+)
 from ifctrano.hvac.network import DistributionNetwork, Role, production_kind
 from ifctrano.hvac.spaces import SpaceLocator
 from tests.conftest import CONFIG_PATH, OVERWRITE_RESULTS, SPACE_BOUNDARY_IFC
@@ -469,3 +479,26 @@ def test_sizing_without_output_capacity(
         assert 100 < power < 2000
     assert building.heating is not None
     assert any("design heat load" in a for a in building.heating.assumptions)
+
+
+def test_design_heat_load_counts_windows_once() -> None:
+    """Wall surfaces are gross facade areas: windows are cut out of them."""
+    conditions = DesignConditions()
+    wall = ExternalWall(
+        surface=10.0, azimuth=0.0, tilt=Tilt.wall, construction=default_construction
+    )
+    window = Window(surface=2.0, azimuth=0.0, tilt=Tilt.wall, construction=glass)
+    space = TranoSpace(
+        name="space",
+        occupancy=Occupancy(),
+        parameters=SpaceParameter(floor_area=10.0, average_room_height=2.5),
+        external_boundaries=[wall, window],
+    )
+    conductance = sum(
+        area / (construction.total_thermal_resistance + conditions.surface_resistance)
+        for area, construction in [(8.0, default_construction), (2.0, glass)]
+    )
+    ventilation = 0.34 * conditions.air_change_rate * 25.0
+    assert design_heat_load(space, conditions) == pytest.approx(
+        (conductance + ventilation) * conditions.temperature_difference
+    )

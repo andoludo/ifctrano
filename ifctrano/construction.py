@@ -181,10 +181,15 @@ class Constructions(BaseModel):
         cls, ifc_material_layer_sets: List[entity_instance], layers: Layers
     ) -> "Constructions":
         constructions = []
+        names: set[str] = set()
         for layer_set in ifc_material_layer_sets:
             name = modelica_identifier(
                 layer_set.LayerSetName, f"construction_{layer_set.id()}"
             )
+            if name in names:
+                # Distinct layer sets can share a name (e.g. other thicknesses).
+                name = f"{name}_{layer_set.id()}"
+            names.add(name)
             layer_ids = [
                 int(material_layer.id()) for material_layer in layer_set.MaterialLayers
             ]

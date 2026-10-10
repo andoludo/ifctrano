@@ -1,0 +1,1132 @@
+{
+  "constructions": {
+    "construction_1075": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.174999997019768
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        }
+      ],
+      "nLay": 3.0
+    },
+    "construction_1094": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.115000002086163
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        }
+      ],
+      "nLay": 3.0
+    },
+    "construction_1142": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.159999996423721
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0399999991059303
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0599999986588955
+        }
+      ],
+      "nLay": 4.0
+    },
+    "construction_1179": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0125000001862645
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.159999996423721
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0199999995529652
+        }
+      ],
+      "nLay": 4.0
+    },
+    "construction_1216": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0599999986588955
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0399999991059303
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.25
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0399999991059303
+        }
+      ],
+      "nLay": 4.0
+    },
+    "construction_1244": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.180000007152557
+        }
+      ],
+      "nLay": 1.0
+    },
+    "construction_4407": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.174999997019768
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0399999991059303
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0500000007450581
+        }
+      ],
+      "nLay": 4.0
+    },
+    "construction_4437": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0500000007450581
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0399999991059303
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.174999997019768
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        }
+      ],
+      "nLay": 4.0
+    },
+    "default_construction": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.18
+        }
+      ],
+      "nLay": 1.0
+    },
+    "default_internal_construction": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.18
+        }
+      ],
+      "nLay": 1.0
+    },
+    "double_glazing": {
+      "UFra": 1.4,
+      "gas": [
+        {
+          "MM": 0.02886614023942798,
+          "a_c": 1005.0,
+          "a_k": 0.025,
+          "a_mu": 3.723e-06,
+          "b_c": 0.0,
+          "b_k": 0.0,
+          "b_mu": 4.94e-08,
+          "x": 0.0127
+        }
+      ],
+      "glass": [
+        {
+          "absIR_a": 0.84,
+          "absIR_b": 0.84,
+          "k": 1.0,
+          "rhoSol_a": [
+            0.062
+          ],
+          "rhoSol_b": [
+            0.063
+          ],
+          "tauIR": 0.0,
+          "tauSol": [
+            0.646
+          ],
+          "x": 0.003
+        },
+        {
+          "absIR_a": 0.84,
+          "absIR_b": 0.84,
+          "k": 1.0,
+          "rhoSol_a": [
+            0.062
+          ],
+          "rhoSol_b": [
+            0.063
+          ],
+          "tauIR": 0.0,
+          "tauSol": [
+            0.646
+          ],
+          "x": 0.003
+        }
+      ]
+    },
+    "ow_enev2002_m": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0500000007450581
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0399999991059303
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.174999997019768
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.0149999996647239
+        }
+      ],
+      "nLay": 4.0
+    }
+  },
+  "heating": {
+    "boiler_1": {
+      "Q_flow_nominal": 18000.0,
+      "TSet": 323.15,
+      "TSouSet": 286.15,
+      "T_nominal": 353.15,
+      "VTan": 0.2,
+      "dIns": 0.1,
+      "deltaM": 0.1,
+      "dp_nominal": 5000.0,
+      "hTan": 2.0,
+      "nSeg": 4.0,
+      "nominal_mass_flow_radiator_loop": 0.6428571428571429,
+      "nominal_mass_flow_rate_boiler": 0.32142857142857145
+    },
+    "boiler_control_boiler_1": {
+      "TSup_nominal": 353.15,
+      "threshold_outdoor_air_cutoff": 288.15
+    },
+    "emission_control_space_bath9_pla": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_bedroom6_x8a": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_children10_ufa": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_children7_ttq": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_corridor3_n2a": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_corridor8_xaa": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_hobby2_uxa": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_kitchen5_dsw": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_living1_v3g": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "emission_control_space_wc4_pwg": {
+      "THeaSet": 297.0,
+      "THeaSetBack": 289.0,
+      "k": 5.0
+    },
+    "pump_1": {
+      "dp_nominal": 40000.0,
+      "m_flow_nominal": 0.25
+    },
+    "pump_2": {
+      "dp_nominal": 40000.0,
+      "m_flow_nominal": 0.25
+    },
+    "radiator_space_bath9_pla": {
+      "Q_flow_nominal": 1010.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.005858,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 26.563,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_bedroom6_x8a": {
+      "Q_flow_nominal": 1680.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.009744000000000001,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 44.184,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_children10_ufa": {
+      "Q_flow_nominal": 1010.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.005858,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 26.563,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_children7_ttq": {
+      "Q_flow_nominal": 1010.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.005858,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 26.563,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_corridor3_n2a": {
+      "Q_flow_nominal": 380.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.0022040000000000002,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 9.994,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_corridor8_xaa": {
+      "Q_flow_nominal": 380.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.0022040000000000002,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 9.994,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_hobby2_uxa": {
+      "Q_flow_nominal": 1010.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.005858,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 26.563,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_kitchen5_dsw": {
+      "Q_flow_nominal": 1010.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.005858,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 26.563,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_living1_v3g": {
+      "Q_flow_nominal": 3360.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.019488000000000002,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 88.368,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "radiator_space_wc4_pwg": {
+      "Q_flow_nominal": 380.0,
+      "TAir_nominal": 293.15,
+      "TRad_nominal": 293.15,
+      "T_a_nominal": 353.15,
+      "T_b_nominal": 333.15,
+      "VWat": 0.0022040000000000002,
+      "deltaM": 0.01,
+      "dp_nominal": 2000.0,
+      "fraRad": 0.3,
+      "mDry": 9.994,
+      "n": 1.24,
+      "nEle": 1.0
+    },
+    "split_valve_1": {
+      "deltaM": 0.3
+    },
+    "split_valve_2": {
+      "deltaM": 0.3
+    },
+    "temperature_sensor_1": {
+      "m_flow_nominal": 0.15
+    },
+    "temperature_sensor_2": {
+      "m_flow_nominal": 0.15
+    },
+    "three_way_valve_1": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpValve_nominal": 6000.0,
+      "fraK": 0.7,
+      "m_flow_nominal": 0.15
+    },
+    "three_way_valve_2": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpValve_nominal": 6000.0,
+      "fraK": 0.7,
+      "m_flow_nominal": 0.15
+    },
+    "valve_space_bath9_pla": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_bedroom6_x8a": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_children10_ufa": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_children7_ttq": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_corridor3_n2a": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_corridor8_xaa": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_hobby2_uxa": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_kitchen5_dsw": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_living1_v3g": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    },
+    "valve_space_wc4_pwg": {
+      "R": 50.0,
+      "delta0": 0.01,
+      "deltaM": 0.02,
+      "dpFixed_nominal": 5000.0,
+      "dpValve_nominal": 10000.0,
+      "l": 0.0001,
+      "m_flow_nominal": 0.06
+    }
+  },
+  "zones": {
+    "space_att_ohq": {
+      "floor_area": 92.9771,
+      "height": 2.15096,
+      "surfaces": [
+        {
+          "area": 36.59276,
+          "azimuth": 0.0,
+          "kind": "opaque",
+          "layers": "construction_4437",
+          "tilt": "wall"
+        },
+        {
+          "area": 42.64367,
+          "azimuth": 3.14,
+          "kind": "opaque",
+          "layers": "construction_4407",
+          "tilt": "wall"
+        },
+        {
+          "area": 83.00605,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "floor"
+        },
+        {
+          "area": 92.97702,
+          "kind": "opaque",
+          "layers": "construction_1244",
+          "tilt": "ceiling"
+        },
+        {
+          "area": 1.0805,
+          "kind": "opaque",
+          "layers": "default_construction",
+          "tilt": "ceiling"
+        }
+      ]
+    },
+    "space_bath9_pla": {
+      "floor_area": 12.936,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 8.58,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 10.192,
+          "azimuth": 0.0,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 12.936,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 12.936,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "floor"
+        },
+        {
+          "area": 20.93845,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        }
+      ]
+    },
+    "space_bedroom6_x8a": {
+      "floor_area": 23.06923,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 15.301,
+          "azimuth": 1.57,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 10.192,
+          "azimuth": 3.14,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 23.0692,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 23.0692,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "floor"
+        },
+        {
+          "area": 31.11745,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        }
+      ]
+    },
+    "space_children10_ufa": {
+      "floor_area": 18.71801,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 10.19203,
+          "azimuth": 0.0,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 12.415,
+          "azimuth": 1.57,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 18.71805,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 18.718,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "floor"
+        },
+        {
+          "area": 31.11745,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        }
+      ]
+    },
+    "space_children7_ttq": {
+      "floor_area": 12.93601,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 8.58,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 10.192,
+          "azimuth": 3.14,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 12.936,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 12.936,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "floor"
+        },
+        {
+          "area": 20.93845,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 12.936,
+          "kind": "opaque",
+          "layers": "construction_1244",
+          "tilt": "ceiling"
+        }
+      ]
+    },
+    "space_corridor3_n2a": {
+      "floor_area": 15.3468,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 2.16645,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "default_construction",
+          "tilt": "wall"
+        },
+        {
+          "area": 10.179,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 15.3468,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 49.4078,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 15.3468,
+          "kind": "ground",
+          "layers": "construction_1216",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_corridor8_xaa": {
+      "floor_area": 15.3468,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 10.179,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 15.3468,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 15.3468,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "floor"
+        },
+        {
+          "area": 49.4078,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        }
+      ]
+    },
+    "space_hobby2_uxa": {
+      "floor_area": 12.93601,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 8.58,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 10.192,
+          "azimuth": 3.14,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 12.936,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 20.93845,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 12.936,
+          "kind": "ground",
+          "layers": "construction_1216",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_kitchen5_dsw": {
+      "floor_area": 18.718,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 10.192,
+          "azimuth": 0.0,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 12.415,
+          "azimuth": 1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 2.16
+        },
+        {
+          "area": 18.718,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 33.2839,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 18.718,
+          "kind": "ground",
+          "layers": "construction_1216",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_living1_v3g": {
+      "floor_area": 23.06921,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 15.301,
+          "azimuth": 1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 3.24
+        },
+        {
+          "area": 10.192,
+          "azimuth": 3.14,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 23.0692,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 31.11745,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 23.0692,
+          "kind": "ground",
+          "layers": "construction_1216",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_wc4_pwg": {
+      "floor_area": 12.936,
+      "height": 2.6,
+      "surfaces": [
+        {
+          "area": 8.58,
+          "azimuth": -1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall",
+          "window_area": 1.08
+        },
+        {
+          "area": 2.16645,
+          "azimuth": 0.0,
+          "kind": "opaque",
+          "layers": "default_construction",
+          "tilt": "wall"
+        },
+        {
+          "area": 10.192,
+          "azimuth": 0.0,
+          "kind": "opaque",
+          "layers": "ow_enev2002_m",
+          "tilt": "wall"
+        },
+        {
+          "area": 12.936,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 23.1049,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 12.936,
+          "kind": "ground",
+          "layers": "construction_1216",
+          "tilt": "floor"
+        }
+      ]
+    }
+  }
+}

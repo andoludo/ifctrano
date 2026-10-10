@@ -7,13 +7,22 @@ space, computed with a simplified EN 12831-1 method:
     load = (sum(A / (R + Rs) * f) + 0.34 * n * V) * (Ti - Te)
 
 with ``A`` and ``R`` the area and thermal resistance of each external boundary
-of the space, ``Rs`` the internal and external surface resistances, ``f`` a
+of the space (walls without the windows they host, since wall surfaces are
+gross facade areas), ``Rs`` the internal and external surface resistances, ``f`` a
 temperature correction factor (1 for elements exposed to outdoor air, lower for
 floors on ground), ``n`` the air change rate and ``V`` the space volume.
 """
 
+from collections import defaultdict
+from collections.abc import Iterable, Iterator
+
 from pydantic import BaseModel, Field
-from trano.elements import Space as TranoSpace  # type: ignore
+from trano.elements import (  # type: ignore
+    BaseWall,
+    ExternalWall,
+    Space as TranoSpace,
+    Window,
+)
 from trano.elements.types import Tilt  # type: ignore
 
 AIR_VOLUMETRIC_HEAT_CAPACITY = 0.34  # Wh/(m3 K), i.e. W per m3/h and K
@@ -49,10 +58,35 @@ class DesignConditions(BaseModel):
         )
 
 
+def _orientation(boundary: BaseWall) -> tuple[float, Tilt]:
+    return boundary.azimuth, boundary.tilt
+
+
+def _areas(boundaries: Iterable[BaseWall]) -> Iterator[tuple[BaseWall, float]]:
+    """Boundaries with their area exchanging heat.
+
+    Windows are cut out of the external walls of their orientation, in
+    proportion to the wall areas, as trano does.
+    """
+    walls: dict[tuple[float, Tilt], float] = defaultdict(float)
+    windows: dict[tuple[float, Tilt], float] = defaultdict(float)
+    for boundary in boundaries:
+        if isinstance(boundary, Window):
+            windows[_orientation(boundary)] += boundary.surface
+        elif isinstance(boundary, ExternalWall):
+            walls[_orientation(boundary)] += boundary.surface
+    for boundary in boundaries:
+        area = float(boundary.surface)
+        gross = walls[_orientation(boundary)]
+        if isinstance(boundary, ExternalWall) and gross > 0:
+            area *= max(0.0, 1 - windows[_orientation(boundary)] / gross)
+        yield boundary, area
+
+
 def design_heat_load(space: TranoSpace, conditions: DesignConditions) -> float:
     """Design heat load of a space in W."""
     transmission = 0.0
-    for boundary in space.external_boundaries:
+    for boundary, area in _areas(space.external_boundaries):
         resistance = (
             boundary.construction.total_thermal_resistance
             + conditions.surface_resistance
@@ -62,7 +96,7 @@ def design_heat_load(space: TranoSpace, conditions: DesignConditions) -> float:
             if getattr(boundary, "tilt", None) == Tilt.floor
             else 1.0
         )
-        transmission += boundary.surface * factor / resistance
+        transmission += area * factor / resistance
     volume = space.parameters.floor_area * space.parameters.average_room_height
     ventilation = AIR_VOLUMETRIC_HEAT_CAPACITY * conditions.air_change_rate * volume
     return float((transmission + ventilation) * conditions.temperature_difference)
