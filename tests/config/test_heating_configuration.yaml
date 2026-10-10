@@ -134,19 +134,19 @@ systems:
 - temperature_sensor:
     id: temperature_sensor_1
     outlets:
-    - radiator_space_bath9_pla
-    - radiator_space_bedroom6_x8a
-    - radiator_space_children10_ufa
-    - radiator_space_children7_ttq
-    - radiator_space_corridor8_xaa
+    - radiator_space_corridor3_n2a
+    - radiator_space_hobby2_uxa
+    - radiator_space_kitchen5_dsw
+    - radiator_space_living1_v3g
+    - radiator_space_wc4_pwg
 - split_valve:
     id: split_valve_1
     inlets:
-    - valve_space_bath9_pla
-    - valve_space_bedroom6_x8a
-    - valve_space_children10_ufa
-    - valve_space_children7_ttq
-    - valve_space_corridor8_xaa
+    - valve_space_corridor3_n2a
+    - valve_space_hobby2_uxa
+    - valve_space_kitchen5_dsw
+    - valve_space_living1_v3g
+    - valve_space_wc4_pwg
     outlets:
     - boiler_1
 - pump:
@@ -172,18 +172,18 @@ systems:
 - temperature_sensor:
     id: temperature_sensor_2
     outlets:
-    - radiator_space_corridor3_n2a
-    - radiator_space_hobby2_uxa
-    - radiator_space_kitchen5_dsw
-    - radiator_space_living1_v3g
-    - radiator_space_wc4_pwg
+    - radiator_space_bath9_pla
+    - radiator_space_bedroom6_x8a
+    - radiator_space_children10_ufa
+    - radiator_space_children7_ttq
+    - radiator_space_corridor8_xaa
 - split_valve:
     id: split_valve_2
     inlets:
-    - valve_space_corridor3_n2a
-    - valve_space_hobby2_uxa
-    - valve_space_kitchen5_dsw
-    - valve_space_living1_v3g
-    - valve_space_wc4_pwg
+    - valve_space_bath9_pla
+    - valve_space_bedroom6_x8a
+    - valve_space_children10_ufa
+    - valve_space_children7_ttq
+    - valve_space_corridor8_xaa
     outlets:
     - boiler_1

@@ -31,6 +31,7 @@ Run ``python -m tests.hvac.example_hom_heating <output.ifc>`` to write the file.
 
 from __future__ import annotations
 
+import itertools
 import sys
 import uuid
 from collections.abc import Iterable, Sequence
@@ -322,7 +323,41 @@ class HeatingModelBuilder:
         storey: str,
         system: ifcopenshell.entity_instance,
     ) -> None:
-        """Connect ``source`` (a SOURCE port) to ``target`` (a SINK port) with a pipe."""
+        """Connect ``source`` (a SOURCE port) to ``target`` (a SINK port).
+
+        The pipe is routed along the axes, as installed pipes are: rising
+        first when going up and dropping last when going down, so that risers
+        stay in the plant room. Straight runs are joined by elbow fittings.
+        """
+        route = _orthogonal_route(start, end)
+        for index, (a, b) in enumerate(itertools.pairwise(route)):
+            last = index == len(route) - 2
+            if last:
+                self._segment(source, target, a, b, storey, system)
+                break
+            elbow = self.element(
+                "IfcPipeFitting",
+                name="Elbow",
+                type_=self.element_type("IfcPipeFitting", "Elbow 90° DN15", "BEND"),
+                position=b,
+                storey=storey,
+                ports={"in": "SINK", "out": "SOURCE"},
+                systems=[system],
+                size=(0.03, 0.03, 0.03),
+            )
+            self._segment(source, elbow.ports["in"], a, b, storey, system)
+            source = elbow.ports["out"]
+
+    def _segment(  # noqa: PLR0913
+        self,
+        source: ifcopenshell.entity_instance,
+        target: ifcopenshell.entity_instance,
+        start: Point,
+        end: Point,
+        storey: str,
+        system: ifcopenshell.entity_instance,
+    ) -> None:
+        """A straight pipe segment from ``source`` to ``target``."""
         segment_type = self.element_type(
             "IfcPipeSegment",
             "Steel pipe DN15",
@@ -444,6 +479,24 @@ class HeatingModelBuilder:
                         UpperBoundValue=self.file.create_entity(measure, upper),
                     ),
                 )
+
+
+def _orthogonal_route(start: Point, end: Point) -> list[Point]:
+    """Points of an axis-aligned route from ``start`` to ``end``."""
+    (x0, y0, z0), (x1, y1, z1) = start, end
+    rising = z1 > z0
+    points = (
+        [start, (x0, y0, z1), (x1, y0, z1), end]
+        if rising
+        else [start, (x1, y0, z0), (x1, y1, z0), end]
+    )
+    route = [points[0]]
+    for point in points[1:]:
+        if np.linalg.norm(np.subtract(point, route[-1])) > 1e-6:
+            route.append(point)
+    if len(route) == 1:
+        route.append(end)
+    return route
 
 
 def build(  # noqa: PLR0915
