@@ -56,10 +56,12 @@ glazings:
   - glass: id_100
     thickness: 0.003
 internal_walls:
-- construction: leichtbeton_102890359_024
-  space_1: space_2_ckm
-  space_2: space_1_zke
-  surface: 8.75
+- construction: solid_397409098_02
+  space_1: space_1_zke
+  space_1_tilt: ceiling
+  space_2: space_7_dlx
+  space_2_tilt: floor
+  surface: 12.3714
 - construction: default_internal_construction
   space_1: space_2_ckm
   space_2: space_1_zke
@@ -68,10 +70,14 @@ internal_walls:
   space_1: space_3_j_m
   space_2: space_2_ckm
   surface: 9.275
-- construction: default_internal_construction
-  space_1: space_3_j_m
+- construction: leichtbeton_102890359_024
+  space_1: space_1_zke
+  space_2: space_6_0d3
+  surface: 8.75
+- construction: leichtbeton_102890359_024
+  space_1: space_2_ckm
   space_2: space_1_zke
-  surface: 1.77885
+  surface: 8.75
 - construction: solid_397409098_02
   space_1: space_2_ckm
   space_1_tilt: ceiling
@@ -79,59 +85,53 @@ internal_walls:
   space_2_tilt: floor
   surface: 12.985
 - construction: solid_397409098_02
-  space_1: space_6_0d3
-  space_1_tilt: ceiling
-  space_2: space_7_dlx
-  space_2_tilt: floor
-  surface: 16.30545
-- construction: leichtbeton_102890359_024
-  space_1: space_4_peh
-  space_2: space_1_zke
-  surface: 4.35
-- construction: solid_397409098_02
   space_1: space_4_peh
   space_1_tilt: ceiling
   space_2: space_7_dlx
   space_2_tilt: floor
   surface: 22.0725
-- construction: solid_397409098_02
+- construction: leichtbeton_102890359_024
+  space_1: space_4_peh
+  space_2: space_1_zke
+  surface: 4.35
+- construction: default_internal_construction
   space_1: space_3_j_m
+  space_2: space_1_zke
+  surface: 1.77885
+- construction: solid_397409098_02
+  space_1: space_6_0d3
   space_1_tilt: ceiling
   space_2: space_7_dlx
   space_2_tilt: floor
-  surface: 12.5027
+  surface: 16.30545
 - construction: solid_397409098_02
   space_1: space_5_9e9
   space_1_tilt: ceiling
   space_2: space_7_dlx
   space_2_tilt: floor
   surface: 25.98855
-- construction: solid_397409098_02
-  space_1: space_1_zke
-  space_1_tilt: ceiling
-  space_2: space_7_dlx
-  space_2_tilt: floor
-  surface: 12.3714
-- construction: leichtbeton_102890359_024
-  space_1: space_4_peh
-  space_2: space_5_9e9
-  surface: 10.125
-- construction: leichtbeton_102890359_024
-  space_1: space_1_zke
-  space_2: space_6_0d3
-  surface: 8.75
-- construction: default_internal_construction
-  space_1: space_4_peh
-  space_2: space_1_zke
-  surface: 1.77885
-- construction: leichtbeton_102890359_024
-  space_1: space_4_peh
-  space_2: space_3_j_m
-  surface: 9.275
 - construction: leichtbeton_102890359_024
   space_1: space_3_j_m
   space_2: space_1_zke
   surface: 8.425
+- construction: leichtbeton_102890359_024
+  space_1: space_4_peh
+  space_2: space_3_j_m
+  surface: 9.275
+- construction: default_internal_construction
+  space_1: space_4_peh
+  space_2: space_1_zke
+  surface: 1.77885
+- construction: solid_397409098_02
+  space_1: space_3_j_m
+  space_1_tilt: ceiling
+  space_2: space_7_dlx
+  space_2_tilt: floor
+  surface: 12.5027
+- construction: leichtbeton_102890359_024
+  space_1: space_4_peh
+  space_2: space_5_9e9
+  surface: 10.125
 material:
 - density: 80.0
   id: leichtbeton_102890359
@@ -140,7 +140,7 @@ material:
   specific_heat_capacity: 940.0
   thermal_conductivity: 0.046
 - density: 80.0
-  id: stahlbeton_65690
+  id: solid_397409098
   longwave_emissivity: 0.85
   shortwave_emissivity: 0.65
   specific_heat_capacity: 940.0
@@ -152,7 +152,7 @@ material:
   specific_heat_capacity: 940.0
   thermal_conductivity: 0.046
 - density: 80.0
-  id: solid_397409098
+  id: stahlbeton_65690
   longwave_emissivity: 0.85
   shortwave_emissivity: 0.65
   specific_heat_capacity: 940.0
@@ -160,23 +160,23 @@ material:
 spaces:
 - external_boundaries:
     external_walls:
-    - azimuth: 0.0
-      construction: leichtbeton_102890359_03
-      surface: 10.125
-      tilt: wall
-    - azimuth: 1.57
+    - azimuth: -1.57
       construction: leichtbeton_102890359_03
       surface: 13.625
+      tilt: wall
+    - azimuth: 3.14
+      construction: leichtbeton_102890359_03
+      surface: 10.125
       tilt: wall
     floor_on_grounds:
     - construction: stahlbeton_65690_02
       surface: 22.0725
     windows:
-    - azimuth: 0.0
+    - azimuth: -1.57
       construction: double_glazing
       surface: 2.4
       tilt: wall
-    - azimuth: 1.57
+    - azimuth: 3.14
       construction: double_glazing
       surface: 2.4
       tilt: wall
@@ -195,7 +195,7 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 0.0
+    - azimuth: 3.14
       construction: leichtbeton_102890359_03
       surface: 8.425
       tilt: wall
@@ -203,7 +203,7 @@ spaces:
     - construction: stahlbeton_65690_02
       surface: 12.5027
     windows:
-    - azimuth: 0.0
+    - azimuth: 3.14
       construction: double_glazing
       surface: 2.4
       tilt: wall
@@ -222,11 +222,11 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 4.71
+    - azimuth: 1.57
       construction: leichtbeton_102890359_03
       surface: 9.275
       tilt: wall
-    - azimuth: 0.0
+    - azimuth: 3.14
       construction: leichtbeton_102890359_03
       surface: 8.75
       tilt: wall
@@ -234,11 +234,11 @@ spaces:
     - construction: stahlbeton_65690_02
       surface: 12.985
     windows:
-    - azimuth: 4.71
+    - azimuth: 1.57
       construction: double_glazing
       surface: 2.4
       tilt: wall
-    - azimuth: 0.0
+    - azimuth: 3.14
       construction: double_glazing
       surface: 2.4
       tilt: wall
@@ -257,15 +257,15 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 3.14
-      construction: leichtbeton_102890359_03
-      surface: 17.5125
-      tilt: wall
-    - azimuth: 1.57
+    - azimuth: -1.57
       construction: leichtbeton_102890359_03
       surface: 9.275
       tilt: wall
-    - azimuth: 3.14
+    - azimuth: 0.0
+      construction: leichtbeton_102890359_03
+      surface: 17.5125
+      tilt: wall
+    - azimuth: 0.0
       construction: default_construction
       surface: 4.77375
       tilt: wall
@@ -273,11 +273,11 @@ spaces:
     - construction: stahlbeton_65690_02
       surface: 25.98855
     windows:
-    - azimuth: 3.14
+    - azimuth: -1.57
       construction: double_glazing
       surface: 2.4
       tilt: wall
-    - azimuth: 1.57
+    - azimuth: 0.0
       construction: double_glazing
       surface: 2.4
       tilt: wall
@@ -296,11 +296,11 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 4.71
+    - azimuth: 1.57
       construction: leichtbeton_102890359_03
       surface: 4.35
       tilt: wall
-    - azimuth: 4.71
+    - azimuth: 1.57
       construction: default_construction
       surface: 2.0301
       tilt: wall
@@ -323,23 +323,23 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 4.71
-      construction: leichtbeton_102890359_03
-      surface: 9.275
-      tilt: wall
-    - azimuth: 3.14
+    - azimuth: 0.0
       construction: leichtbeton_102890359_03
       surface: 10.9875
+      tilt: wall
+    - azimuth: 1.57
+      construction: leichtbeton_102890359_03
+      surface: 9.275
       tilt: wall
     floor_on_grounds:
     - construction: stahlbeton_65690_02
       surface: 16.30545
     windows:
-    - azimuth: 4.71
+    - azimuth: 0.0
       construction: double_glazing
       surface: 2.4
       tilt: wall
-    - azimuth: 3.14
+    - azimuth: 1.57
       construction: double_glazing
       surface: 2.4
       tilt: wall
@@ -358,15 +358,15 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 4.71
+    - azimuth: 0.0
+      construction: leichtbeton_102890359_03
+      surface: 7.67459
+      tilt: wall
+    - azimuth: -1.57
       construction: leichtbeton_102890359_03
       surface: 31.83545
       tilt: wall
     - azimuth: 3.14
-      construction: leichtbeton_102890359_03
-      surface: 7.67459
-      tilt: wall
-    - azimuth: 0.0
       construction: leichtbeton_102890359_03
       surface: 7.67459
       tilt: wall
@@ -384,7 +384,7 @@ spaces:
       tilt: ceiling
     floor_on_grounds: []
     windows:
-    - azimuth: 4.71
+    - azimuth: -1.57
       construction: double_glazing
       surface: 1.0
       tilt: wall

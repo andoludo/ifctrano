@@ -141,7 +141,9 @@ ifctrano config /path/to/architecture.ifc --hvac /path/to/heating.ifc
 Radiators are assigned to spaces by `IfcRelReferencedInSpatialStructure`/`IfcRelContainedInSpatialStructure`, or from
 their location. Radiators of a space are lumped into one emitter (`Pset_SpaceHeaterTypeCommon.OutputCapacity` summed),
 and each circuit (heat generator, circulator and mixing valve) becomes trano's hydronic circuit. Radiators not connected
-to a heat generator become ideal emitters. Values missing from the model fall back to trano defaults, and are logged.
+to a heat generator become ideal emitters. Radiators and pumps without output or flow in the model are sized from the
+design heat load of their spaces (simplified EN 12831), and every assumption is logged. Heat pumps, which IFC has no
+class for, can be declared with `--heat-generator water_water_heat_pump` (or `air_water_heat_pump`).
 
 ---
 

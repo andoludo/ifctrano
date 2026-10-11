@@ -12,20 +12,21 @@ template::
 Radiators of a space are lumped into one equivalent emitter, as is usual in
 building energy simulation. Emitters that are not hydronically connected to a
 heat generator become ideal emitters. Values the model does not provide are
-left to trano's defaults; every such assumption is recorded in
-``HeatingSystem.assumptions`` and logged.
+sized from the design heat load of the spaces when possible (see
+``ifctrano.hvac.sizing``), otherwise left to trano's defaults; every such
+assumption is recorded in ``HeatingSystem.assumptions`` and logged.
 """
 
 import logging
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
 import ifcopenshell
 import ifcopenshell.util.element
 import ifcopenshell.util.unit
 from ifcopenshell import entity_instance
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from ifctrano.base import BaseModelConfig
 from ifctrano.hvac.network import (
@@ -34,6 +35,7 @@ from ifctrano.hvac.network import (
     Role,
     production_kind,
 )
+from ifctrano.hvac.sizing import DesignConditions
 from ifctrano.hvac.spaces import SpaceLocator, ifc_file_of
 from ifctrano.space_boundary import Space
 
@@ -90,6 +92,17 @@ class Emitter(BaseModelConfig):
         )
 
 
+class HeatingOptions(BaseModel):
+    heat_generator: ProductionKind | None = Field(
+        default=None,
+        description=(
+            "Kind of every heat generator, overriding the detection from the "
+            "model (IFC has no heat-pump class)."
+        ),
+    )
+    design: DesignConditions = Field(default_factory=DesignConditions)
+
+
 class Circuit(BaseModelConfig):
     production: entity_instance
     pump: entity_instance | None
@@ -102,11 +115,15 @@ class HeatingSystem(BaseModelConfig):
     ideal_emitters: list[Emitter] = Field(default_factory=list)
     unassigned_emitters: list[Emitter] = Field(default_factory=list)
     network: DistributionNetwork
+    options: HeatingOptions = Field(default_factory=HeatingOptions)
     assumptions: list[str] = Field(default_factory=list)
 
     @classmethod
     def from_ifc(
-        cls, ifc_files: Iterable[ifcopenshell.file], spaces: Sequence[Space]
+        cls,
+        ifc_files: Iterable[ifcopenshell.file],
+        spaces: Sequence[Space],
+        options: HeatingOptions | None = None,
     ) -> "HeatingSystem | None":
         network = DistributionNetwork.from_ifc(ifc_files)
         emitters_ = network.elements(Role.emitter)
@@ -132,7 +149,8 @@ class HeatingSystem(BaseModelConfig):
             path = min(paths, key=len)
             # Circulators may sit in the flow or in the return pipe: take the
             # one closest to the emitter on the flow path, else on the return.
-            return_path = network.supply_path(element, path[0]) or []
+            return_route = network.route(element, path[0])
+            return_path = return_route[0] if return_route else []
             pump = network.first(reversed(path), Role.pump) or network.first(
                 return_path, Role.pump
             )
@@ -152,6 +170,7 @@ class HeatingSystem(BaseModelConfig):
             ideal_emitters=ideal,
             unassigned_emitters=unassigned,
             network=network,
+            options=options or HeatingOptions(),
         )
         system._log_summary()
         return system
@@ -176,10 +195,17 @@ class HeatingSystem(BaseModelConfig):
     # -- trano configuration ----------------------------------------------
 
     def to_config(
-        self, space_ids: Iterable[str]
+        self,
+        space_ids: Iterable[str],
+        design_heat_loads: Mapping[str, float] | None = None,
     ) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, Any]]]:
-        """trano ``emissions`` per space id and the ``systems`` list."""
+        """trano ``emissions`` per space id and the ``systems`` list.
+
+        ``design_heat_loads`` (W per space id) size the emitters whose output
+        capacity is not in the model.
+        """
         space_ids = set(space_ids)
+        design_heat_loads = design_heat_loads or {}
         emissions: dict[str, list[dict[str, Any]]] = {}
         systems: list[dict[str, Any]] = []
         assigned = self._assign_spaces(space_ids)
@@ -206,12 +232,15 @@ class HeatingSystem(BaseModelConfig):
                     f"split_valve_{index}",
                 )
                 collector_ids.append(collector_id)
-                for space_id in spaces:
-                    power = self._space_power(space_id)
-                    circuit_powers.append(power)
+                powers = [
+                    self._space_power(space_id, design_heat_loads.get(space_id))
+                    for space_id in spaces
+                ]
+                for space_id, power in zip(spaces, powers, strict=True):
                     emissions[space_id] = self._hydronic_emission(space_id, power)
+                circuit_powers += powers
                 circuit_systems += [
-                    self._pump(circuit, pump_id, boiler_id),
+                    self._pump(circuit, pump_id, boiler_id, powers),
                     {
                         "three_way_valve": {
                             "id": valve_id,
@@ -289,10 +318,18 @@ class HeatingSystem(BaseModelConfig):
             if emitter.space and emitter.space.space_unique_name() == space_id
         ]
 
-    def _space_power(self, space_id: str) -> float | None:
+    def _space_power(
+        self, space_id: str, design_heat_load: float | None
+    ) -> float | None:
         capacities = [e.output_capacity for e in self._space_emitters(space_id)]
         if all(capacity is not None for capacity in capacities):
             return round(sum(capacities), 2)  # type: ignore[arg-type]
+        if design_heat_load is not None:
+            self._assume(
+                f"Space {space_id} has emitters without OutputCapacity; the emitter "
+                "is sized for the design heat load of the space."
+            )
+            return round(design_heat_load, 0)
         self._assume(
             f"Space {space_id} has emitters without OutputCapacity; trano's default "
             "nominal radiator power is used."
@@ -332,41 +369,55 @@ class HeatingSystem(BaseModelConfig):
             }
         ]
 
-    def _pump(self, circuit: Circuit, pump_id: str, boiler_id: str) -> dict[str, Any]:
+    def _pump(
+        self,
+        circuit: Circuit,
+        pump_id: str,
+        boiler_id: str,
+        powers: Sequence[float | None],
+    ) -> dict[str, Any]:
         pump: dict[str, Any] = {
             "id": pump_id,
             "control": {"collector_control": {"id": f"collector_control_{pump_id}"}},
             "inlets": [boiler_id],
         }
+        parameters = {}
         if circuit.pump is None:
             self._assume(
-                f"Circuit {pump_id} has no circulator in the model; trano's default "
-                "pump is used."
+                f"Circuit {pump_id} has no circulator in the model; trano's circuit "
+                "template adds one."
             )
-            return {"pump": pump}
-        parameters = {}
-        flow_rate = _scaled(
-            circuit.pump,
-            ["Pset_PumpTypeCommon"],
-            "FlowRateRange",
-            "VOLUMETRICFLOWRATEUNIT",
-        )
-        if flow_rate:
-            parameters["m_flow_nominal"] = round(flow_rate * WATER_DENSITY, 6)
-        head = _scaled(
-            circuit.pump,
-            ["Pset_PumpTypeCommon"],
-            "FlowResistanceRange",
-            "PRESSUREUNIT",
-        )
-        if head:
-            parameters["dp_nominal"] = round(head, 2)
+        else:
+            flow_rate = _scaled(
+                circuit.pump,
+                ["Pset_PumpTypeCommon"],
+                "FlowRateRange",
+                "VOLUMETRICFLOWRATEUNIT",
+            )
+            if flow_rate:
+                parameters["m_flow_nominal"] = round(flow_rate * WATER_DENSITY, 6)
+            head = _scaled(
+                circuit.pump,
+                ["Pset_PumpTypeCommon"],
+                "FlowResistanceRange",
+                "PRESSUREUNIT",
+            )
+            if head:
+                parameters["dp_nominal"] = round(head, 2)
+        if "m_flow_nominal" not in parameters and powers and None not in powers:
+            parameters["m_flow_nominal"] = round(
+                self.options.design.water_mass_flow(sum(powers)), 6  # type: ignore
+            )
+            self._assume(
+                f"Pump {pump_id} has no FlowRateRange; its nominal flow carries the "
+                "power of the emitters it serves at the design temperatures."
+            )
         if parameters:
             pump["parameters"] = parameters
         else:
             self._assume(
-                f"Pump {circuit.pump.GlobalId} has no FlowRateRange or "
-                "FlowResistanceRange; trano's default pump sizing is used."
+                f"Pump {pump_id} has no FlowRateRange or FlowResistanceRange; "
+                "trano's default pump sizing is used."
             )
         return {"pump": pump}
 
@@ -377,7 +428,7 @@ class HeatingSystem(BaseModelConfig):
         collector_ids: list[str],
         circuit_powers: list[float | None],
     ) -> dict[str, Any]:
-        kind = production_kind(production)
+        kind = self.options.heat_generator or production_kind(production)
         if kind in (ProductionKind.boiler, ProductionKind.generic):
             has_storage = bool(
                 _property(production, ["Pset_BoilerTypeCommon"], "IsWaterStorageHeater")

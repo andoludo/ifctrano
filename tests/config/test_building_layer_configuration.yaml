@@ -41,6 +41,14 @@ glazings:
     thickness: 0.003
 internal_walls:
 - construction: default_internal_construction
+  space_1: space001_1of
+  space_2: space002_pji
+  surface: 6.266
+- construction: default_internal_construction
+  space_1: space001_1of
+  space_2: space003_tjv
+  surface: 7.046
+- construction: default_internal_construction
   space_1: space003_tjv
   space_2: space004_rqw
   surface: 6.656
@@ -52,14 +60,6 @@ internal_walls:
   space_1: space002_pji
   space_2: space003_tjv
   surface: 6.656
-- construction: default_internal_construction
-  space_1: space001_1of
-  space_2: space003_tjv
-  surface: 7.046
-- construction: default_internal_construction
-  space_1: space001_1of
-  space_2: space002_pji
-  surface: 6.266
 material:
 - density: 80.0
   id: material_1
@@ -70,15 +70,15 @@ material:
 spaces:
 - external_boundaries:
     external_walls:
-    - azimuth: 1.57
+    - azimuth: -1.57
       construction: default_construction
       surface: 8.664
       tilt: wall
-    - azimuth: 4.71
+    - azimuth: 1.57
       construction: default_construction
       surface: 9.386
       tilt: wall
-    - azimuth: 1.57
+    - azimuth: -1.57
       construction: default_construction
       surface: 2.904
       tilt: wall
@@ -107,15 +107,15 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 1.57
+    - azimuth: -1.57
       construction: default_construction
       surface: 8.664
       tilt: wall
-    - azimuth: 3.14
+    - azimuth: 0.0
       construction: default_construction
       surface: 6.162
       tilt: wall
-    - azimuth: 4.71
+    - azimuth: 1.57
       construction: default_construction
       surface: 1.911
       tilt: wall
@@ -127,7 +127,7 @@ spaces:
     - construction: default_construction
       surface: 8.664
     windows:
-    - azimuth: 3.14
+    - azimuth: 0.0
       construction: double_glazing
       surface: 2.115
       tilt: wall
@@ -146,7 +146,7 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 3.14
+    - azimuth: 0.0
       construction: default_construction
       surface: 7.046
       tilt: wall
@@ -173,11 +173,11 @@ spaces:
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 3.14
+    - azimuth: 0.0
       construction: default_construction
       surface: 5.486
       tilt: wall
-    - azimuth: 4.71
+    - azimuth: 1.57
       construction: default_construction
       surface: 9.386
       tilt: wall
@@ -189,7 +189,7 @@ spaces:
     - construction: default_construction
       surface: 7.6171
     windows:
-    - azimuth: 3.14
+    - azimuth: 0.0
       construction: double_glazing
       surface: 1.776
       tilt: wall

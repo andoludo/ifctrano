@@ -11,7 +11,7 @@ Pipes, fittings, isolating valves and sensors are kept in the graph but are
 
 import logging
 import re
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable
 from enum import Enum
 
 import ifcopenshell
@@ -32,6 +32,11 @@ AIR_SOURCE_PATTERN = re.compile(
     r"\bair\b|air[\s_-]?(to|/)?[\s_-]?water|\bluft|lucht|\baero", re.IGNORECASE
 )
 MINIMUM_MIXING_VALVE_PORTS = 3
+# Cost of going against the modelled flow direction. Exporters get the
+# direction of some segments wrong; a route may cross them, but as few as
+# possible.
+REVERSE_FLOW_PENALTY = 1000
+MANUFACTURER_PROPERTIES = ("ModelLabel", "ModelReference")
 
 
 class Role(str, Enum):
@@ -50,22 +55,45 @@ class ProductionKind(str, Enum):
     generic = "generic"
 
 
-def _descriptions(element: entity_instance) -> str:
+def _classifications(element: entity_instance) -> list[str]:
     element_type = ifcopenshell.util.element.get_type(element)
+    texts = []
+    for product in (element, element_type):
+        for relation in getattr(product, "HasAssociations", None) or ():
+            if relation.is_a("IfcRelAssociatesClassification"):
+                reference = relation.RelatingClassification
+                texts += [
+                    getattr(reference, "Identification", None),
+                    getattr(reference, "Name", None),
+                ]
+    return [text for text in texts if text]
+
+
+def _descriptions(element: entity_instance) -> str:
+    """Texts describing what the element is: names, types, classifications."""
+    element_type = ifcopenshell.util.element.get_type(element)
+    manufacturer = ifcopenshell.util.element.get_psets(element).get(
+        "Pset_ManufacturerTypeInformation", {}
+    )
     texts = [
         element.Name,
         getattr(element, "ObjectType", None),
         getattr(element_type, "Name", None),
         getattr(element_type, "ElementType", None),
+        getattr(element_type, "ApplicableOccurrence", None),
+        *(manufacturer.get(name) for name in MANUFACTURER_PROPERTIES),
+        *_classifications(element),
     ]
-    return " ".join(text for text in texts if text)
+    return " ".join(str(text) for text in texts if text)
 
 
 def production_kind(element: entity_instance) -> ProductionKind:
-    """Kind of heat generator, from the IFC class first and naming second.
+    """Kind of heat generator, from its description.
 
-    IFC4 has no heat-pump class, so heat pumps are typically exported as
-    ``IfcUnitaryEquipment``; they are recognised from their name or type name.
+    Neither IFC4 nor IFC4.3 has a heat-pump class or predefined type: heat
+    pumps are exported as ``IfcUnitaryEquipment`` (or ``IfcChiller``), ideally
+    with ``PredefinedType=USERDEFINED`` and ``ObjectType="HEATPUMP"``. They are
+    recognised from that, their (type) name, model label or classification.
     """
     description = _descriptions(element)
     if HEAT_PUMP_PATTERN.search(description):
@@ -115,6 +143,14 @@ class DistributionNetwork:
         self.graph = graph
         self.undirected = graph.to_undirected(as_view=True)
         self.roles = {node: classify(node) for node in graph.nodes}
+        # Routing graph: following the flow costs 1, going against it costs
+        # REVERSE_FLOW_PENALTY, so wrongly directed segments can be crossed.
+        self.routing = nx.DiGraph()
+        self.routing.add_nodes_from(graph.nodes)
+        for a, b in graph.edges:
+            self.routing.add_edge(a, b, weight=1)
+            if not graph.has_edge(b, a):  # type: ignore[no-untyped-call]
+                self.routing.add_edge(b, a, weight=REVERSE_FLOW_PENALTY)
 
     @classmethod
     def from_ifc(cls, ifc_files: Iterable[ifcopenshell.file]) -> "DistributionNetwork":
@@ -152,29 +188,61 @@ class DistributionNetwork:
     def is_connected(self, element: entity_instance) -> bool:
         return bool(self.graph.degree(element))
 
-    def supply_path(
-        self, source: entity_instance, target: entity_instance
-    ) -> Sequence[entity_instance] | None:
-        """Shortest flow path from ``source`` to ``target``.
+    def route(
+        self,
+        source: entity_instance,
+        target: entity_instance,
+        avoid: Collection[entity_instance] = (),
+    ) -> tuple[list[entity_instance], float] | None:
+        """Cheapest route from ``source`` to ``target`` and its cost.
 
-        The path may not pass through other emitters or heat generators. The
-        flow direction is followed when the model provides it; otherwise the
-        connectivity is used without direction.
+        The route follows the flow direction where it can and may not pass
+        through other emitters or heat generators, nor through ``avoid``.
         """
 
         def allowed(node: entity_instance) -> bool:
-            return node in (source, target) or self.roles[node] not in (
+            if node in (source, target):
+                return True
+            return node not in avoid and self.roles[node] not in (
                 Role.emitter,
                 Role.production,
             )
 
-        for graph in (self.graph, self.undirected):
-            view = nx.subgraph_view(graph, filter_node=allowed)  # type: ignore
-            try:
-                return list(nx.shortest_path(view, source, target))
-            except (nx.NetworkXNoPath, nx.NodeNotFound):
+        view = nx.subgraph_view(self.routing, filter_node=allowed)  # type: ignore
+        try:
+            path = list(nx.shortest_path(view, source, target, weight="weight"))
+        except (nx.NetworkXNoPath, nx.NodeNotFound):
+            return None
+        return path, nx.path_weight(view, path, "weight")  # type: ignore
+
+    def supply_path(
+        self, source: entity_instance, target: entity_instance
+    ) -> list[entity_instance] | None:
+        """Flow path from a heat generator ``source`` to an emitter ``target``.
+
+        Water only reaches an emitter driven by a circulator, so routes passing
+        through a pump are preferred; among them, the one crossing the fewest
+        wrongly directed segments, then the shortest. Without any such route,
+        the cheapest route is returned.
+        """
+        candidates = []
+        for pump in self.elements(Role.pump):
+            from_pump = self.route(pump, target)
+            if from_pump is None:
                 continue
-        return None
+            downstream, downstream_cost = from_pump
+            # Upstream leg avoiding the downstream one, to keep a simple path.
+            to_pump = self.route(source, pump, avoid=set(downstream[1:]))
+            if to_pump is None:
+                continue
+            upstream, upstream_cost = to_pump
+            candidates.append(
+                (upstream_cost + downstream_cost, [*upstream, *downstream[1:]])
+            )
+        if candidates:
+            return min(candidates, key=lambda candidate: candidate[0])[1]
+        direct = self.route(source, target)
+        return direct[0] if direct else None
 
     def first(
         self, elements: Iterable[entity_instance], role: Role

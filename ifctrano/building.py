@@ -10,8 +10,6 @@ import yaml
 from ifcopenshell import file, entity_instance
 from pydantic import validate_call, Field, model_validator, field_validator
 from trano.data_models.conversion import convert_network  # type: ignore
-from trano.elements import InternalElement  # type: ignore
-from trano.elements.envelope import SpaceTilt  # type: ignore
 from trano.elements.library.library import Library  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
 from trano.topology import Network  # type: ignore
@@ -30,10 +28,9 @@ from ifctrano.space_boundary import (
 )
 from ifctrano.construction import (
     Constructions,
-    default_construction,
     default_internal_construction,
 )
-from ifctrano.hvac import HeatingSystem
+from ifctrano.hvac import HeatingOptions, HeatingSystem, design_heat_load
 
 logger = logging.getLogger(__name__)
 
@@ -186,12 +183,15 @@ class Building(BaseShow):
         ifc_file_path: Path,
         selected_spaces_global_id: Optional[List[str]] = None,
         hvac_file_paths: Optional[Sequence[Path]] = None,
+        heating_options: Optional[HeatingOptions] = None,
     ) -> "Building":
         """Building from an architecture IFC file.
 
         ``hvac_file_paths`` are optional federated discipline models (e.g. a
         heating model) sharing the coordinate system of the architecture model.
         Heating elements are also read from the architecture file itself.
+        ``heating_options`` override the detected heat generator kind and set
+        the design conditions used to size what the model does not specify.
         """
         selected_spaces_global_id = selected_spaces_global_id or []
         for path in [ifc_file_path, *(hvac_file_paths or [])]:
@@ -228,7 +228,9 @@ class Building(BaseShow):
             constructions=constructions,
             hvac_files=hvac_files,
             heating=HeatingSystem.from_ifc(
-                [ifc_file, *hvac_files], [sb.space for sb in space_boundaries]
+                [ifc_file, *hvac_files],
+                [sb.space for sb in space_boundaries],
+                heating_options,
             ),
         )
 
@@ -312,7 +314,8 @@ class Building(BaseShow):
         }
         if self.heating is not None:
             emissions, systems = self.heating.to_config(
-                [sp["id"] for sp in spaces]  # type: ignore
+                [sp["id"] for sp in spaces],  # type: ignore
+                self.design_heat_loads(north_axis),
             )
             for space in spaces:
                 if space["id"] in emissions:  # type: ignore
@@ -320,6 +323,26 @@ class Building(BaseShow):
             if systems:
                 config["systems"] = systems
         return config
+
+    def design_heat_loads(self, north_axis: Vector) -> Dict[str, float]:
+        """Design heat load (W) of each space, used to size heating components."""
+        conditions = (
+            self.heating.options.design
+            if self.heating is not None
+            else HeatingOptions().design
+        )
+        loads = {}
+        for space_boundaries in self.space_boundaries:
+            space = space_boundaries.model(
+                self.internal_elements.internal_element_ids(),
+                north_axis,
+                self.constructions,
+            )
+            if space is not None:
+                loads[space_boundaries.space.space_unique_name()] = design_heat_load(
+                    space, conditions
+                )
+        return loads
 
     @validate_call
     def to_yaml(self, yaml_path: Path, north_axis: Optional[Vector] = None) -> None:
@@ -333,62 +356,11 @@ class Building(BaseShow):
         library: Libraries = "Buildings",
         north_axis: Optional[Vector] = None,
     ) -> Network:
-        north_axis = north_axis or Vector(x=0, y=1, z=0)
-        if self.heating is not None:
-            return self._network_from_config(library, north_axis)
-        network = Network(name=self.name, library=Library.from_configuration(library))
-        spaces = {
-            space_boundary.space.global_id: space_boundary.model(
-                self.internal_elements.internal_element_ids(),
-                north_axis,
-                self.constructions,
-            )
-            for space_boundary in self.space_boundaries
-        }
-        spaces = {k: v for k, v in spaces.items() if v}
-        network.add_boiler_plate_spaces(list(spaces.values()), create_internal=False)
-        for internal_element in self.internal_elements.elements:
-            space_1 = internal_element.spaces[0]
-            space_2 = internal_element.spaces[1]
-            if any(
-                global_id not in spaces
-                for global_id in [space_1.entity.GlobalId, space_2.entity.GlobalId]
-            ):
-                continue
-            space_tilts = []
-            if internal_element.element.is_a() in ["IfcSlab"]:
-                space_1_tilt = (
-                    Tilt.floor
-                    if space_1.bounding_box.centroid.z > space_2.bounding_box.centroid.z
-                    else Tilt.ceiling
-                )
-                space_2_tilt = (
-                    Tilt.floor
-                    if space_2.bounding_box.centroid.z > space_1.bounding_box.centroid.z
-                    else Tilt.ceiling
-                )
-                if space_1_tilt == space_2_tilt:
-                    logger.error("Space tilts are not compatible.")
-                    continue
-                space_tilts = [
-                    SpaceTilt(space_name=space_1.name, tilt=space_1_tilt),
-                    SpaceTilt(space_name=space_2.name, tilt=space_2_tilt),
-                ]
-            network.connect_spaces(
-                spaces[space_1.global_id],
-                spaces[space_2.global_id],
-                InternalElement(
-                    azimuth=10,
-                    construction=default_construction,
-                    surface=internal_element.area,
-                    tilt=Tilt.wall,
-                    space_tilts=space_tilts,
-                ),
-            )
-        return network
+        """trano network of the building, built from its configuration.
 
-    def _network_from_config(self, library: Libraries, north_axis: Vector) -> Network:
-        """Network built by trano from the configuration, systems included."""
+        Going through ``to_config`` keeps one translation of the building: the
+        generated model is the one ``ifctrano config`` describes.
+        """
         with TemporaryDirectory() as directory:
             config_path = Path(directory) / f"{self.name}.yaml"
             self.to_yaml(config_path, north_axis=north_axis)

@@ -12,7 +12,7 @@ from shapely import wkt  # type: ignore
 from trano.data_models.conversion import SpaceParameter  # type: ignore
 from trano.elements import Space as TranoSpace, ExternalWall, Window, BaseWall, ExternalDoor  # type: ignore
 from trano.elements.system import Occupancy  # type: ignore
-from trano.elements.types import Tilt  # type: ignore
+from trano.elements.types import Azimuth, Tilt  # type: ignore
 from vedo import Line  # type: ignore
 
 from ifctrano.base import (
@@ -101,6 +101,10 @@ class Space(GlobalId):
         return space_name
 
 
+MAX_WINDOW_TO_WALL_RATIO = 0.9
+"""Window-to-wall ratio of a fully glazed facade, frames excluded."""
+
+
 class ExternalSpaceBoundaryGroup(BaseModelConfig):
     constructions: List[BaseWall]
     azimuth: float
@@ -147,6 +151,41 @@ class ExternalSpaceBoundaryGroup(BaseModelConfig):
         self.constructions = [
             *self._merge(self.constructions, Window),
             *self._merge(self.constructions, ExternalWall),
+        ]
+        self._limit_window_area()
+
+    def _limit_window_area(self) -> None:
+        """Keep the windows within their wall, whose surface is the gross facade area.
+
+        Windows larger than the wall of their orientation come from overlapping
+        window bounding boxes, typically on glazed facades.
+        """
+        windows = [c for c in self.constructions if isinstance(c, Window)]
+        walls = [c for c in self.constructions if isinstance(c, ExternalWall)]
+        if not windows or not walls:
+            return
+        window_area = sum(window.surface for window in windows)
+        wall_area = sum(wall.surface for wall in walls)
+        if window_area <= wall_area:
+            return
+        limit = MAX_WINDOW_TO_WALL_RATIO * wall_area
+        logger.warning(
+            f"Windows of {window_area:.2f} m2 are larger than their wall of "
+            f"{wall_area:.2f} m2 (azimuth {self.azimuth}): their area is reduced "
+            f"to {limit:.2f} m2."
+        )
+        self.constructions = [
+            (
+                Window(
+                    surface=c.surface * limit / window_area,
+                    azimuth=c.azimuth,
+                    tilt=c.tilt,
+                    construction=c.construction,
+                )
+                if isinstance(c, Window)
+                else c
+            )
+            for c in self.constructions
         ]
 
     def add_external_wall(self) -> None:
@@ -228,8 +267,24 @@ class ExternalSpaceBoundaryGroups(BaseModelConfig):
             g.merge()
 
 
-def deg_to_rad(deg: float) -> float:
-    return round(deg * math.pi / 180.0, 2)
+AZIMUTH_DIGITS = 2
+"""Azimuths are rounded like trano's ``Azimuth`` constants (1.57 for west)."""
+HORIZONTAL_AZIMUTH = float(Azimuth.south)
+"""Roofs and slabs: the azimuth of a horizontal surface does not change its physics."""
+
+
+def bearing_to_azimuth(bearing: float) -> float:
+    """Surface azimuth [rad] of an outward normal pointing to a compass ``bearing``.
+
+    ``bearing`` is in degrees, clockwise from north (north 0, east 90, south 180,
+    west 270), as returned by ``Vector.angle``. trano and the Modelica libraries
+    use the azimuth of the Buildings library instead: radians from south,
+    positive towards west (south 0, west pi/2, north pi, east -pi/2).
+    """
+    azimuth = math.remainder(math.radians(bearing - 180.0), 2 * math.pi)
+    if math.isclose(azimuth, -math.pi):
+        azimuth = math.pi
+    return round(azimuth, AZIMUTH_DIGITS) + 0.0  # + 0.0 turns -0.0 into 0.0
 
 
 class Azimuths(BaseModel):
@@ -279,12 +334,14 @@ class SpaceBoundary(BaseModelConfig):
     ) -> Optional[BaseWall]:
         if self.entity.GlobalId in exclude_entities:
             return None
-        azimuth = self.common_surface.orientation.angle(north_axis)
+        azimuth = bearing_to_azimuth(
+            Azimuths().get_azimuth(self.common_surface.orientation.angle(north_axis))
+        )
         if "wall" in self.entity.is_a().lower():
             return ExternalWall(
                 name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=Azimuths().get_azimuth(azimuth),
+                azimuth=azimuth,
                 tilt=Tilt.wall,
                 construction=constructions.get_construction(self.entity),
             )
@@ -292,7 +349,7 @@ class SpaceBoundary(BaseModelConfig):
             return ExternalDoor(
                 name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=Azimuths().get_azimuth(azimuth),
+                azimuth=azimuth,
                 tilt=Tilt.wall,
                 construction=constructions.get_construction(self.entity),
             )
@@ -300,7 +357,7 @@ class SpaceBoundary(BaseModelConfig):
             return Window(
                 name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=Azimuths().get_azimuth(azimuth),
+                azimuth=azimuth,
                 tilt=Tilt.wall,
                 construction=glass,
             )
@@ -308,7 +365,7 @@ class SpaceBoundary(BaseModelConfig):
             return ExternalWall(
                 name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=azimuth,
+                azimuth=HORIZONTAL_AZIMUTH,
                 tilt=Tilt.ceiling,
                 construction=constructions.get_construction(self.entity),
             )
@@ -317,7 +374,7 @@ class SpaceBoundary(BaseModelConfig):
             return ExternalWall(
                 name=self.boundary_name(),
                 surface=self.common_surface.area,
-                azimuth=azimuth,
+                azimuth=HORIZONTAL_AZIMUTH,
                 tilt=Tilt.ceiling if orientation > 0 else Tilt.floor,
                 construction=constructions.get_construction(self.entity),
             )
@@ -363,6 +420,36 @@ class SpaceBoundaries(BaseShow):
             if space_boundary in self.boundaries:
                 self.boundaries.remove(space_boundary)
 
+    def envelope(
+        self,
+        exclude_entities: List[str],
+        north_axis: Vector,
+        constructions: Constructions,
+    ) -> Optional[List[BaseWall]]:
+        """External envelope of the space, merged per orientation.
+
+        Walls and windows of one orientation are merged, and a wall is added
+        where the model has windows without walls.
+        """
+        boundaries = [
+            model_element
+            for boundary in self.boundaries
+            if (
+                model_element := boundary.model_element(
+                    exclude_entities, north_axis, constructions
+                )
+            )
+        ]
+        if not boundaries:
+            return None
+        groups = ExternalSpaceBoundaryGroups.from_external_boundaries(boundaries)
+        if not groups.has_windows_without_wall():
+            groups.add_external_walls()
+            logger.error(
+                f"Space {self.space.global_id} has a boundary that has a windows but without walls."
+            )
+        return groups.get_constructions()
+
     def to_config(
         self,
         exclude_entities: List[str],
@@ -374,29 +461,13 @@ class SpaceBoundaries(BaseShow):
             "floor_on_grounds": [],
             "windows": [],
         }
-        external_boundaries_check = []
-        for boundary in self.boundaries:
-            boundary_model = boundary.model_element(
-                exclude_entities, north_axis, constructions
-            )
-            if boundary_model:
-                external_boundaries_check.append(boundary_model)
-        if not external_boundaries_check:
+        envelope = self.envelope(exclude_entities, north_axis, constructions)
+        if envelope is None:
             return None
-        external_space_boundaries_group = (
-            ExternalSpaceBoundaryGroups.from_external_boundaries(
-                external_boundaries_check
-            )
-        )
-        if not external_space_boundaries_group.has_windows_without_wall():
-            external_space_boundaries_group.add_external_walls()
-            logger.error(
-                f"Space {self.space.global_id} has a boundary that has a windows but without walls."
-            )
-        for boundary_model in external_space_boundaries_group.get_constructions():
+        for boundary_model in envelope:
             element = {
                 "surface": boundary_model.surface,
-                "azimuth": deg_to_rad(boundary_model.azimuth),
+                "azimuth": boundary_model.azimuth,
                 "tilt": boundary_model.tilt.value,
                 "construction": boundary_model.construction.name,
             }
@@ -439,24 +510,9 @@ class SpaceBoundaries(BaseShow):
         north_axis: Vector,
         constructions: Constructions,
     ) -> Optional[TranoSpace]:
-        external_boundaries = []
-        for boundary in self.boundaries:
-            boundary_model = boundary.model_element(
-                exclude_entities, north_axis, constructions
-            )
-            if boundary_model:
-                external_boundaries.append(boundary_model)
-        if not external_boundaries:
+        envelope = self.envelope(exclude_entities, north_axis, constructions)
+        if envelope is None:
             return None
-
-        external_space_boundaries_group = (
-            ExternalSpaceBoundaryGroups.from_external_boundaries(external_boundaries)
-        )
-        if not external_space_boundaries_group.has_windows_without_wall():
-            external_space_boundaries_group.add_external_walls()
-            logger.error(
-                f"Space {self.space.global_id} has a boundary that has a windows but without walls."
-            )
         return TranoSpace(
             name=self.space.space_name(),
             occupancy=Occupancy(),
@@ -464,7 +520,7 @@ class SpaceBoundaries(BaseShow):
                 floor_area=self.space.floor_area,
                 average_room_height=self.space.average_room_height,
             ),
-            external_boundaries=external_boundaries,
+            external_boundaries=envelope,
         )
 
     @classmethod

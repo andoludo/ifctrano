@@ -1,0 +1,442 @@
+{
+  "constructions": {
+    "default_construction": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.18
+        }
+      ],
+      "nLay": 1.0
+    },
+    "default_internal_construction": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.18
+        }
+      ],
+      "nLay": 1.0
+    },
+    "double_glazing": {
+      "UFra": 1.4,
+      "gas": [
+        {
+          "MM": 0.02886614023942798,
+          "a_c": 1005.0,
+          "a_k": 0.025,
+          "a_mu": 3.723e-06,
+          "b_c": 0.0,
+          "b_k": 0.0,
+          "b_mu": 4.94e-08,
+          "x": 0.0127
+        }
+      ],
+      "glass": [
+        {
+          "absIR_a": 0.84,
+          "absIR_b": 0.84,
+          "k": 1.0,
+          "rhoSol_a": [
+            0.062
+          ],
+          "rhoSol_b": [
+            0.063
+          ],
+          "tauIR": 0.0,
+          "tauSol": [
+            0.646
+          ],
+          "x": 0.003
+        },
+        {
+          "absIR_a": 0.84,
+          "absIR_b": 0.84,
+          "k": 1.0,
+          "rhoSol_a": [
+            0.062
+          ],
+          "rhoSol_b": [
+            0.063
+          ],
+          "tauIR": 0.0,
+          "tauSol": [
+            0.646
+          ],
+          "x": 0.003
+        }
+      ]
+    },
+    "leichtbeton_102890359_024": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.24
+        }
+      ],
+      "nLay": 1.0
+    },
+    "leichtbeton_102890359_03": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.3
+        }
+      ],
+      "nLay": 1.0
+    },
+    "solid_397409098_02": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.2
+        }
+      ],
+      "nLay": 1.0
+    },
+    "stahlbeton_65690_02": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.2
+        }
+      ],
+      "nLay": 1.0
+    }
+  },
+  "heating": {},
+  "zones": {
+    "space_1_zke": {
+      "floor_area": 11.5314,
+      "height": 2.48497,
+      "surfaces": [
+        {
+          "area": 2.0301,
+          "azimuth": 1.57,
+          "kind": "opaque",
+          "layers": "default_construction",
+          "tilt": "wall"
+        },
+        {
+          "area": 4.35,
+          "azimuth": 1.57,
+          "kind": "opaque",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall"
+        },
+        {
+          "area": 12.3714,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 35.61155,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 12.3714,
+          "kind": "ground",
+          "layers": "stahlbeton_65690_02",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_2_ckm": {
+      "floor_area": 12.985,
+      "height": 2.5,
+      "surfaces": [
+        {
+          "area": 9.275,
+          "azimuth": 1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 8.75,
+          "azimuth": 3.14,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 12.985,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 19.80385,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 12.985,
+          "kind": "ground",
+          "layers": "stahlbeton_65690_02",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_3_j_m": {
+      "floor_area": 12.5027,
+      "height": 2.5,
+      "surfaces": [
+        {
+          "area": 8.425,
+          "azimuth": 3.14,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 12.5027,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 28.75385,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 12.5027,
+          "kind": "ground",
+          "layers": "stahlbeton_65690_02",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_4_peh": {
+      "floor_area": 22.0725,
+      "height": 2.5,
+      "surfaces": [
+        {
+          "area": 13.625,
+          "azimuth": -1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 10.125,
+          "azimuth": 3.14,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 22.0725,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 25.52885,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 22.0725,
+          "kind": "ground",
+          "layers": "stahlbeton_65690_02",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_5_9e9": {
+      "floor_area": 25.98855,
+      "height": 2.5,
+      "surfaces": [
+        {
+          "area": 9.275,
+          "azimuth": -1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 17.5125,
+          "azimuth": 0.0,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 4.77375,
+          "azimuth": 0.0,
+          "kind": "opaque",
+          "layers": "default_construction",
+          "tilt": "wall"
+        },
+        {
+          "area": 25.98855,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 10.125,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 25.98855,
+          "kind": "ground",
+          "layers": "stahlbeton_65690_02",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_6_0d3": {
+      "floor_area": 16.30545,
+      "height": 2.5,
+      "surfaces": [
+        {
+          "area": 10.9875,
+          "azimuth": 0.0,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 9.275,
+          "azimuth": 1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 2.4
+        },
+        {
+          "area": 16.30545,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "ceiling"
+        },
+        {
+          "area": 8.75,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 16.30545,
+          "kind": "ground",
+          "layers": "stahlbeton_65690_02",
+          "tilt": "floor"
+        }
+      ]
+    },
+    "space_7_dlx": {
+      "floor_area": 107.16,
+      "height": 2.02998,
+      "surfaces": [
+        {
+          "area": 31.83545,
+          "azimuth": -1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 1.0
+        },
+        {
+          "area": 7.67459,
+          "azimuth": 0.0,
+          "kind": "opaque",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall"
+        },
+        {
+          "area": 31.83545,
+          "azimuth": 1.57,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall",
+          "window_area": 1.0
+        },
+        {
+          "area": 7.67459,
+          "azimuth": 3.14,
+          "kind": "opaque",
+          "layers": "leichtbeton_102890359_03",
+          "tilt": "wall"
+        },
+        {
+          "area": 102.2256,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "floor"
+        },
+        {
+          "area": 107.16,
+          "kind": "opaque",
+          "layers": "solid_397409098_02",
+          "tilt": "ceiling"
+        }
+      ]
+    }
+  }
+}

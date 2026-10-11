@@ -1,0 +1,227 @@
+{
+  "constructions": {
+    "allgemein_konstruktion_300": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.3
+        }
+      ],
+      "nLay": 1.0
+    },
+    "default_construction": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.18
+        }
+      ],
+      "nLay": 1.0
+    },
+    "default_internal_construction": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.18
+        }
+      ],
+      "nLay": 1.0
+    },
+    "double_glazing": {
+      "UFra": 1.4,
+      "gas": [
+        {
+          "MM": 0.02886614023942798,
+          "a_c": 1005.0,
+          "a_k": 0.025,
+          "a_mu": 3.723e-06,
+          "b_c": 0.0,
+          "b_k": 0.0,
+          "b_mu": 4.94e-08,
+          "x": 0.0127
+        }
+      ],
+      "glass": [
+        {
+          "absIR_a": 0.84,
+          "absIR_b": 0.84,
+          "k": 1.0,
+          "rhoSol_a": [
+            0.062
+          ],
+          "rhoSol_b": [
+            0.063
+          ],
+          "tauIR": 0.0,
+          "tauSol": [
+            0.646
+          ],
+          "x": 0.003
+        },
+        {
+          "absIR_a": 0.84,
+          "absIR_b": 0.84,
+          "k": 1.0,
+          "rhoSol_a": [
+            0.062
+          ],
+          "rhoSol_b": [
+            0.063
+          ],
+          "tauIR": 0.0,
+          "tauSol": [
+            0.646
+          ],
+          "x": 0.003
+        }
+      ]
+    },
+    "onezone": {
+      "absIR_a": 0.85,
+      "absIR_b": 0.85,
+      "absSol_a": 0.65,
+      "absSol_b": 0.65,
+      "material": [
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.015
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.2
+        },
+        {
+          "c": 940.0,
+          "d": 80.0,
+          "k": 0.046,
+          "x": 0.02
+        }
+      ],
+      "nLay": 3.0
+    }
+  },
+  "heating": {},
+  "zones": {
+    "space_01_dup": {
+      "floor_area": 9.0,
+      "height": 3.0,
+      "surfaces": [
+        {
+          "area": 9.0,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "onezone",
+          "tilt": "wall"
+        },
+        {
+          "area": 9.0,
+          "azimuth": 1.57,
+          "kind": "opaque",
+          "layers": "onezone",
+          "tilt": "wall"
+        },
+        {
+          "area": 2.0,
+          "azimuth": 3.14,
+          "kind": "opaque",
+          "layers": "default_construction",
+          "tilt": "wall"
+        },
+        {
+          "area": 9.0,
+          "azimuth": 3.14,
+          "kind": "opaque",
+          "layers": "onezone",
+          "tilt": "wall"
+        },
+        {
+          "area": 11.0,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 9.0,
+          "kind": "ground",
+          "layers": "allgemein_konstruktion_300",
+          "tilt": "floor"
+        },
+        {
+          "area": 9.0,
+          "kind": "opaque",
+          "layers": "allgemein_konstruktion_300",
+          "tilt": "ceiling"
+        }
+      ]
+    },
+    "space_01_uj9": {
+      "floor_area": 9.0,
+      "height": 3.0,
+      "surfaces": [
+        {
+          "area": 9.0,
+          "azimuth": -1.57,
+          "kind": "opaque",
+          "layers": "onezone",
+          "tilt": "wall"
+        },
+        {
+          "area": 9.0,
+          "azimuth": 0.0,
+          "glazing": "double_glazing",
+          "kind": "windowed",
+          "layers": "onezone",
+          "tilt": "wall",
+          "window_area": 1.0
+        },
+        {
+          "area": 9.0,
+          "azimuth": 1.57,
+          "kind": "opaque",
+          "layers": "onezone",
+          "tilt": "wall"
+        },
+        {
+          "area": 11.0,
+          "kind": "adiabatic",
+          "layers": null,
+          "tilt": "wall"
+        },
+        {
+          "area": 9.0,
+          "kind": "ground",
+          "layers": "allgemein_konstruktion_300",
+          "tilt": "floor"
+        },
+        {
+          "area": 9.0,
+          "kind": "opaque",
+          "layers": "allgemein_konstruktion_300",
+          "tilt": "ceiling"
+        }
+      ]
+    }
+  }
+}
