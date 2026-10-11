@@ -962,13 +962,38 @@ ExampleHOM_heating.ifc</code>. Each heated space gets its emission:</p>
 <p>Real models often lack part of this information. ifctrano keeps going and records every assumption, which is logged
 and available in <code>building.heating.assumptions</code>:</p>
 <ul>
-<li>a radiator not connected to a heat generator becomes an ideal emitter;</li>
-<li>a circuit without its own circulator or mixing valve gets the default ones of trano's circuit template;</li>
-<li>a missing <code>OutputCapacity</code>, <code>HeatOutput</code> or pump range falls back to trano's default value (the boiler power falls
-  back to the sum of the radiators it serves);</li>
-<li>IFC4 has no heat-pump class: heat pumps exported as <code>IfcUnitaryEquipment</code> are recognised from their name, otherwise
-  they are modelled as a boiler.</li>
+<li><strong>Flow directions</strong>: exporters draw some pipes against the flow. ifctrano follows the modelled direction where it
+  can, crosses wrongly drawn segments when it must (as few as possible), and only accepts a route from the heat
+  generator to a radiator through a circulator, since no flow reaches a radiator otherwise.</li>
+<li><strong>Sizing</strong>: when radiators have no <code>OutputCapacity</code>, each space's emitter is sized for the design heat load of the
+  space, computed with a simplified EN 12831-1 method from its external boundaries (transmission through walls,
+  roofs, windows, and floors on ground) and its ventilation. Pumps without <code>FlowRateRange</code> get the flow carrying the
+  power of the radiators they serve between the design supply and return temperatures, and the boiler power
+  defaults to the sum of the radiators it serves.</li>
+<li><strong>Heat generators</strong>: neither IFC4 nor IFC4.3 has a heat-pump class. Heat pumps exported as <code>IfcUnitaryEquipment</code>
+  are recognised from <code>ObjectType="HEATPUMP"</code>, their (type) name, model label or classification; otherwise they are
+  modelled as a boiler. Their kind can also be given explicitly.</li>
+<li><strong>Unconnected radiators</strong> become ideal emitters, and a circuit without its own circulator or mixing valve gets the
+  default ones of trano's circuit template.</li>
 </ul>
+<p>The design conditions and the kind of heat generator are set with <code>HeatingOptions</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.hvac</span><span class="w"> </span><span class="kn">import</span> <span class="n">DesignConditions</span><span class="p">,</span> <span class="n">HeatingOptions</span><span class="p">,</span> <span class="n">ProductionKind</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;architecture.ifc&quot;</span><span class="p">),</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">hvac_file_paths</span><span class="o">=</span><span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;heating.ifc&quot;</span><span class="p">)],</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">heating_options</span><span class="o">=</span><span class="n">HeatingOptions</span><span class="p">(</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="n">heat_generator</span><span class="o">=</span><span class="n">ProductionKind</span><span class="o">.</span><span class="n">water_water_heat_pump</span><span class="p">,</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="n">design</span><span class="o">=</span><span class="n">DesignConditions</span><span class="p">(</span><span class="n">outdoor_temperature</span><span class="o">=-</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">supply_temperature</span><span class="o">=</span><span class="mf">45.0</span><span class="p">,</span> <span class="n">return_temperature</span><span class="o">=</span><span class="mf">35.0</span><span class="p">),</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="p">),</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>or, for the kind of heat generator, from the command line:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>architecture.ifc<span class="w"> </span>--hvac<span class="w"> </span>heating.ifc<span class="w"> </span>--heat-generator<span class="w"> </span>water_water_heat_pump
+</span></code></pre></div>
 <p>The figures of this page are generated by <code>docs_src/heating_figures.py</code>.</p>
 
 

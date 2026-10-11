@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#stay-tuned" class="md-skip">
+        <a href="#envelope-translation" class="md-skip">
           Skip to content
         </a>
       
@@ -686,6 +686,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Explanation
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -697,6 +710,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#orientation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orientation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#surfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Surfaces
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-the-physics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checking the physics
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -722,6 +781,41 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#orientation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orientation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#surfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Surfaces
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-the-physics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checking the physics
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -739,8 +833,63 @@
   
 
 
-<h1 id="stay-tuned">🚀 Stay Tuned!</h1>
-<p>Hey there! I'm working on something <strong>exciting</strong>. Stay tuned for updates! 😊</p>
+<h1 id="envelope-translation">Envelope translation</h1>
+<p>ifctrano derives the envelope of each space from the geometry of the IFC model: the bounding boxes of the space and of
+the elements around it give the surfaces they share. This page explains the conventions used to translate these
+surfaces into trano and the Modelica libraries.</p>
+<h2 id="orientation">Orientation</h2>
+<p>The orientation of a surface is given by its outward normal, measured from the north axis of the model (<code>+y</code> by
+default, see <code>north_axis</code>). trano and the Modelica libraries use the azimuth of the Buildings library: radians from
+south, positive towards west.</p>
+<table>
+<thead>
+<tr>
+<th>Facade faces</th>
+<th>Azimuth (rad)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>South</td>
+<td>0</td>
+</tr>
+<tr>
+<td>West</td>
+<td>π/2 (1.57)</td>
+</tr>
+<tr>
+<td>North</td>
+<td>π (3.14)</td>
+</tr>
+<tr>
+<td>East</td>
+<td>−π/2 (−1.57)</td>
+</tr>
+</tbody>
+</table>
+<p>Vertical surfaces are snapped to the closest of the eight main and intermediate directions. The orientation of roofs
+and slabs does not change their physics: they are given the azimuth 0.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before ifctrano 0.15 (trano 0.39), the compass bearing of the normal was written as the azimuth, which turned every
+facade by 180°: north facades were simulated facing south. Models generated with earlier versions should be
+regenerated.</p>
+</div>
+<h2 id="surfaces">Surfaces</h2>
+<ul>
+<li><strong>Walls</strong> are gross facade areas, windows included, as trano expects. The walls and windows of a space are merged per
+  orientation.</li>
+<li><strong>Windows</strong> larger than the wall of their orientation (overlapping window boxes on glazed facades) are reduced to 90%
+  of the wall area. A wall is added where a space has windows without walls.</li>
+<li><strong>Floors on ground</strong>, <strong>roofs</strong> and <strong>internal walls</strong> between spaces get the construction of their IFC material
+  layer set, or a default construction.</li>
+</ul>
+<p>The generated model is always built from the configuration written by <code>ifctrano config</code>, so that the configuration
+describes exactly the simulated building.</p>
+<h2 id="checking-the-physics">Checking the physics</h2>
+<p><code>tests/physics.py</code> reads the parameters driving the simulation (zone geometry, envelope areas, orientations and
+constructions, nominal values of the heating components) from the generated Buildings model. The tests compare them
+with snapshots, so that a change of ifctrano or trano cannot silently change the physics of the models.</p>
 
 
 
