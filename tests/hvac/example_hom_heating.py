@@ -130,6 +130,21 @@ BOILER_HEAT_OUTPUT = 18000.0  # W
 PUMP_FLOW_RATE_MAX = 0.00025  # m3/s (0.9 m3/h)
 PUMP_HEAD_MAX = 40000.0  # Pa
 
+PumpPosition = Literal["upstream", "downstream"]
+"""Position of the circulator relative to the mixing valve of each circuit.
+
+``upstream`` (boiler -> pump -> mixing valve -> sensor) is the layout of the reference
+model: the pump pushes the water into the valve, which then diverts it back to the boiler
+and cannot lower the supply temperature. ``downstream`` (boiler -> mixing valve -> sensor
+-> pump) is a mixing circuit: the pump draws the water through the valve, which mixes
+return water in to hold the supply set point.
+"""
+PLANT_HEIGHTS: dict[PumpPosition, dict[str, float]] = {
+    "upstream": {"pump": 0.0, "mixing": 0.3, "sensor": 0.6},
+    "downstream": {"mixing": 0.0, "sensor": 0.3, "pump": 0.6},
+}
+"""Height of the circuit elements above the plant position [m], in flow order."""
+
 
 @dataclass
 class Element:
@@ -501,6 +516,7 @@ def _orthogonal_route(start: Point, end: Point) -> list[Point]:
 
 def build(  # noqa: PLR0915
     architecture_path: Path = ARCHITECTURE_MODEL,
+    pump_position: PumpPosition = "upstream",
 ) -> ifcopenshell.file:
     builder = HeatingModelBuilder(ifcopenshell.open(str(architecture_path)))
     plant_storey = "GroundFloor"
@@ -652,11 +668,12 @@ def build(  # noqa: PLR0915
         else:
             circuit_flow, circuit_return = flow_source, return_target
 
+        height = PLANT_HEIGHTS[pump_position]
         pump = builder.element(
             "IfcPump",
             name=f"Circulator {circuit.name}",
             type_=pump_type,
-            position=(x, y, z),
+            position=(x, y, z + height["pump"]),
             storey=plant_storey,
             space="Kitchen5",
             ports={"in": "SINK", "out": "SOURCE"},
@@ -666,7 +683,7 @@ def build(  # noqa: PLR0915
             "IfcValve",
             name=f"Mixing valve {circuit.name}",
             type_=mixing_type,
-            position=(x, y, z + 0.3),
+            position=(x, y, z + height["mixing"]),
             storey=plant_storey,
             space="Kitchen5",
             ports={"in": "SINK", "bypass": "SINK", "out": "SOURCE"},
@@ -676,40 +693,34 @@ def build(  # noqa: PLR0915
             "IfcSensor",
             name=f"Flow temperature sensor {circuit.name}",
             type_=sensor_type,
-            position=(x, y, z + 0.6),
+            position=(x, y, z + height["sensor"]),
             storey=plant_storey,
             space="Kitchen5",
             ports={"in": "SINK", "out": "SOURCE"},
             systems=[supply],
             size=(0.05, 0.05, 0.1),
         )
-        builder.pipe(
-            circuit_flow,
-            pump.ports["in"],
-            (x - 0.2, y, z),
-            (x, y, z),
-            plant_storey,
-            supply,
-        )
-        builder.pipe(
-            pump.ports["out"],
-            mixing.ports["in"],
-            (x, y, z),
-            (x, y, z + 0.3),
-            plant_storey,
-            supply,
-        )
-        builder.pipe(
-            mixing.ports["out"],
-            sensor.ports["in"],
-            (x, y, z + 0.3),
-            (x, y, z + 0.6),
-            plant_storey,
-            supply,
-        )
+        # Flow path of the circuit, from the header to the distribution main.
+        chain = {
+            "upstream": [(pump, "pump"), (mixing, "mixing"), (sensor, "sensor")],
+            "downstream": [(mixing, "mixing"), (sensor, "sensor"), (pump, "pump")],
+        }[pump_position]
+        source, source_pos = circuit_flow, (x - 0.2, y, z)
+        for element, role in chain:
+            element_pos = (x, y, z + height[role])
+            builder.pipe(
+                source,
+                element.ports["in"],
+                source_pos,
+                element_pos,
+                plant_storey,
+                supply,
+            )
+            source, source_pos = element.ports["out"], element_pos
+        mixing_pos = (x + 0.1, y, z + height["mixing"])
         bypass = builder.tee(
             f"Bypass tee {circuit.name}",
-            (x + 0.1, y, z + 0.3),
+            mixing_pos,
             plant_storey,
             ret,
             diverging=True,
@@ -717,24 +728,24 @@ def build(  # noqa: PLR0915
         builder.pipe(
             bypass.ports["branch"],
             mixing.ports["bypass"],
-            (x + 0.1, y, z + 0.3),
-            (x, y, z + 0.3),
+            mixing_pos,
+            (x, y, z + height["mixing"]),
             plant_storey,
             ret,
         )
         builder.pipe(
             bypass.ports["out"],
             circuit_return,
-            (x + 0.1, y, z + 0.3),
+            mixing_pos,
             (x - 0.1, y, z),
             plant_storey,
             ret,
         )
 
         # Distribution mains with one tee per radiator branch.
-        flow_main, return_main = sensor.ports["out"], bypass.ports["in"]
-        flow_pos: Point = (x, y, z + 0.6)
-        return_pos: Point = (x + 0.1, y, z + 0.3)
+        flow_main, return_main = source, bypass.ports["in"]
+        flow_pos: Point = source_pos
+        return_pos: Point = mixing_pos
         for number, spec in enumerate(circuit.radiators, start=1):
             rx, ry, rz = spec.position
             branch_flow = builder.tee(
@@ -901,8 +912,12 @@ def _cap(  # noqa: PLR0913
             )
 
 
-def write(path: Path, architecture_path: Path = ARCHITECTURE_MODEL) -> Path:
-    builder_file = build(architecture_path)
+def write(
+    path: Path,
+    architecture_path: Path = ARCHITECTURE_MODEL,
+    pump_position: PumpPosition = "upstream",
+) -> Path:
+    builder_file = build(architecture_path, pump_position)
     keep = {
         e.GlobalId
         for e in ifcopenshell.open(str(architecture_path)).by_type("IfcRoot")

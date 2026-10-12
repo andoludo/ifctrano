@@ -61,9 +61,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # One job per selection of the simulate tests, run in parallel: the heating model, and
-        # the two-zone model in each library.
-        tests: [heating_model, Buildings, IDEAS, reduced_order, iso_13790]
+        # One job per selection of the simulate tests, run in parallel: the heating model with
+        # its pumps before and after the mixing valves, and the two-zone model in each library.
+        tests:
+          - heating_model and upstream
+          - heating_model and downstream
+          - Buildings
+          - IDEAS
+          - reduced_order
+          - iso_13790
     name: simulation (${{ matrix.tests }})
     steps:
       - name: Checkout repository
@@ -87,7 +93,7 @@ jobs:
       - name: Install nox dependencies
         run: poetry run nox -s install
       - name: Simulate models (OpenModelica in Docker)
-        run: poetry run pytest -m simulate -k ${{ matrix.tests }}
+        run: poetry run pytest -m simulate -k "${{ matrix.tests }}"
 
   docs:
     needs: [linting]
