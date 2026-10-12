@@ -31,3 +31,15 @@ Everything else (radiators, valves, circulators, mixing valves and their control
 {!tutorials/figures/heat_generators.html!}
 
 {!tutorials/figures/heat_generators.md!}
+
+**What to expect.** Both generators feed the same radiators, controlled to the same set points, so the rooms should be
+as warm in both cases. The difference is the energy bought: natural gas for the boiler, electricity for the heat
+pump, which takes most of its heat from the outdoor air.
+
+**What the simulation shows.** Over days 3 to 10, the rooms are equally warm with both generators (18.6 °C on average,
+between the 15.85 °C setback and the 21 °C set point) and the radiators deliver the same 125 kWh. The boiler burns
+190 kWh of natural gas to produce 148 kWh of heat; the heat pump produces 124 kWh from 36 kWh of electricity, a
+coefficient of performance of about 3.4 in these January days. The heat pump also loses less heat in the circuits
+(the generator heat is close to the heat of the radiators) and gives a lower peak at the morning reheat (2.8 kW
+against 4.4 kW).
+
