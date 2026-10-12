@@ -38,3 +38,12 @@ figure draws the range of the zone temperatures (minimum to maximum) and their m
 {!tutorials/figures/many_zones.html!}
 
 {!tutorials/figures/many_zones.md!}
+
+**What to expect.** The zones are coupled through the internal walls, so their temperatures follow each other; the
+zones with more external surface (and less internal gain per volume) are colder.
+
+**What the simulation shows.** The thirteen zones stay between 3 and 17 °C, with a mean of about 9 °C over days 3 to
+10. The spread between the zones (about 3 K on the mean temperature, from 6.9 °C to 10.0 °C) comes from their exposure:
+the six identical rooms with 8 m² of external wall and a 4 m² window all average 9.2 to 9.3 °C, while the two zones
+with the most external wall (45 m² and 29 m²) and no window are the coldest (6.9 °C and 7.3 °C).
+

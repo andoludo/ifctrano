@@ -223,7 +223,7 @@ def zone_label(zone: str) -> str:
     """Readable zone name: ``space_kitchen5_dsw`` becomes ``Kitchen5``."""
     name = re.sub(r"^space_?", "", zone)
     name = re.sub(r"_[a-z0-9]{3}$", "", name)
-    return name.replace("_", " ").strip().capitalize() or zone
+    return " ".join(name.replace("_", " ").split()).capitalize() or zone
 
 
 def zone_labels(zones: Iterable[str]) -> dict[str, str]:

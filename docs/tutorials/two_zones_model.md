@@ -52,3 +52,13 @@ ten days of January in Uccle (trano's default weather).
 {!tutorials/figures/two_zones.html!}
 
 {!tutorials/figures/two_zones.md!}
+
+**What to expect.** Without heating, the zones settle between the outdoor temperature (dotted line) and the comfort
+range: the envelope loses heat to the outdoor air, while the occupants and the sun bring heat in. Only zone `01 (uj9)`
+has a window (1 m²), so it warms up more on sunny days.
+
+**What the simulation shows.** Over days 3 to 10, the mean air temperature of the zones is about 9 °C. The zone with
+the window averages 9.7 °C and reaches about 17 °C on sunny afternoons; the other averages 8.1 °C and stays within 6
+to 11 °C. Both stay well above the outdoor temperature: the default
+constructions are very insulating (see [the limitations](../explanation/index.md#assumptions-and-known-limitations)).
+

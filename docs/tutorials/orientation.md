@@ -26,3 +26,17 @@ difference, in the Uccle weather.
 {!tutorials/figures/orientation.html!}
 
 {!tutorials/figures/orientation.md!}
+
+**What to expect.** In late March the sun is low in the south during the day and sets in the west: a room with south
+and west windows gets much more solar gain than the same room facing north and east, which only sees the morning sun
+on its east window.
+
+**What the simulation shows.** As built, the kitchen averages 24.8 °C over days 83 to 90, peaking at about 39 °C in
+the afternoons. Turned by 180°, it averages 22.7 °C (2.1 K less) and peaks at about 32 °C. The night minima differ less
+(15.2 °C and 13.8 °C): the difference is the solar gain of the day. The peaks are high because the house has no
+heating, no shading and no thermal mass (the default materials, see
+[the limitations](../explanation/index.md#assumptions-and-known-limitations)).
+
+**Difference with earlier versions.** Before ifctrano 0.15 the azimuths were turned by 180°: the "as built" case
+of this page was then simulated as the "turned" one.
+
