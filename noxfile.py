@@ -39,7 +39,7 @@ def tests(session: Session) -> None:
 
 @nox.session(python=["3.12"])
 def simulation(session: Session) -> None:
-    session.run("poetry", "run", "pytest", "-m", "simulate")
+    session.run("poetry", "run", "pytest", "-m", "simulate", *session.posargs)
 
 
 @nox.session(python=["3.12"])

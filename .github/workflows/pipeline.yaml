@@ -58,6 +58,13 @@ jobs:
   simulation:
     needs: [linting]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # One job per selection of the simulate tests, run in parallel: the heating model, and
+        # the two-zone model in each library.
+        tests: [heating_model, Buildings, IDEAS, reduced_order, iso_13790]
+    name: simulation (${{ matrix.tests }})
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -80,7 +87,7 @@ jobs:
       - name: Install nox dependencies
         run: poetry run nox -s install
       - name: Simulate models (OpenModelica in Docker)
-        run: poetry run nox -s simulation
+        run: poetry run nox -s simulation -- -k ${{ matrix.tests }}
 
   docs:
     needs: [linting]

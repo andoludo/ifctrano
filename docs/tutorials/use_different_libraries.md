@@ -36,11 +36,9 @@ The same configuration of the [two zones model](two_zones_model.md) simulated wi
 ten days of January, without heating. The figure shows the mean air temperature of the two zones.
 
 !!! note "AixLib models"
-    ifctrano generates the `reduced_order` and `iso_13790` models, but trano 0.42.0 cannot simulate them: its
-    OpenModelica script does not load AixLib ("Base class AixLib.Media.Air not found"). The fix is
-    [trano#44](https://github.com/andoludo/trano/pull/44); both libraries will be added to this comparison with the
-    trano release that includes it. Until then, `--simulate-model` fails for these two libraries, while the generated
-    models can be simulated in OpenModelica or Dymola after loading AixLib.
+    The `reduced_order` and `iso_13790` models simulate with `--simulate-model` since trano 0.43.0, which loads
+    AixLib and installs it in the OpenModelica container. CI simulates the two zones model in all four libraries
+    (`tests/test_simulation.py`); this comparison shows the two detailed libraries.
 
 {!tutorials/figures/libraries.html!}
 
