@@ -87,7 +87,7 @@ jobs:
       - name: Install nox dependencies
         run: poetry run nox -s install
       - name: Simulate models (OpenModelica in Docker)
-        run: poetry run nox -s simulation -- -k ${{ matrix.tests }}
+        run: poetry run pytest -m simulate -k ${{ matrix.tests }}
 
   docs:
     needs: [linting]
