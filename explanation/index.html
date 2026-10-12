@@ -1416,6 +1416,28 @@ described in the <a href="../tutorials/heating_model/">heating tutorial</a>:</p>
 </tr>
 </tbody>
 </table>
+<p>Each circuit follows the order of its circulator and mixing valve on the flow path of the model:</p>
+<table>
+<thead>
+<tr>
+<th>Order in the IFC model</th>
+<th>Generated circuit</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pump after the mixing valve</td>
+<td>boiler → three-way valve → temperature sensor → pump → radiators</td>
+<td>Mixing circuit: the pump draws return water in through the valve, which holds the supply temperature. The valve has a PI controller.</td>
+</tr>
+<tr>
+<td>Pump before the mixing valve, or either missing</td>
+<td>boiler → pump → three-way valve → temperature sensor → radiators</td>
+<td>The pump pushes the water into the valve, which can only divert it back to the boiler and never lower the supply temperature. trano warns about this layout.</td>
+</tr>
+</tbody>
+</table>
 <p>Radiators of a space are lumped into one emitter whose nominal power is the sum of their <code>OutputCapacity</code>. Missing
 data are filled in and logged: radiators and pumps are sized from the design heat load of their spaces (simplified
 EN 12831), the heat generator from the radiators it serves. The <a href="../tutorials/heat_generators/">heat generator example</a>
