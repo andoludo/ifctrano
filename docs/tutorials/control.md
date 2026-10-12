@@ -43,3 +43,12 @@ The other parameters of the emission control are `temperature_heating_setpoint` 
 {!tutorials/figures/control.html!}
 
 {!tutorials/figures/control.md!}
+
+**What to expect.** With the night setback, the rooms cool down at night and are heated up again at 7:00, which takes
+a power peak; with a constant set point the rooms stay at 21 °C and the radiators deliver a steadier, higher heat.
+
+**What the simulation shows.** Over days 3 to 10, the living room averages 18.6 °C with the night setback (15.0 °C at
+night) and 20.9 °C with the constant set point (never below 19.9 °C). Keeping the house at 21 °C needs 162 kWh of
+radiator heat instead of 125 kWh (30 % more) and 229 kWh of gas instead of 190 kWh (21 % more). The peak heat is lower
+with the constant set point, 1.6 kW instead of 4.4 kW: the night setback saves energy but asks for a morning reheat.
+

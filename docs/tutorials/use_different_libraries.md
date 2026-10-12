@@ -45,3 +45,12 @@ ten days of January, without heating. The figure shows the mean air temperature 
 {!tutorials/figures/libraries.html!}
 
 {!tutorials/figures/libraries.md!}
+
+**What to expect.** Both libraries describe each wall, window and floor with the same constructions, so free-floating
+temperatures should be close; differences come from the models of the convection, the radiation exchange, the
+windows and the ground.
+
+**What the simulation shows.** Over days 3 to 10, the mean temperature of the zones is 8.9 °C with Buildings and
+8.8 °C with IDEAS, with minima of 6.0 and 5.8 °C and maxima of 13.9 and 13.8 °C: the two detailed libraries agree
+within 0.2 K on this building.
+

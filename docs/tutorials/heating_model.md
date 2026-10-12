@@ -159,7 +159,8 @@ set point switches back to 21 °C in the morning. The attic has no radiator and 
 and their night setback; their minima (15 to 16.5 °C) are the night setback and their maxima (21.4 to 22.3 °C) the
 day set point, with sunny rooms going above it (up to about 25 °C in the bathroom, kitchen and children's room 10,
 which have south windows). The unheated attic averages 13 °C. The radiators deliver 125 kWh over the eight days, with a
-peak of 4.4 kW (hourly mean). The boiler produces 148 kWh, so about 23 kWh are lost in the distribution
+peak of 4.4 kW (hourly mean) when the rooms are heated up after the night setback (see the
+[control example](control.md)). The boiler produces 148 kWh, so about 23 kWh are lost in the distribution
 circuits, and burns 190 kWh of natural gas (lower heating value): a seasonal efficiency of about 78 %.
 
 **Difference with earlier versions.** With trano 0.39 (ifctrano 0.15), the rooms were heated to 23.85 °C during the
