@@ -6,6 +6,7 @@ Needs Docker (trano simulates with the OpenModelica image); run with
 
 import re
 from pathlib import Path
+from typing import get_args
 
 import numpy as np
 import pytest
@@ -60,8 +61,15 @@ def _last_day(time: np.ndarray, values: np.ndarray, end: float) -> np.ndarray:
 
 
 @pytest.mark.simulate
-def test_simulate_heating_model(tmp_path: Path) -> None:
-    heating = example_hom_heating.write(tmp_path / "ExampleHOM_heating.ifc")
+@pytest.mark.parametrize("pump_position", get_args(example_hom_heating.PumpPosition))
+def test_simulate_heating_model(
+    tmp_path: Path, pump_position: example_hom_heating.PumpPosition
+) -> None:
+    """Both layouts heat the house: the reference model, whose pumps push into the
+    mixing valves, and its copy with mixing circuits (pumps after the valves)."""
+    heating = example_hom_heating.write(
+        tmp_path / "ExampleHOM_heating.ifc", pump_position=pump_position
+    )
     building = Building.from_ifc(
         SPACE_BOUNDARY_IFC / "ExampleHOM.ifc", hvac_file_paths=[heating]
     )

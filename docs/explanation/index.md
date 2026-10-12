@@ -162,6 +162,13 @@ described in the [heating tutorial](../tutorials/heating_model.md):
 | Heat pump (`IfcUnitaryEquipment` recognised as such, or `--heat-generator`) | `boiler`, `air_water_heat_pump` or `water_water_heat_pump` variant | `Buildings.Fluid.HeatPumps.ModularReversible.AirToWaterTableData` or `Buildings.Fluid.HeatPumps.EquationFitReversible` |
 | Radiator not connected to a heat generator | `radiator`, `idealbus` variant | Ideal emitter |
 
+Each circuit follows the order of its circulator and mixing valve on the flow path of the model:
+
+| Order in the IFC model | Generated circuit | Behaviour |
+|---|---|---|
+| Pump after the mixing valve | boiler → three-way valve → temperature sensor → pump → radiators | Mixing circuit: the pump draws return water in through the valve, which holds the supply temperature. The valve has a PI controller. |
+| Pump before the mixing valve, or either missing | boiler → pump → three-way valve → temperature sensor → radiators | The pump pushes the water into the valve, which can only divert it back to the boiler and never lower the supply temperature. trano warns about this layout. |
+
 Radiators of a space are lumped into one emitter whose nominal power is the sum of their `OutputCapacity`. Missing
 data are filled in and logged: radiators and pumps are sized from the design heat load of their spaces (simplified
 EN 12831), the heat generator from the radiators it serves. The [heat generator example](../tutorials/heat_generators.md)

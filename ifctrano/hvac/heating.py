@@ -3,11 +3,18 @@
 The IFC network (boiler, pumps, valves, hundreds of pipes and fittings, and
 radiators) is reduced to the components trano models. Emitters are grouped
 into *circuits*: emitters fed by the same heat generator through the same
-circulator and mixing valve. Each circuit becomes trano's hydronic circuit
-template::
+circulator and mixing valve. Each circuit becomes one of trano's hydronic
+circuits, in the order of the circulator and the mixing valve on the flow path
+of the model::
 
     boiler -> pump -> three-way valve -> temperature sensor -> radiators
+    boiler -> three-way valve -> temperature sensor -> pump -> radiators
     radiator valves -> split valve (collector) -> boiler and three-way valve
+
+In the first (also used when the model lacks the pump or the valve), the pump
+pushes the water into the valve, which can only divert it. The second is a
+mixing circuit: the pump draws return water in through the valve, which holds
+the supply temperature.
 
 Radiators of a space are lumped into one equivalent emitter, as is usual in
 building energy simulation. Emitters that are not hydronically connected to a
@@ -103,10 +110,21 @@ class HeatingOptions(BaseModel):
     design: DesignConditions = Field(default_factory=DesignConditions)
 
 
+MIXING_VALVE_CONTROLLER = "Buildings.Controls.OBC.CDL.Types.SimpleController.PI"
+"""Controller of the mixing valves: trano's default proportional controller hunts."""
+
+
 class Circuit(BaseModelConfig):
     production: entity_instance
     pump: entity_instance | None
     mixing_valve: entity_instance | None
+    pump_after_mixing_valve: bool = Field(
+        default=False,
+        description=(
+            "The circulator follows the mixing valve on the flow path: a mixing "
+            "circuit, where the pump draws return water in through the valve."
+        ),
+    )
     emitters: list[Emitter] = Field(default_factory=list)
 
 
@@ -162,7 +180,14 @@ class HeatingSystem(BaseModelConfig):
             )
             circuit = circuits.setdefault(
                 key,
-                Circuit(production=path[0], pump=pump, mixing_valve=mixing_valve),
+                Circuit(
+                    production=path[0],
+                    pump=pump,
+                    mixing_valve=mixing_valve,
+                    pump_after_mixing_valve=pump in path
+                    and mixing_valve in path
+                    and path.index(pump) > path.index(mixing_valve),
+                ),
             )
             circuit.emitters.append(emitter)
         system = cls(
@@ -226,12 +251,7 @@ class HeatingSystem(BaseModelConfig):
                 spaces = sorted(
                     space_id for space_id, c in assigned.items() if c is circuit
                 )
-                pump_id, valve_id = f"pump_{index}", f"three_way_valve_{index}"
-                sensor_id, collector_id = (
-                    f"temperature_sensor_{index}",
-                    f"split_valve_{index}",
-                )
-                collector_ids.append(collector_id)
+                collector_ids.append(f"split_valve_{index}")
                 powers = [
                     self._space_power(space_id, design_heat_loads.get(space_id))
                     for space_id in spaces
@@ -239,39 +259,9 @@ class HeatingSystem(BaseModelConfig):
                 for space_id, power in zip(spaces, powers, strict=True):
                     emissions[space_id] = self._hydronic_emission(space_id, power)
                 circuit_powers += powers
-                circuit_systems += [
-                    self._pump(circuit, pump_id, boiler_id, powers),
-                    {
-                        "three_way_valve": {
-                            "id": valve_id,
-                            "control": {
-                                "three_way_valve_control": {
-                                    "id": f"three_way_valve_control_{index}"
-                                }
-                            },
-                            "inlets": [collector_id, pump_id],
-                            "outlets": [sensor_id],
-                        }
-                    },
-                    {
-                        "temperature_sensor": {
-                            "id": sensor_id,
-                            "outlets": [f"radiator_{s}" for s in spaces],
-                        }
-                    },
-                    {
-                        "split_valve": {
-                            "id": collector_id,
-                            "inlets": [f"valve_{s}" for s in spaces],
-                            "outlets": [boiler_id],
-                        }
-                    },
-                ]
-                if circuit.mixing_valve is None:
-                    self._assume(
-                        f"Circuit {index} has no mixing valve in the model; trano's "
-                        "circuit template adds one."
-                    )
+                circuit_systems += self._circuit(
+                    index, circuit, boiler_id, dict(zip(spaces, powers, strict=True))
+                )
             systems.append(
                 self._boiler(production, boiler_id, collector_ids, circuit_powers)
             )
@@ -284,6 +274,55 @@ class HeatingSystem(BaseModelConfig):
             if ideal_space in space_ids and ideal_space not in emissions:
                 emissions[ideal_space] = self._ideal_emission(ideal_space)
         return emissions, systems
+
+    def _circuit(
+        self,
+        index: int,
+        circuit: Circuit,
+        boiler_id: str,
+        space_powers: Mapping[str, float | None],
+    ) -> list[dict[str, Any]]:
+        """Pump, three-way valve, temperature sensor and collector of a circuit.
+
+        ``space_powers`` holds the nominal power of the emitter of each space it serves.
+        """
+        spaces, powers = list(space_powers), list(space_powers.values())
+        pump_id, sensor_id = f"pump_{index}", f"temperature_sensor_{index}"
+        collector_id = f"split_valve_{index}"
+        radiators = [f"radiator_{s}" for s in spaces]
+        pump = self._pump(circuit, pump_id, boiler_id, powers)["pump"]
+        valve_control: dict[str, Any] = {"id": f"three_way_valve_control_{index}"}
+        if circuit.pump_after_mixing_valve:
+            del pump["inlets"]
+            pump["outlets"] = radiators
+            valve_inlets, sensor_outlets = [collector_id, boiler_id], [pump_id]
+            valve_control["parameters"] = {"controller_type": MIXING_VALVE_CONTROLLER}
+        else:
+            valve_inlets, sensor_outlets = [collector_id, pump_id], radiators
+        if circuit.mixing_valve is None:
+            self._assume(
+                f"Circuit {index} has no mixing valve in the model; trano's "
+                "circuit template adds one."
+            )
+        return [
+            {"pump": pump},
+            {
+                "three_way_valve": {
+                    "id": f"three_way_valve_{index}",
+                    "control": {"three_way_valve_control": valve_control},
+                    "inlets": valve_inlets,
+                    "outlets": [sensor_id],
+                }
+            },
+            {"temperature_sensor": {"id": sensor_id, "outlets": sensor_outlets}},
+            {
+                "split_valve": {
+                    "id": collector_id,
+                    "inlets": [f"valve_{s}" for s in spaces],
+                    "outlets": [boiler_id],
+                }
+            },
+        ]
 
     def _assign_spaces(self, space_ids: set[str]) -> dict[str, Circuit]:
         """Circuit serving each space; the one with most emitters there wins."""

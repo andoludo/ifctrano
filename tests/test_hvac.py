@@ -1,3 +1,4 @@
+import warnings
 from collections import Counter
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -21,6 +22,7 @@ from trano.elements import ExternalWall, Space as TranoSpace, Window  # type: ig
 from trano.elements.library.library import Library  # type: ignore
 from trano.elements.system import Occupancy  # type: ignore
 from trano.elements.types import Tilt  # type: ignore
+from trano.validation.issues import HydronicLayoutWarning  # type: ignore
 
 from ifctrano.base import Vector
 from ifctrano.building import Building
@@ -502,3 +504,82 @@ def test_design_heat_load_counts_windows_once() -> None:
     assert design_heat_load(space, conditions) == pytest.approx(
         (conductance + ventilation) * conditions.temperature_difference
     )
+
+
+@pytest.fixture(scope="module")
+def example_hom_with_mixing_circuits(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Building:
+    """ExampleHOM with the circulators after the mixing valves (mixing circuits)."""
+    heating = example_hom_heating.write(
+        tmp_path_factory.mktemp("hvac") / "ExampleHOM_heating_mixing.ifc",
+        pump_position="downstream",
+    )
+    return Building.from_ifc(EXAMPLE_HOM, hvac_file_paths=[heating])
+
+
+def _systems_by_id(building: Building) -> dict[str, dict]:  # type: ignore[type-arg]
+    return {
+        system["id"]: system
+        for entry in _heating_config(building)["systems"]
+        for system in entry.values()
+    }
+
+
+def test_pump_after_the_mixing_valve_makes_a_mixing_circuit(
+    example_hom_with_mixing_circuits: Building,
+) -> None:
+    """boiler -> three-way valve -> temperature sensor -> pump -> radiators."""
+    systems = _systems_by_id(example_hom_with_mixing_circuits)
+    for index, floor in ((1, GROUND_FLOOR), (2, FIRST_FLOOR)):
+        valve = systems[f"three_way_valve_{index}"]
+        assert valve["inlets"] == [f"split_valve_{index}", "boiler_1"]
+        assert valve["outlets"] == [f"temperature_sensor_{index}"]
+        assert valve["control"]["three_way_valve_control"]["parameters"] == {
+            "controller_type": "Buildings.Controls.OBC.CDL.Types.SimpleController.PI"
+        }
+        assert systems[f"temperature_sensor_{index}"]["outlets"] == [f"pump_{index}"]
+        pump = systems[f"pump_{index}"]
+        assert "inlets" not in pump
+        assert {radiator.split("_")[2] for radiator in pump["outlets"]} == {
+            space.lower() for space in floor
+        }
+
+
+def test_pump_before_the_mixing_valve_keeps_the_model_layout(
+    example_hom_with_heating: Building,
+) -> None:
+    """boiler -> pump -> three-way valve -> temperature sensor -> radiators."""
+    systems = _systems_by_id(example_hom_with_heating)
+    assert systems["pump_1"]["inlets"] == ["boiler_1"]
+    assert systems["three_way_valve_1"]["inlets"] == ["split_valve_1", "pump_1"]
+    assert systems["temperature_sensor_1"]["outlets"] == _radiators_returning_to(
+        systems, "split_valve_1"
+    )
+
+
+def _radiators_returning_to(systems: dict[str, dict], collector: str) -> list[str]:  # type: ignore[type-arg]
+    """Radiators returning to ``collector``, in the order of their valves."""
+    return [
+        valve.replace("valve_", "radiator_", 1)
+        for valve in systems[collector]["inlets"]
+    ]
+
+
+@pytest.mark.parametrize(
+    ("building", "wrong_layout"),
+    [("example_hom_with_heating", True), ("example_hom_with_mixing_circuits", False)],
+)
+def test_trano_checks_the_hydronic_layout(
+    request: FixtureRequest, building: str, wrong_layout: bool
+) -> None:
+    """trano warns about a pump pushing into a mixing valve, which cannot mix."""
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        request.getfixturevalue(building).create_network(library="Buildings")
+    layout_warnings = [
+        w for w in caught if issubclass(w.category, HydronicLayoutWarning)
+    ]
+    assert bool(layout_warnings) is wrong_layout, [
+        str(w.message) for w in layout_warnings
+    ]
