@@ -168,3 +168,5 @@ cython_debug/
 
 # Open models downloaded on demand by the tests
 tests/models/external/
+docs/tutorials/figures/
+site/

@@ -82,6 +82,10 @@ jobs:
       - name: Simulate models (OpenModelica in Docker)
         run: poetry run nox -s simulation
 
+  docs:
+    needs: [linting]
+    uses: ./.github/workflows/examples.yaml
+
   create-revision-and-tag:
     if: startsWith(github.ref, 'refs/heads/main')
     needs: [tests]
