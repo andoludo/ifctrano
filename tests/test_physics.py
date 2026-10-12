@@ -9,8 +9,9 @@ facade by 180 degrees (north facades were simulated facing south).
 The snapshots in ``tests/data/physics`` hold the physical parameters of the
 generated Buildings models (``tests.physics``). ``before_azimuth_fix.json``
 holds them as generated with trano 0.35, before the correction: the tests check
-that the only differences are the corrected orientations and the hydronic fixes
-of trano 0.39, so that the upgrade changes no other physics.
+that the only differences are the corrected orientations and the changes trano
+made itself (``TRANO_HEATING_CHANGES``, the default weather file and the
+explicit discretisation of the layers), so that no other physics changed.
 """
 
 import math
@@ -26,7 +27,7 @@ from ifctrano.building import Building
 from ifctrano.space_boundary import HORIZONTAL_AZIMUTH, bearing_to_azimuth
 from tests.conftest import OVERWRITE_RESULTS, SPACE_BOUNDARY_IFC
 from tests.hvac import example_hom_heating
-from tests.physics import dump, load, physics
+from tests.physics import dump, load, merge_surfaces, physics
 
 PHYSICS_PATH = Path(__file__).parent / "data" / "physics"
 NORTH = Vector(x=0, y=1, z=0)
@@ -38,34 +39,49 @@ CASES = {
     "two_zones": "TwoZones.ifc",
     "multizone": "MultiZoneBuilding.ifc",
 }
-TRANO_0_39_HYDRONIC_FIXES = {
-    ("boiler", "dIns"): "tank insulation 0.1 m instead of 2 mm",
+TRANO_HEATING_CHANGES = {
+    ("boiler", "dIns"): "0.39: tank insulation 0.1 m instead of 2 mm",
     (
         "boiler",
         "nominal_mass_flow_rate_boiler",
-    ): "boiler loop flow from the boiler temperature difference",
+    ): "0.39: boiler loop flow from the boiler temperature difference",
+    (
+        "boiler",
+        "linearizeFlowResistance",
+    ): "0.42: the flow resistance is only linearised when asked, as in Buildings",
     (
         "boiler_control",
         "threshold_to_switch_off_boiler",
-    ): "switch-off threshold at the supply set point + 5 K",
+    ): "0.39: switch-off threshold at the supply set point + 5 K",
+    (
+        "emission_control",
+        "THeaSet",
+    ): "0.42: default heating set point 21 degC instead of 23.85 degC",
     (
         "radiator",
         "VWat",
-    ): "water volume 5.8e-6 m3/W as in RadiatorEN442_2, was ten times too large",
+    ): "0.39: water volume 5.8e-6 m3/W as in RadiatorEN442_2, was ten times too large",
     (
         "temperature_sensor",
         "m_flow_nominal",
-    ): "own nominal flow instead of a placeholder",
+    ): "0.39: own nominal flow instead of a placeholder",
     (
         "three_way_valve",
         "m_flow_nominal",
-    ): "default consistent with the default radiator and pump",
+    ): "0.39: default consistent with the default radiator and pump",
     (
         "valve",
         "m_flow_nominal",
-    ): "default consistent with the default radiator and pump",
+    ): "0.39: default consistent with the default radiator and pump",
 }
-"""Hydronic parameters corrected in trano 0.39 (trano #39), not set by ifctrano."""
+"""Heating parameters changed by trano since 0.35 (version: reason), not set by ifctrano."""
+DEFAULT_WEATHER = {
+    "before": "USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos",
+    "after": "BEL_VLG_Uccle.064470_TMYx.2007-2021.mos",
+}
+"""trano 0.42 reads the Uccle weather file of IDEAS by default, for every library."""
+BUILDINGS_STATES = 3.0
+"""Buildings' default spatial discretisation, written explicitly by trano 0.42."""
 
 
 @pytest.fixture(scope="module")
@@ -246,27 +262,40 @@ def _changes(before: dict[str, Any], after: dict[str, Any]) -> set[tuple[str, st
     }
 
 
+def _without_default_states(
+    constructions: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Constructions without the explicit ``nStaRef`` of trano 0.42 (the Buildings default)."""
+    for construction in constructions.values():
+        for material in construction.get("material", []):
+            assert material.pop("nStaRef", BUILDINGS_STATES) == BUILDINGS_STATES
+    return constructions
+
+
 @pytest.mark.parametrize("case", CASES)
-def test_only_orientations_and_trano_fixes_changed(case: str) -> None:
-    """Compared with trano 0.35, only the corrected azimuths and trano #39 changed.
+def test_only_orientations_and_trano_changes(case: str) -> None:
+    """Compared with trano 0.35, only the corrected azimuths and trano's own changes.
 
     The envelope (areas, tilts, constructions and their layers) and the heating
-    sizing made by ifctrano are those generated before the upgrade.
+    sizing made by ifctrano are those generated before the upgrades.
     """
     before = load(PHYSICS_PATH / "before_azimuth_fix.json")[case]
     after = load(PHYSICS_PATH / f"{case}.json")
 
+    assert (before["weather"], after["weather"]) == (
+        DEFAULT_WEATHER["before"],
+        DEFAULT_WEATHER["after"],
+    )
     for zone in before["zones"].values():
         for surface in zone["surfaces"]:
             if "azimuth" in surface:
                 surface["azimuth"] = _corrected_azimuth(surface["azimuth"])
-    assert not DeepDiff(
-        before["zones"], after["zones"], ignore_order=True, math_epsilon=TOLERANCE
-    )
-    assert before["constructions"] == after["constructions"]
+        zone["surfaces"] = merge_surfaces(zone["surfaces"])
+    assert not DeepDiff(before["zones"], after["zones"], math_epsilon=TOLERANCE)
+    assert before["constructions"] == _without_default_states(after["constructions"])
 
     changes = _changes(before["heating"], after["heating"])
-    assert changes <= TRANO_0_39_HYDRONIC_FIXES.keys()
+    assert changes <= TRANO_HEATING_CHANGES.keys()
     for component, parameters in after["heating"].items():
         if _component_type(component) == "radiator":
             assert parameters["VWat"] == pytest.approx(

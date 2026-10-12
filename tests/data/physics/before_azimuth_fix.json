@@ -359,9 +359,12 @@
         "deltaM": 0.1,
         "dp_nominal": 5000.0,
         "hTan": 2.0,
+        "linearizeFlowResistance": true,
         "nSeg": 4.0,
         "nominal_mass_flow_radiator_loop": 0.6428571428571429,
-        "nominal_mass_flow_rate_boiler": 0.6428571428571429
+        "nominal_mass_flow_rate_boiler": 0.6428571428571429,
+        "show_T": false,
+        "useStorageTank": false
       },
       "boiler_control_boiler_1": {
         "TSup_nominal": 353.15,
@@ -436,6 +439,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 26.563,
         "n": 1.24,
         "nEle": 1.0
@@ -450,6 +455,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 44.184,
         "n": 1.24,
         "nEle": 1.0
@@ -464,6 +471,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 26.563,
         "n": 1.24,
         "nEle": 1.0
@@ -478,6 +487,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 26.563,
         "n": 1.24,
         "nEle": 1.0
@@ -492,6 +503,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 9.994,
         "n": 1.24,
         "nEle": 1.0
@@ -506,6 +519,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 9.994,
         "n": 1.24,
         "nEle": 1.0
@@ -520,6 +535,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 26.563,
         "n": 1.24,
         "nEle": 1.0
@@ -534,6 +551,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 26.563,
         "n": 1.24,
         "nEle": 1.0
@@ -548,6 +567,8 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 88.368,
         "n": 1.24,
         "nEle": 1.0
@@ -562,15 +583,19 @@
         "deltaM": 0.01,
         "dp_nominal": 2000.0,
         "fraRad": 0.3,
+        "from_dp": false,
+        "linearized": true,
         "mDry": 9.994,
         "n": 1.24,
         "nEle": 1.0
       },
       "split_valve_1": {
-        "deltaM": 0.3
+        "deltaM": 0.3,
+        "linearized": true
       },
       "split_valve_2": {
-        "deltaM": 0.3
+        "deltaM": 0.3,
+        "linearized": true
       },
       "three_way_valve_1": {
         "R": 50.0,
@@ -594,7 +619,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_bedroom6_x8a": {
@@ -603,7 +630,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_children10_ufa": {
@@ -612,7 +641,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_children7_ttq": {
@@ -621,7 +652,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_corridor3_n2a": {
@@ -630,7 +663,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_corridor8_xaa": {
@@ -639,7 +674,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_hobby2_uxa": {
@@ -648,7 +685,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_kitchen5_dsw": {
@@ -657,7 +696,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_living1_v3g": {
@@ -666,7 +707,9 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       },
       "valve_space_wc4_pwg": {
@@ -675,10 +718,13 @@
         "deltaM": 0.02,
         "dpFixed_nominal": 5000.0,
         "dpValve_nominal": 10000.0,
+        "from_dp": true,
         "l": 0.0001,
+        "linearized": true,
         "m_flow_nominal": 0.02
       }
     },
+    "weather": "USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos",
     "zones": {
       "space_att_ohq": {
         "floor_area": 92.9771,
@@ -1311,6 +1357,7 @@
       }
     },
     "heating": {},
+    "weather": "USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos",
     "zones": {
       "space_01_ht4": {
         "floor_area": 148.8,
@@ -1987,6 +2034,7 @@
       }
     },
     "heating": {},
+    "weather": "USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos",
     "zones": {
       "space_1_zke": {
         "floor_area": 11.5314,
@@ -2411,6 +2459,7 @@
       }
     },
     "heating": {},
+    "weather": "USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos",
     "zones": {
       "space_01_dup": {
         "floor_area": 9.0,

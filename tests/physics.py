@@ -25,6 +25,8 @@ HEATING_COMPONENT = re.compile(
 )
 ASSIGNMENT = re.compile(r"(\w+)\s*=\s*")
 NUMBER = re.compile(r"[-+]?\d+(?:\.\d*)?(?:[eE][-+]?\d+)?$")
+BOOLEANS = {"true": True, "false": False}
+WEATHER_FILE = re.compile(r"ReaderTMY3\s+\w+\s*\(\s*filNam\s*=[^\"]*\"([^\"]+)\"")
 TILTS = {"Wall": "wall", "Ceiling": "ceiling", "Floor": "floor"}
 AREA_DIGITS = 6
 """Summed areas are rounded to remove the noise of the summation order."""
@@ -134,7 +136,7 @@ def _surfaces(kind: str, record: str) -> list[dict[str, Any]]:
     return surfaces
 
 
-def _merge(surfaces: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def merge_surfaces(surfaces: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Surfaces summed per kind, orientation and construction, in a stable order."""
     merged: dict[tuple[Any, ...], dict[str, Any]] = {}
     for surface in surfaces:
@@ -170,20 +172,22 @@ def zones(model: str) -> dict[str, dict[str, Any]]:
         result[match.group(1)] = {
             "height": float(arguments["hRoo"]),
             "floor_area": round(float(arguments["AFlo"]), AREA_DIGITS),
-            "surfaces": _merge(surfaces),
+            "surfaces": merge_surfaces(surfaces),
         }
     return result
 
 
-def heating(model: str) -> dict[str, dict[str, float]]:
-    """Numerical parameters of the heating components and their controls."""
-    result: dict[str, dict[str, float]] = defaultdict(dict)
+def heating(model: str) -> dict[str, dict[str, float | bool]]:
+    """Numerical and boolean parameters of the heating components and their controls."""
+    result: dict[str, dict[str, float | bool]] = defaultdict(dict)
     for match in HEATING_COMPONENT.finditer(model):
         if match.group(1) in result:
             continue
         for name, value in _arguments(_declaration(model, match)).items():
             if NUMBER.match(value):
                 result[match.group(1)][name] = float(value)
+            elif value in BOOLEANS:
+                result[match.group(1)][name] = BOOLEANS[value]
     return {
         name: dict(sorted(values.items())) for name, values in sorted(result.items())
     }
@@ -231,8 +235,15 @@ def constructions(model: str) -> dict[str, dict[str, Any]]:
     }
 
 
+def weather(model: str) -> str | None:
+    """Name of the weather file read by the model."""
+    match = WEATHER_FILE.search(model)
+    return match.group(1).rsplit("/", 1)[-1] if match else None
+
+
 def physics(model: str) -> dict[str, Any]:
     return {
+        "weather": weather(model),
         "zones": zones(model),
         "constructions": constructions(model),
         "heating": heating(model),
