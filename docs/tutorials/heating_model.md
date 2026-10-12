@@ -151,6 +151,23 @@ controls: the rooms are heated to 21 °C from 7:00 to 19:00 and to 15.85 °C at 
 
 {!tutorials/figures/heating.md!}
 
+**What to expect.** The heated rooms follow the schedule of their emission control: they are brought to about 21 °C
+during the day and cool down towards the 15.85 °C setback at night. The radiators deliver most of their heat when the
+set point switches back to 21 °C in the morning. The attic has no radiator and floats.
+
+**What the simulation shows.** Over days 3 to 10, the heated rooms average 18.6 to 20 °C, between their day set point
+and their night setback; their minima (15 to 16.5 °C) are the night setback and their maxima (21.4 to 22.3 °C) the
+day set point, with sunny rooms going above it (up to about 25 °C in the bathroom, kitchen and children's room 10,
+which have south windows). The unheated attic averages 13 °C. The radiators deliver 125 kWh over the eight days, with a
+peak of 4.4 kW (hourly mean). The boiler produces 148 kWh, so about 23 kWh are lost in the distribution
+circuits, and burns 190 kWh of natural gas (lower heating value): a seasonal efficiency of about 78 %.
+
+**Difference with earlier versions.** With trano 0.39 (ifctrano 0.15), the rooms were heated to 23.85 °C during the
+day, the model read the Chicago weather file, and the boiler kept its water hot day and night with a casing loss that
+trano 0.42 corrected. trano 0.42 heats to 21 °C, reads the Uccle weather and fires the boiler on demand, so the heat
+demand and the gas use are lower than they were.
+
+
 ## Incomplete models
 
 Real models often lack part of this information. ifctrano keeps going and records every assumption, which is logged
