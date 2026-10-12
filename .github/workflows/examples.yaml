@@ -1,0 +1,96 @@
+name: Documentation examples
+
+# Runs every example of the documentation (docs_src/examples.py) in OpenModelica and builds the
+# site from the figures they produce. Called by the pipeline on every push and by the docs
+# deployment, which publishes the `site` artifact.
+
+on:
+  workflow_call:
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    outputs:
+      examples: ${{ steps.list.outputs.examples }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: poetry install --with docs
+      - name: List the examples
+        id: list
+        run: echo "examples=$(poetry run python -m docs_src.examples --list)" >> "$GITHUB_OUTPUT"
+
+  example:
+    needs: [list]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example: ${{ fromJSON(needs.list.outputs.examples) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Install graphviz
+        run: |
+          sudo apt update
+          sudo apt install graphviz
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: poetry install --with docs
+      - name: Simulate the example (OpenModelica in Docker)
+        run: poetry run python -m docs_src.examples ${{ matrix.example }}
+      - name: Show the key numbers
+        run: cat docs/tutorials/figures/${{ matrix.example }}.md
+      - name: Upload the figures
+        uses: actions/upload-artifact@v4
+        with:
+          name: figures-${{ matrix.example }}
+          path: docs/tutorials/figures
+
+  site:
+    needs: [example]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: poetry install --with docs
+      - name: Download the figures
+        uses: actions/download-artifact@v4
+        with:
+          pattern: figures-*
+          merge-multiple: true
+          path: docs/tutorials/figures
+      - name: Check that every example produced its figure and table
+        run: poetry run python -m docs_src.examples --check
+      - name: Build the documentation (warnings are errors)
+        run: poetry run mkdocs build --strict
+      - name: Upload the site
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: site

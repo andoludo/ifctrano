@@ -6,27 +6,18 @@ on:
       - main
 
 jobs:
-  build-deploy:
+  build:
+    uses: ./.github/workflows/examples.yaml
+
+  deploy:
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Download the site
+        uses: actions/download-artifact@v4
         with:
-          python-version: '3.12'
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-
-      - name: Install dependencies
-        run: |
-          poetry install --only docs
-
-      - name: Build documentation
-        run: |
-          poetry run mkdocs build
+          name: site
+          path: site
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

@@ -27,6 +27,7 @@ gas:
 - density: 1.2
   id: Air
   longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   specific_heat_capacity: 1005.0
   thermal_conductivity: 0.025
@@ -37,6 +38,7 @@ glass_material:
   infrared_absorptivity_room_facing: 0.84
   infrared_transmissivity: 0.0
   longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   solar_reflectance_outside_facing:
   - 0.062
@@ -56,6 +58,14 @@ glazings:
   - glass: id_100
     thickness: 0.003
 internal_walls:
+- construction: leichtbeton_102890359_024
+  space_1: space_4_peh
+  space_2: space_3_j_m
+  surface: 9.275
+- construction: default_internal_construction
+  space_1: space_2_ckm
+  space_2: space_1_zke
+  surface: 1.77885
 - construction: solid_397409098_02
   space_1: space_1_zke
   space_1_tilt: ceiling
@@ -63,47 +73,33 @@ internal_walls:
   space_2_tilt: floor
   surface: 12.3714
 - construction: default_internal_construction
-  space_1: space_2_ckm
+  space_1: space_4_peh
   space_2: space_1_zke
   surface: 1.77885
-- construction: leichtbeton_102890359_024
+- construction: default_internal_construction
   space_1: space_3_j_m
-  space_2: space_2_ckm
-  surface: 9.275
-- construction: leichtbeton_102890359_024
-  space_1: space_1_zke
-  space_2: space_6_0d3
-  surface: 8.75
-- construction: leichtbeton_102890359_024
-  space_1: space_2_ckm
   space_2: space_1_zke
-  surface: 8.75
+  surface: 1.77885
 - construction: solid_397409098_02
   space_1: space_2_ckm
   space_1_tilt: ceiling
   space_2: space_7_dlx
   space_2_tilt: floor
   surface: 12.985
-- construction: solid_397409098_02
-  space_1: space_4_peh
-  space_1_tilt: ceiling
-  space_2: space_7_dlx
-  space_2_tilt: floor
-  surface: 22.0725
 - construction: leichtbeton_102890359_024
   space_1: space_4_peh
-  space_2: space_1_zke
-  surface: 4.35
-- construction: default_internal_construction
-  space_1: space_3_j_m
-  space_2: space_1_zke
-  surface: 1.77885
+  space_2: space_5_9e9
+  surface: 10.125
+- construction: leichtbeton_102890359_024
+  space_1: space_1_zke
+  space_2: space_6_0d3
+  surface: 8.75
 - construction: solid_397409098_02
-  space_1: space_6_0d3
+  space_1: space_3_j_m
   space_1_tilt: ceiling
   space_2: space_7_dlx
   space_2_tilt: floor
-  surface: 16.30545
+  surface: 12.5027
 - construction: solid_397409098_02
   space_1: space_5_9e9
   space_1_tilt: ceiling
@@ -114,46 +110,56 @@ internal_walls:
   space_1: space_3_j_m
   space_2: space_1_zke
   surface: 8.425
-- construction: leichtbeton_102890359_024
-  space_1: space_4_peh
-  space_2: space_3_j_m
-  surface: 9.275
-- construction: default_internal_construction
-  space_1: space_4_peh
-  space_2: space_1_zke
-  surface: 1.77885
 - construction: solid_397409098_02
-  space_1: space_3_j_m
+  space_1: space_6_0d3
   space_1_tilt: ceiling
   space_2: space_7_dlx
   space_2_tilt: floor
-  surface: 12.5027
+  surface: 16.30545
+- construction: leichtbeton_102890359_024
+  space_1: space_3_j_m
+  space_2: space_2_ckm
+  surface: 9.275
+- construction: solid_397409098_02
+  space_1: space_4_peh
+  space_1_tilt: ceiling
+  space_2: space_7_dlx
+  space_2_tilt: floor
+  surface: 22.0725
+- construction: leichtbeton_102890359_024
+  space_1: space_2_ckm
+  space_2: space_1_zke
+  surface: 8.75
 - construction: leichtbeton_102890359_024
   space_1: space_4_peh
-  space_2: space_5_9e9
-  surface: 10.125
+  space_2: space_1_zke
+  surface: 4.35
 material:
+- density: 80.0
+  id: stahlbeton_65690
+  longwave_emissivity: 0.85
+  number_of_states: 3
+  shortwave_emissivity: 0.65
+  specific_heat_capacity: 940.0
+  thermal_conductivity: 0.046
 - density: 80.0
   id: leichtbeton_102890359
   longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   specific_heat_capacity: 940.0
   thermal_conductivity: 0.046
 - density: 80.0
   id: solid_397409098
   longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   specific_heat_capacity: 940.0
   thermal_conductivity: 0.046
 - density: 80.0
   id: material_1
   longwave_emissivity: 0.85
-  shortwave_emissivity: 0.65
-  specific_heat_capacity: 940.0
-  thermal_conductivity: 0.046
-- density: 80.0
-  id: stahlbeton_65690
-  longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   specific_heat_capacity: 940.0
   thermal_conductivity: 0.046
@@ -190,6 +196,7 @@ spaces:
   parameters:
     average_room_height: 2.5
     floor_area: 22.0725
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -217,6 +224,7 @@ spaces:
   parameters:
     average_room_height: 2.5
     floor_area: 12.5027
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -252,6 +260,7 @@ spaces:
   parameters:
     average_room_height: 2.5
     floor_area: 12.985
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -291,6 +300,7 @@ spaces:
   parameters:
     average_room_height: 2.5
     floor_area: 25.98855
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -318,6 +328,7 @@ spaces:
   parameters:
     average_room_height: 2.48497
     floor_area: 11.5314
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -353,20 +364,21 @@ spaces:
   parameters:
     average_room_height: 2.5
     floor_area: 16.30545
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
 - external_boundaries:
     external_walls:
-    - azimuth: 0.0
-      construction: leichtbeton_102890359_03
-      surface: 7.67459
-      tilt: wall
     - azimuth: -1.57
       construction: leichtbeton_102890359_03
       surface: 31.83545
       tilt: wall
     - azimuth: 3.14
+      construction: leichtbeton_102890359_03
+      surface: 7.67459
+      tilt: wall
+    - azimuth: 0.0
       construction: leichtbeton_102890359_03
       surface: 7.67459
       tilt: wall
@@ -402,6 +414,7 @@ spaces:
   parameters:
     average_room_height: 2.02998
     floor_area: 107.16
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15

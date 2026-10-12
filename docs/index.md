@@ -35,10 +35,10 @@ ifctrano has been tested using open-source IFC files from various repositories:
 - 🕸️ [Ifc2Graph Test Files](https://github.com/JBjoernskov/Ifc2Graph/tree/main/test_ifc_files)
 - 🔓 [Open Source BIM](https://github.com/opensourceBIM)
 
-## Installation & Usage
-(Installation and usage instructions will be provided here, depending on the package distribution method.)
+## Getting started
 
-
+See the [installation](getting-started/installation.md) page, then the [tutorials](tutorials/two_zones_model.md).
+[How ifctrano works](explanation/index.md) explains the translation and the generated models.
 
 ---
 💡 **ifctrano** aims to make energy simulation model generation from IFC files **simpler, more accessible, and less reliant on incomplete IFC attributes**. 🚀

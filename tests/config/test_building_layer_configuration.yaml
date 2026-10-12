@@ -11,6 +11,7 @@ gas:
 - density: 1.2
   id: Air
   longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   specific_heat_capacity: 1005.0
   thermal_conductivity: 0.025
@@ -21,6 +22,7 @@ glass_material:
   infrared_absorptivity_room_facing: 0.84
   infrared_transmissivity: 0.0
   longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   solar_reflectance_outside_facing:
   - 0.062
@@ -41,6 +43,10 @@ glazings:
     thickness: 0.003
 internal_walls:
 - construction: default_internal_construction
+  space_1: space003_tjv
+  space_2: space004_rqw
+  surface: 6.656
+- construction: default_internal_construction
   space_1: space001_1of
   space_2: space002_pji
   surface: 6.266
@@ -49,21 +55,18 @@ internal_walls:
   space_2: space003_tjv
   surface: 7.046
 - construction: default_internal_construction
-  space_1: space003_tjv
-  space_2: space004_rqw
+  space_1: space002_pji
+  space_2: space003_tjv
   surface: 6.656
 - construction: default_internal_construction
   space_1: space001_1of
   space_2: space004_rqw
   surface: 5.486
-- construction: default_internal_construction
-  space_1: space002_pji
-  space_2: space003_tjv
-  surface: 6.656
 material:
 - density: 80.0
   id: material_1
   longwave_emissivity: 0.85
+  number_of_states: 3
   shortwave_emissivity: 0.65
   specific_heat_capacity: 940.0
   thermal_conductivity: 0.046
@@ -102,6 +105,7 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 27.1111
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -141,6 +145,7 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 8.7001
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -168,6 +173,7 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 6.9376
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
@@ -203,6 +209,7 @@ spaces:
   parameters:
     average_room_height: 2.6
     floor_area: 7.6171
+    n50_to_ach: 20.0
     nominal_mass_flow_rate: 0.01
     sensible_thermal_mass_scaling_factor: 1.0
     temperature_initial: 294.15
