@@ -168,6 +168,8 @@ class Layers(BaseModel):
 
 class Constructions(BaseModel):
     constructions: List[ConstructionId]
+    without_layers: List[int] = []
+    """Layer sets whose layers all lack a thickness; their elements get the default."""
 
     @classmethod
     def from_ifc(cls, ifc_file: file) -> "Constructions":
@@ -181,6 +183,7 @@ class Constructions(BaseModel):
         cls, ifc_material_layer_sets: List[entity_instance], layers: Layers
     ) -> "Constructions":
         constructions = []
+        without_layers: List[int] = []
         names: set[str] = set()
         for layer_set in ifc_material_layer_sets:
             name = modelica_identifier(
@@ -193,18 +196,27 @@ class Constructions(BaseModel):
             layer_ids = [
                 int(material_layer.id()) for material_layer in layer_set.MaterialLayers
             ]
-            constructions.append(
-                ConstructionId(
-                    id=layer_set.id(), name=name, layers=layers.from_ids(layer_ids)
+            # Membranes and foils are often modelled as layers without thickness: they
+            # add no resistance or capacity to one-dimensional conduction.
+            all_layers = layers.from_ids(layer_ids)
+            construction_layers = [layer for layer in all_layers if layer.thickness > 0]
+            if skipped := len(all_layers) - len(construction_layers):
+                logger.warning(
+                    f"{name}: {skipped} layer(s) without thickness left out."
                 )
+            if not construction_layers:
+                without_layers.append(layer_set.id())
+                continue
+            constructions.append(
+                ConstructionId(id=layer_set.id(), name=name, layers=construction_layers)
             )
-        return cls(constructions=constructions)
+        return cls(constructions=constructions, without_layers=without_layers)
 
     def get_construction(
         self, entity: entity_instance, default: Optional[Construction] = None
     ) -> Construction:
         construction_id = self._get_construction_id(entity)
-        if construction_id is None:
+        if construction_id is None or construction_id in self.without_layers:
             logger.warning(
                 f"Construction ID not found for {entity.GlobalId} ({entity.is_a()}). "
                 f"Using default construction."

@@ -1,10 +1,16 @@
 import re
 
 import ifcopenshell
+import ifcopenshell.guid
 import pytest
-from ifcopenshell import file
+from ifcopenshell import entity_instance, file
 
-from ifctrano.construction import Materials, Layers, Constructions
+from ifctrano.construction import (
+    Constructions,
+    Layers,
+    Materials,
+    default_construction,
+)
 
 from ifctrano.utils import get_building_elements, modelica_identifier
 from tests.conftest import SPACE_BOUNDARY_IFC
@@ -99,3 +105,47 @@ def test_construction_names_are_unique() -> None:
     names = [c.name for c in Constructions.from_ifc(ifc_file).constructions]
     assert len(names) == len(set(names))
     assert {"background_fill_350", "background_fill_350_88204"} <= set(names)
+
+
+def _layer_sets_with_membranes() -> tuple[file, entity_instance]:
+    """A file with a wall of brick and a membrane, and a slab of membranes only."""
+    ifc_file = ifcopenshell.file(schema="IFC4")
+    ifc_file.createIfcSIUnit(UnitType="LENGTHUNIT", Name="METRE")
+    brick = ifc_file.createIfcMaterial("Brick")
+    membrane = ifc_file.createIfcMaterial("Membrane")
+    ifc_file.createIfcMaterialLayerSet(
+        [
+            ifc_file.createIfcMaterialLayer(brick, 0.1),
+            ifc_file.createIfcMaterialLayer(membrane, 0.0),
+        ],
+        "Brick wall",
+    )
+    membranes = ifc_file.createIfcMaterialLayerSet(
+        [ifc_file.createIfcMaterialLayer(membrane, 0.0)], "Membranes"
+    )
+    slab = ifc_file.createIfcSlab(ifcopenshell.guid.new())
+    ifc_file.createIfcRelAssociatesMaterial(
+        ifcopenshell.guid.new(), RelatedObjects=[slab], RelatingMaterial=membranes
+    )
+    return ifc_file, slab
+
+
+def test_layers_without_thickness_are_left_out() -> None:
+    """trano rejects layers without thickness: membranes add nothing to conduction."""
+    ifc_file, slab = _layer_sets_with_membranes()
+    constructions = Constructions.from_ifc(ifc_file)
+
+    (wall,) = constructions.constructions
+    assert wall.name == "brick_wall"
+    assert [layer.thickness for layer in wall.layers] == [0.1]
+    assert constructions.get_construction(slab) is default_construction
+
+
+def test_constructions_have_thick_layers_only(sample_house: file) -> None:
+    """The floor and the roof of the sample house contain layers 0 m thick."""
+    constructions = Constructions.from_ifc(sample_house)
+    assert all(
+        layer.thickness > 0
+        for construction in constructions.constructions
+        for layer in construction.layers
+    )

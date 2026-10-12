@@ -108,6 +108,8 @@ and slabs does not change their physics: they are given the azimuth 0.
 - Each `IfcMaterialLayerSet` becomes a construction named after the layer set (or `construction_<id>` when unnamed),
   with one layer per `IfcMaterialLayer`. Names are made valid Modelica identifiers, and distinct layer sets sharing a
   name get distinct names.
+- Layers without thickness (membranes, foils) are left out: they add no resistance or capacity to one-dimensional
+  conduction, and trano rejects them. Elements whose layer set has no thick layer get `default_construction`.
 - Elements without a layer set (no association, `IfcMaterialList`, constituent sets) get `default_construction`
   (0.18 m of the default material); internal elements get `default_internal_construction`.
 - Windows use a double glazing (3 mm glass, 12.7 mm air, 3 mm glass) with a frame U-value of 1.4 W/(m²·K).
