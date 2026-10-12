@@ -1,0 +1,948 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="IFC energy simulation tool with Modelica">
+      
+      
+      
+      
+        <link rel="prev" href="../heating_model/">
+      
+      
+        <link rel="next" href="../heat_generators/">
+      
+      
+      <link rel="icon" href="../../img/ifctrano.webp">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
+    
+    
+      
+        <title>Orientation of the facades - ifctrano</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2a3383ac.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#orientation-of-the-facades" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ifctrano" class="md-header__button md-logo" aria-label="ifctrano" data-md-component="logo">
+      
+  <img src="../../img/ifctrano.webp" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ifctrano
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Orientation of the facades
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 2C5.13 2 2 5.13 2 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7M6 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H6zm13-8h-2l-3.2 9h1.9l.7-2h3.2l.7 2h1.9zm-2.15 5.65L18 15l1.15 3.65z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/andoludo/ifctrano" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M202.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M496 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ifctrano
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ifctrano
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting-started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../two_zones_model/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../explanation/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Explanation
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ifctrano" class="md-nav__button md-logo" aria-label="ifctrano" data-md-component="logo">
+      
+  <img src="../../img/ifctrano.webp" alt="logo">
+
+    </a>
+    ifctrano
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/andoludo/ifctrano" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M202.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M496 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ifctrano
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ifctrano
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting-started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting-started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../two_zones_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Two zones model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_different_libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Use different libraries
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../many_zones_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Many zones model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../realistic_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Realistic model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../heating_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Heating model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Orientation of the facades
+    
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../heat_generators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Heat generators
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Control strategies
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Explanation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="orientation-of-the-facades">Orientation of the facades</h1>
+<p>The orientation of every wall and window comes from the geometry: ifctrano measures the outward normal of each
+surface from the north axis of the model (<code>+y</code> by default) and converts it to the azimuth of the Modelica libraries
+(see <a href="../../explanation/#orientation">How ifctrano works</a>). This example shows its effect on the simulated
+temperatures: the same house, without heating, as built and turned by 180°.</p>
+<p>The kitchen of ExampleHOM has windows on its south and west facades. Turning the north axis by 180° makes them face
+north and east.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vector</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;ExampleHOM.ifc&quot;</span><span class="p">))</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">as_built</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">turned</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">to_config</span><span class="p">(</span><span class="n">north_axis</span><span class="o">=</span><span class="n">Vector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+</span></code></pre></div>
+<p><code>north_axis</code> is the direction of north in the coordinates of the model: <code>Vector(x=0, y=-1, z=0)</code> puts north along
+<code>-y</code>. Both configurations are simulated from 21 March, when the sun is low enough for the facades to make a
+difference, in the Uccle weather.</p>
+<div style="height:330px; width:100%;">                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.7.0.min.js" integrity="sha256-jvTGqxNp8AGWEcvNLVuKr+8j5dGe9Yw51LQkmDH+IYA=" crossorigin="anonymous"></script>                <div id="orientation" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("orientation")) {                    Plotly.newPlot(                        "orientation",                        [{"hovertemplate":"%{y:.1f} \u00b0C","legend":"legend","line":{"color":"#2a78d6","width":2},"name":"As built (kitchen windows south and west)","x":{"dtype":"f8","bdata":"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"},"y":{"dtype":"f8","bdata":"22GemmasM0DKZLPTl1UyQLMPL4cEqDFAwpg91tQeMUBOGpRza5swQK7yjOtKDjBAUOoyDZwpL0DqdunAHycwQC7k\u002fgebSjFAusYYrdahMkAD8\u002f1cFkg0QA0ulIJE4DVAbcEiXQEON0Ama57JoNc3QCV8JeI6XzhA\u002fatbEtt2OEAiW77pXlc4QHCqKaLw\u002fzhAtXd1ePSaOEClqWMvr0Y2QNh8rmKojzRAMth\u002fFKZ9M0A1RJLRJpcyQHIjEaaXxDFAC3hnpnn6MEAO70EM7TwwQNMhAjFzEi9AnXYOT3O9LUD2miqn7X0sQDN2YyupTStAeqxetqlKKkDTe3x+9EkrQEA3WN+z0C1A08lnkv+2MECtXJN8ixUzQIoZsVC5fjVArRJ\u002fAyvMN0D1iUcsf+g5QIh1NzjjyDxATvsqBlYkQEDWVEnPcZpBQKJvr+fODUJAusVtx0+9QEDC\u002fPQa6DA9QNMgGhMUhTpAVl1wZAzLOEDIZOzprGA3QJo6FsFVGTZAaCFlU1DoNEB4bv6S\u002fs8zQN6d2vQfzTJA6uWiv37bMUA1\u002f5TEP+4wQJ4GSsotDDBAcwAL9HCgLkD9FWQHHTovQKsdGGfpwTBAZnhCHgV+MkCVMULR5800QHhr6+mYQDdAeutjCHh\u002fOUB+08Mf8no7QGAr\u002fJ89Rz5A47m\u002fCyjlQEClSplXE1RCQEnSe6WTxEJAzaqJs\u002fVyQUC1DxdwzWw+QDbk40kPoztAU1EuurXXOUDTB1AktE84QC6g1DMN8DZAsH\u002f5oPGyNUAiYXaUr5E0QCLaDiZchDNAcE8pFwF5MkDA8pS+J3AxQF5ftTqsfTBAlnBn5TJXL0B2bm9xKvUvQPbRxFSBPjFAfUyfgiMSM0DAuKw\u002fhXM1QKKYw17l7jdA1mr1zoAcOkAwqcXbZBE8QMAgWGOCAz9A1TIyOrBJQUD2uzRWKMRCQNzY\u002f1gpRkNAe2Y2P\u002f3vQUBDDu+oDFg\u002fQNJ19x5+YTxAi1h4aWNoOkDiFOl9ycQ4QCaLU4jAVDdAbiPlLVQRNkC7Xeim0us0QCWZn1ghzjNAWHEicRq8MkBzM9G\u002fJcMxQGJ6VfNqxzBAMOOkUWDxL0Cg4zkX+EgwQBsGuzBafTFA5aglh69XM0Ce54+EF7Q1QF1BN3igMjhAAoN5vUBuOkAaDpilhmc8QOJjE+peRz9AlRDOupNgQUD353zYmslCQK1PkWVhBUNANpW3XxuSQUACglBWzv4+QH0SIwFnWTxAFmZw4E6XOkB1uDINtSM5QHZgcowD3jdAS+2Pxmm1NkB2cGHoK6E1QIpRtvP2mDRA1klc97qYM0DmGHCJJacyQFp00N\u002fNwjFA7QUxJmj\u002fMEDu0d4QA08xQKZGMZuLeDJAWmIMxhMaNEDQLhOjjTc2QNt6v7qdlDhA0sLlvP+oOkAyoYtkMZQ8QDCDT+zmRj9A6DCSlBdRQUB2dfqnS59CQG0bgiBa7EJAmqJVEaqSQUAIT94Tm\u002fs+QArnZEa9SjxAZSz1+geFOkBVIiHsJBM5QFsQ6svzyzdAmzFZnfihNkCbYrMALpY1QB0m3xPmnjRAs65qUkyvM0BCzbV9LNAyQOuiZIeh\u002fjFAlqPM2ABSMUAKNk5curYxQCpG6e90xjJAIorEvlNENEADgps2LXg2QDoldx1E2jhAfi9dhAgCO0Cznor19es8QEut+ohOvD9A5Kni03d3QUAioIlrYL9CQHZ7CpaDDkNAFuggXjvYQUBVWM5\u002fVso\u002fQOBOmt85Mz1AgwwP4AmSO0Brpoq3T0A6QM6BV4ODFjlAehj3KmsCOECT8+1Qu\u002f82QDOX2hhtDjZAML\u002fM+lotNUDg7F\u002fDN1k0QOCbtvPjkjNAFvfAO4frMkASMlfb5k8zQIChXp2MZjRABZjBqkDsNUAlSaCzwAA4QICm280+PDpAqqQGPB5ePEC+oK6vuD4+QCMM8smZcUBAlbxAnkwWQkAuvsZiBmlDQJgfJVXFtkNAjgVAJVDFQkA3uFrsBr9AQNqgZCMSND5A6kvzmTIuPEB9QQqAU486QDUPQIprJDlAo\u002fG5ta3mN0A23tLLjMM2QIpNOv0NtTVAumd7FE\u002fFNECjFfOYEe8zQAXNQkBZKjNArcPupmuAMkDI5c8TS9oyQB5tv6lh6DNAgBsVhZBdNUDQpdlZERQ3QNYJRpTrzDhAShqaNj5xOkBmTj51i+c7QNoXsm3xmT1AJZzbDjpnP0AEQJyFbJ1AQC4gDVwCNUFA4wH0wvClQEDmf2syJa09QJ3fyDxymTpA1dRoDa+yOEAemWSJGic3QJAg8wRTzjVAthjGa1GbNEDG0DDmzYQzQFVCZL5KgzJA8AVZwwOQMUCi8vYkFq4wQEp7Q2U2tS9A1r0nA2JfLkBQf5fiF0EvQC5MSBdU3DBAyPCQiJ2QMkCS5wYSWK80QAjn2BTL4zZA6v3ea71sOEAz+UZhOEg5QIVgxdMhUTpAHZsaCcX+O0DDo91d+ls9QBPT7lsdcz1AlUp3ZhpTPEDz8v3K3K85QNo3Hi1MXjdAg7DtI7f4NUAGqMYYK+o0QCAxQjnhADRA"},"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"%{y:.1f} \u00b0C","legend":"legend","line":{"color":"#eb6834","width":2},"name":"Turned by 180\u00b0 (north and east)","x":{"dtype":"f8","bdata":"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"},"y":{"dtype":"f8","bdata":"wy4qTlqsM0BtaIybq1UyQCUne1fRpzFACzm4h6MeMUDKh4ycfZowQM05RjoFEDBAZXZ3tzMCMEDWlNwzxXMyQBocNRcT5jVAUD3EKaq+OEDQI3DH\u002fyM6QF7drRmmRzpA8hrNyA2jOUBrWnfBfgs5QOi22tIinzhAHStMLeMzOEAVH35Qw743QEuK2SugKDdAK2ypNatuNkAo9WfMA\u002fg0QJag0iYBmDNAevNg9uiuMkCrt0Y+XOUxQMZKWLT1KTFAvjxHL7F0MEBaX3uWfZAvQGqANt2ZRi5AGspZk6wLLUA6VzGho+ArQBq2TirxzypAc13cTXzSK0AVlB8A17AxQCVtdTqiDTdAslAbhGbjOkAGmi0v+7c8QOIQWnL+gTxAJnhfUhwRO0AIYxHq6tg5QHsCB+qmVTlA4ll8rsj2OEAFt\u002ffZqJA4QMsvTCRM\u002fTdAbRrnk5U+N0CK5g\u002fsDsI1QBbo4zL9XjRAIGwiFgBzM0CbXCktsqcyQGq3s8hC4zFA2CwTi\u002fwiMUBQ36zo\u002fWowQNNvwZoGeC9AbYWq7A8nLkBKFZM\u002fQNAsQL0OkAzvkytAAO9m7MyjLEAIGMZHnlwyQMqzII1u8jdA1cMEy4vOO0CNqC\u002f1paM9QMadIV0kgz1AI5tDUyAIPEDCvPFwDL46QGX3HKWYPjpAOgfwlf\u002fuOUCaCngi\u002fow5QGVDukTn9DhAumii8+gxOEDrbEUVl6Y2QO4R6bMUNDVABtiAw75CNEDadlAN52AzQJO4D\u002fjIiTJA5hKZrV\u002fBMUBTwde+TAQxQPIZrbptSzBAtifBY3UUL0CwR8JRUootQObNNq\u002flKyxA4MGxtPIfLUAtMWQGssYyQGIcsEO1rDhAjQv30YuRPEBAcIP4enA+QLiTS8g1Vj5A0iQPdifTPEBr+Xj2NoQ7QCqvX8veATtAzbF2+AKtOkAeR5YmH0s6QHBwMo8UuTlAkhhtckTxOEAjosRY4WA3QKCI\u002ffktwzVAaP77QYKiNEB9P4TNbKozQNArQKd8yTJADXBH2aP\u002fMUAzE3mp5kExQGhPL7MIfDBAKg9XT6lvL0CgwPf15QcuQKaQ\u002fHPMoixATQ01S+3ALUArvhVMTCYzQBZahJH1\u002fjhAqLdXYR\u002f+PEANytyZw8g+QHg7jZkioD5Axb8xXaYbPUBuJdyR9r07QE2ZQUQDKztAjd4i6qi\u002fOkAFT4Zh6086QJZlrksgrjlAjW9mURTnOEDlh\u002fjVr2I3QKPs5JCS+zVA6BRguwAHNUBoqPxe5TM0QOMa46r0cjNAs48BEta9MkBbSwNSjQ4yQADhGs3sXjFADkhF0QqtMEB6fcV9WQEwQBbJKoZyxi5AGkEkKf\u002fcL0CDV5\u002fwUBc0QMJTnNoyxDlAU077PhxlPUDorXyynO8+QGrQd46ByD5AdT27tV07PUAbckwTT+g7QDhdT9BrSjtAprVriszaOkAi9OmKYGE6QNqe4wj8zTlAFjA0h5UBOUAaI0XSKnQ3QPU8ZBfG\u002fjVAhZtmcbICNUDOd7m0wC80QBWJqzChbzNAGwrVkcu6MkBjQMl7ShUyQE68eJOOdTFAG8zSyEvTMEBCJRdXQjgwQEbHvHDjVy9AM8NER4ZOMEAYDYaXFlY0QJiK6h1bmTlAcgYYEgMJPUDz0a5KkOE+QBaH3YcT3j5APoVjfHSDPUCWrgwwzkI8QNvHZR2pwztAqOYTEwpuO0Dgb9uO3xc7QJX\u002f3C+CoDpA2+WDd6r1OUDa8oafe4Y4QF21Bp\u002fpHzdAJS2qmVNANkAgr4c6pIg1QNZeQ95Y4DRA\u002fSsmJzk7NEBI8P7k75gzQIU2cd1n\u002fDJAAKf3VHNmMkDdxV04XtcxQP3IM7esVTFA4rMGxD\u002fnMUAywsP7ALQ1QDafMRkGqDpASmaCQPlLPkDVzM4V5ApAQIimCBMf+T9AWrChn12vPkBorLw4r4Y9QK1mBLfqAT1Afbg4cbmePED+N+yA4iU8QHL1yn0xeDtA0A2mUk6UOkDDPI9Xku04QFOzYPW4XTdA4j50APtNNkD2kOW6Y2I1QNbFTgnShzRAEPiTa7PCM0CAdwjrEgczQPiEsV4\u002fUzJA1VgRhkK1MUCquYIj9iYxQKu+3ZMfqzBAnvKoGbM5MUCrDvNo9\u002fg0QMWyVZHKmjlALRS7rjniPEBWhxn+ois+QGZY+o292j1ANjy+mGKYPEC4Cp5R1XY7QP5KGI7w2DpAUDHt+wBWOkBzAjPJNKc5QDJrX+c21DhAXnhQrsHqN0Dl1AvV1E02QCX02RtL2TRASv25083KM0CI3K52edUyQG368uCd9DFA6IPGHZ8jMUBQy\u002fv7HmIwQPNPhnVvWi9AEJk7lFz\u002fLUDqY1Z4z7QsQDomDnhBjStAEyeJzsYRLUCKBBfchx8zQC4OYe+4CzlAXS7ZuFTKPEB1506Tgjk+QAMSUURA3T1AG8UGt5tfPEAjLLlECEk7QJVy+2mDmTpAQF8WAE\u002fwOUBqfj\u002fR5Eo5QF57hHgLiThAZdvFJkauN0DK2rudvR02QOZ4P56urDRARd5AC4e6M0DLlO4hNvgyQEIzpLMhSjJA"},"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"%{y:.1f} \u00b0C","legend":"legend","line":{"color":"#8a8985","dash":"dot","width":1.5},"name":"Outdoor","x":{"dtype":"f8","bdata":"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"},"y":{"dtype":"f8","bdata":"cxbZzveTD0BaaJHtfH8PQK1H4XoULhBAANejcD3qEEB6FK5H4XoQQNr1KFyPwg1A2uXzXj7vDUDGwc6glz8QQM1jIxCvCw9As3HEWny6EUCgb7a5MQUYQCYxCKwc9htA2h\u002fLYxgRIEAmDag\u002fXHEhQNb8xu5WKyFA8w2+MJmKIUBgdk8eFioiQKZwPQrX0yFA08zMzMyEIEAGg8F58DUdQHrix5i7RhlAhutRuB6FFkCtDXTaQPcTQCYRERERwRBAAI4RTPQXDEDz3RzYWDEIQHOi\u002fo1QJgRAgGzn+6mRAEDNifo3Qpn6P2b4DLsCJPU\u002fzStA7jWX7j9mXEnW6G3oP5pRJHLUJPs\u002fJg+y61z0CkDGR+F6FC4TQM25zy4gphhA4CQGgZVTH0AKrkfhenQiQJOZmZmZ2SNAk5mZmZnZJEA2F5KmVHwlQJ3A78zxdyRA9t0CCYpPIkBm1WokdRIgQO3E3Z7jghxAE9Ytqm\u002fHGUAaIiIiInIWQK0cWmQ7LxJA87SBThuoDECatrDsRTMGQA3Xo3A9CgFA5rNOmdyq9D+aZWZmZmbeP2ammZmZmZm\u002fze95ivlQ4r8zaL+iJg3jv5pUTRoAD\u002fQ\u002fJvXM4+o1CkCtR+F6FK4TQIbd4fTxDxpAIw0599llIECK61G4HgUkQHrpJjEIFCdAJoombzVnKEDmdwQY4TkoQJrR27JW5yZAI0eml61MJEDdoAJlAgEhQHM9CtejcB5AkyS8Kj1QG0ANzhlR2msVQK0ehetRuBFAwHA9CtejDkAAexSuR4EIQE16pSxD3Ps\u002fAMD8h\u002fTbpz+AEgzwy4TwvwAGEdQDLvW\u002fzcqI1\u002fQt\u002fL8A3Xioq1PtvwCtW8bjMQFAzR3SZaolE0ANz9PiyFIaQJNFr+e2MCBAVgFUkFQTI0Cw\u002fYoikaMlQKOPDEyBnydAbVtjUoApKUBTMvxm4IMpQP2PIgQ8XyhAM6s+V1tZJUCGZbgx7lEgQLoMj8vwaBZATW5\u002fkKHiEUANDpq\u002fftcNQKZwPQrXowtAgO18PzU+C0Az2c73U8MFQE24HoXrUfQ\u002fM7VPx2MG2j\u002fN0BshD2XPv4A4HzpOTPK\u002fMzXNLNb38L8zo\u002fu8CG3Qv\u002fOQnH+J3QJAwOU\u002fpN9uFUCgAbwFEhAbQGa6SQwCjx5AIDU5j52CIUBDLwJQsoIkQPP\u002f\u002f\u002f\u002f\u002fPyZA8\u002f\u002f\u002f\u002f\u002f8\u002fJ0AKHCRHND0nQDDTFP4S5SVAExGEqSmIJECNT0m3u2giQP3gML5VRCBABtoaws9DHUANpNkz14waQMD1KFyPQhhAUy1vjGAqFkDgf0i\u002ffVUTQFqz6nO1XRBAwHA9CtejCkAa\u002ftR46XYFQI19pgKSNABAmgnC4GVR9z\u002fmCQw\u002fWWT4Pw2vLvUpgwpAjetRuB6FFECTndiJnYgaQEoHdVAHDSBAdlF9Ox4KIkA6elvW6qQjQGY730+N+yRA0CLb+X6mJUD9xZJfLN0lQNBwCqQ9VyVAoPRYlHObI0CwraafOyshQMZgCA2GUB1A8yhcj8J1G0DN9Shcj0IaQLpyaJHtnBhAIIXrUbgeFkAgsp3vpzYUQEbRkVz+sxJA03oUrkfhEEAmqz5XW3ENQHPR27JWRwlADcs0ONWLBkBaSXTj2YgFQPMZdgXIvQtAGkhQ\u002fBg7FEBzOGj++nUbQPAU1CwfQyFApjNZGHE7JEBGkA7ApHwmQPMZdgXIvShA8GPMXUuIKkCKlEBdtxMsQBrUQR3UeSxAOruA2FSqKkAgGnGAgpcnQObU4k0tjiVAc88akEY7JUC2+Djy9ckkQON6FK5H4SNARuF6FK5HIkB2vp8aL70gQAblYaHWFB9AxmSqYFTqHECNwvUoXA8bQHqg0wY6VRlArQ+fYVcQF0BT4eS49cAVQADJM60QbRhAM5WGnPusHUAdBFYOLeIhQMMXJlMFsyVATUATYcM7KUC6j4TIFf0qQAC6hzkV6itARkREREQcLEAjo7dlrTIrQGC\u002fKc8lTChAI93RHd2RJEAdx7LH8CMhQK3Idr6fgh1A4KNwPQofGkDaEvJBz0YXQE0wKqkTEBVA4ISh+1+bE0BARERERAQSQMDMzMzMzBBAwMzMzMzMEEDAwRcmU2URQLpfeqmGKxFAWlyHDiW+DkCaZDNX2wgPQE33Z6WvthNAZlKkXHtQGECaYFRSJ0gZQHpiWq6RxxlADZ020GnBGUCmR+F6FBgYQOB6FK5HvRhADdejcD2OGUDNzMzMzIQYQGaR7Xw\u002frRZA7XoUrkfhFEBT4XoUrkcTQFqNl24SoxBADdejcD0KCEAAK4cW2U4AQGaZmZmZmfc\u002fzTIzMzMz7z9mV1uxv+ziP5p9+zpwztc\u002fACCwcmiRnb9mku18PzXZv5rR27JWR+S\u002fAJRT57yv6r+aDFH9URDivzPZhhUfPes\u002fmpeTPS\u002fCBUAAEhQ\u002fxnwRQA3HuriNZBZAE65H4XpWG0DtUbgehWsdQIbrUbgeBR1AM9LJvDamHUBmECMHMVIeQFPJL5b8Ah5A03oUrkfhG0Da9Shcj0IYQI3C9ShcDxdAOlktb4ygFkBAkPnBe2sXQDoK16NwdRdA"},"type":"scatter","xaxis":"x","yaxis":"y"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Day of the year"},"showgrid":false,"linecolor":"#b8b7b1","ticks":"outside","tickcolor":"#b8b7b1"},"yaxis":{"anchor":"x","domain":[0.0,1.0],"gridcolor":"rgba(138,137,133,0.25)","zeroline":false,"linecolor":"#b8b7b1"},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Air temperature [\u00b0C]","x":0.5,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"font":{"size":15},"text":"ExampleHOM kitchen without heating, as built and turned by 180\u00b0","x":0.0,"xanchor":"left"},"margin":{"l":60,"r":200,"t":80,"b":40},"font":{"family":"Roboto, Helvetica, Arial, sans-serif","size":12,"color":"#8a8985"},"height":330,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","hovermode":"x unified","legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11},"tracegroupgap":2,"x":1.02,"xanchor":"left","y":1.0,"yanchor":"top"}},                        {"displaylogo": false, "responsive": true}                    )                };            </script>        </div>
+
+<p>Days 83 to 90 of the year (the first 2 simulated days are a warm-up and are left out).</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Zone</th>
+<th>Mean [°C]</th>
+<th>Minimum [°C]</th>
+<th>Maximum [°C]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>As built (kitchen windows south and west)</td>
+<td>Kitchen5</td>
+<td>24.8</td>
+<td>15.2</td>
+<td>39.4</td>
+</tr>
+<tr>
+<td>Turned by 180° (north and east)</td>
+<td>Kitchen5</td>
+<td>22.7</td>
+<td>13.8</td>
+<td>32.1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What to expect.</strong> In late March the sun is low in the south during the day and sets in the west: a room with south
+and west windows gets much more solar gain than the same room facing north and east, which only sees the morning sun
+on its east window.</p>
+<p><strong>What the simulation shows.</strong> As built, the kitchen averages 24.8 °C over days 83 to 90, peaking at about 39 °C in
+the afternoons. Turned by 180°, it averages 22.7 °C (2.1 K less) and peaks at about 32 °C. The night minima differ less
+(15.2 °C and 13.8 °C): the difference is the solar gain of the day. The peaks are high because the house has no
+heating, no shading and no thermal mass (the default materials, see
+<a href="../../explanation/#assumptions-and-known-limitations">the limitations</a>).</p>
+<p><strong>Difference with earlier versions.</strong> Before ifctrano 0.15 the azimuths were turned by 180°: the "as built" case
+of this page was then simulated as the "turned" one.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../heating_model/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Heating model">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Heating model
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../heat_generators/" class="md-footer__link md-footer__link--next" aria-label="Next: Heat generators">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Heat generators
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

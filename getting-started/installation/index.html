@@ -296,25 +296,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../how-to%20guides/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  How-to Guides
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../../explanation/" class="md-tabs__link">
         
   
@@ -509,16 +490,49 @@
         <li class="md-nav__item">
   <a href="#install-ifctrano" class="md-nav__link">
     <span class="md-ellipsis">
-      📦 Install ifctrano
+      Install ifctrano
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-installation" class="md-nav__link">
+  <a href="#optional-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      ✅ Verify Installation
+      Optional dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker (simulation)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphviz-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graphviz (layout)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
     </span>
   </a>
   
@@ -548,6 +562,12 @@
   
     
     
+      
+        
+      
+        
+      
+        
       
         
       
@@ -708,31 +728,78 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../how-to%20guides/" class="md-nav__link">
+      <a href="../../tutorials/orientation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    How-to Guides
+    Orientation of the facades
     
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/heat_generators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Heat generators
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Control strategies
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -788,16 +855,49 @@
         <li class="md-nav__item">
   <a href="#install-ifctrano" class="md-nav__link">
     <span class="md-ellipsis">
-      📦 Install ifctrano
+      Install ifctrano
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-installation" class="md-nav__link">
+  <a href="#optional-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      ✅ Verify Installation
+      Optional dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker (simulation)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphviz-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graphviz (layout)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
     </span>
   </a>
   
@@ -822,61 +922,91 @@
   
 
 
-<h1 id="installation">🚀 Installation</h1>
-<h2 id="install-ifctrano">📦 Install <code>ifctrano</code></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Trano requires python 3.9 or higher and docker to be installed on the system.</p>
-</div>
-<p>ifctrano is a Python package that can be installed via pip.</p>
+<h1 id="installation">Installation</h1>
+<h2 id="install-ifctrano">Install ifctrano</h2>
+<p>ifctrano requires Python 3.11 or 3.12.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ifctrano
 </span></code></pre></div>
-<h2 id="verify-installation">✅ Verify Installation</h2>
-<p>Run the following commands to ensure everything is working:</p>
+<p>Check the installation:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ifctrano<span class="w"> </span>--help
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ifctrano<span class="w"> </span>verify
 </span></code></pre></div>
-<hr />
-<h1 id="optional-dependencies">🔧 Optional Dependencies</h1>
-<h2 id="docker-for-simulation">🐳 Docker (for simulation)</h2>
-<p>To enable model simulation using the official OpenModelica Docker image, install Docker Desktop:</p>
-<p>👉 <a href="https://docs.docker.com/desktop/">https://docs.docker.com/desktop/</a></p>
-<p>Required for using the <code>--simulate-model</code> flag.</p>
-<hr />
-<h2 id="graphviz-for-layout-visualization">🧠 Graphviz (for layout visualization)</h2>
-<p><code>ifctrano</code> leverages Graphviz to optimize component layout in generated Modelica models. It is optional, but <strong>recommended</strong>.</p>
-<h3 id="install-on-windows">📥 Install on Windows</h3>
+<h2 id="optional-dependencies">Optional dependencies</h2>
+<h3 id="docker-simulation">Docker (simulation)</h3>
+<p>ifctrano simulates the generated models with OpenModelica in the official OpenModelica Docker image. Install
+<a href="https://docs.docker.com/get-started/get-docker/">Docker</a> and keep it running to use <code>--simulate-model</code>. The Modelica
+libraries are installed in the container at its first start, which needs network access.</p>
+<h3 id="graphviz-layout">Graphviz (layout)</h3>
+<p>trano uses Graphviz to place the components of the generated Modelica models. It is optional, but the diagrams are
+easier to read with it.</p>
 <ul>
-<li>Download and install from: <a href="https://graphviz.org/download/">https://graphviz.org/download/</a></li>
-<li>Add the Graphviz <code>bin</code> folder to your <strong>system <code>PATH</code></strong>.</li>
+<li>Windows: install it from <a href="https://graphviz.org/download/">graphviz.org</a> and add its <code>bin</code> folder to the <code>PATH</code>.</li>
+<li>Linux:</li>
 </ul>
-<h3 id="install-on-linux">🐧 Install on Linux</h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>graphviz
 </span></code></pre></div>
-<hr />
-<h1 id="usage">⚙️ Usage</h1>
-<h2 id="generate-modelica-models-from-ifc">📁 Generate Modelica models from IFC</h2>
-<h3 id="using-the-buildings-library">🏢 Using the <strong>Buildings</strong> library</h3>
+<h2 id="usage">Usage</h2>
+<p>ifctrano has four commands:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ifctrano create MODEL [LIBRARY]</code></td>
+<td>Builds the Modelica model of an IFC file, next to it.</td>
+</tr>
+<tr>
+<td><code>ifctrano config MODEL</code></td>
+<td>Writes the trano configuration (YAML) of an IFC file, to review or edit.</td>
+</tr>
+<tr>
+<td><code>ifctrano from-config CONFIG [LIBRARY]</code></td>
+<td>Builds the Modelica model of a configuration.</td>
+</tr>
+<tr>
+<td><code>ifctrano verify</code></td>
+<td>Checks the installation.</td>
+</tr>
+</tbody>
+</table>
+<p><code>LIBRARY</code> is <code>Buildings</code> (default), <code>IDEAS</code>, <code>reduced_order</code> or <code>iso_13790</code>:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>/path/to/your.ifc
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>/path/to/your.ifc<span class="w"> </span>IDEAS
 </span></code></pre></div>
-<h3 id="using-the-ideas-library">🏫 Using the <strong>IDEAS</strong> library</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>/path/to/your.ifc<span class="w"> </span>IDEAS
-</span></code></pre></div>
-<h3 id="using-the-reduced-order-library">🧮 Using the <strong>Reduced Order</strong> library</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>/path/to/your.ifc<span class="w"> </span>reduced_order
-</span></code></pre></div>
-<hr />
-<h2 id="show-space-boundaries">🧱 Show Space Boundaries</h2>
-<p>To visualize the computed space boundaries:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>/path/to/your.ifc<span class="w"> </span>--show-space-boundaries
-</span></code></pre></div>
-<hr />
-<h2 id="simulate-the-model">🔁 Simulate the Model</h2>
-<p>Run a full simulation after model generation:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>/path/to/your.ifc<span class="w"> </span>--simulate-model
-</span></code></pre></div>
-<p>Make sure Docker is installed and running before simulating.</p>
+<p>Options of <code>create</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--simulate-model</code></td>
+<td>Simulates the model in OpenModelica (Docker) and opens an HTML report of the results.</td>
+</tr>
+<tr>
+<td><code>--show-space-boundaries</code></td>
+<td>Shows the space boundaries computed from the geometry.</td>
+</tr>
+<tr>
+<td><code>--hvac PATH</code></td>
+<td>Adds a federated heating model (IFC4 MEP); can be given several times.</td>
+</tr>
+<tr>
+<td><code>--heat-generator KIND</code></td>
+<td>Kind of heat generator: <code>boiler</code>, <code>air_water_heat_pump</code>, <code>water_water_heat_pump</code> or <code>generic</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>config</code> takes the same <code>--hvac</code>, <code>--heat-generator</code> and <code>--show-space-boundaries</code> options, and <code>from-config</code> takes
+<code>--simulate-model</code>.</p>
 
 
 

@@ -296,25 +296,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../how-to%20guides/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  How-to Guides
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../../explanation/" class="md-tabs__link">
         
   
@@ -496,6 +477,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -618,6 +605,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Realistic model
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -629,6 +629,34 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -658,31 +686,78 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../how-to%20guides/" class="md-nav__link">
+      <a href="../orientation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    How-to Guides
+    Orientation of the facades
     
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../heat_generators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Heat generators
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Control strategies
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -729,6 +804,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -747,23 +839,211 @@
 
 
 <h1 id="realistic-model">Realistic model</h1>
-<p>This tutorial demonstrates how Ifctrano manages realistic BIM models. This example is based on the duplex apartment model available online. The model realistically represents a two-floor duplex apartment with multiple rooms, as shown in the figures below.</p>
-<p><img alt="Generated model" src="../img/duplex_1.png" /></p>
-<p><img alt="Generated model" src="../img/duplex_2.png" /></p>
-<p>The file is located in the tests folder of the repository. You can use the command line interface to generate the model, as demonstrated below (similar to the previous tutorials).</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span><span class="n">path_to_ifc_file</span><span class="p">)</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">building</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
+<p>This tutorial uses a realistic BIM model: the duplex apartment sample model, a two-storey dwelling with many rooms
+(<code>Duplex_A.ifc</code> in <code>tests/models/space_boundary</code>).</p>
+<p><img alt="Duplex apartment" src="../img/duplex_1.png" /></p>
+<p><img alt="Duplex apartment" src="../img/duplex_2.png" /></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ifctrano.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">building</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">from_ifc</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;Duplex_A.ifc&quot;</span><span class="p">))</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">building</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
 </span></code></pre></div>
-<p>The code snippet above generates a Modelica model of the IFC file in the same directory as the IFC file. This model can subsequently be opened in OpenModelica.</p>
-<p><img alt="Generated model" src="../img/duplex_6.png" /></p>
-<p>To display the generated space boundaries alongside the Modelica model and run the simulation simultaneously via the command line, use the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>path_to_ifc_file.ifc<span class="w"> </span>--show-space-boundaries<span class="w"> </span>--simulate-model
+<p>or</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ifctrano<span class="w"> </span>create<span class="w"> </span>Duplex_A.ifc<span class="w"> </span>--show-space-boundaries<span class="w"> </span>--simulate-model
 </span></code></pre></div>
-<p>The generated space boundaries will be displayed as illustrated in the figure below.</p>
+<p>The space boundaries derived from the geometry:</p>
 <p><img alt="Space boundaries" src="../img/duplex_3.png" /></p>
-<p>The simulation output will automatically open in your local browser.</p>
-<p><img alt="Space boundaries" src="../img/duplex_4.png" /></p>
+<p>The generated model in OpenModelica (taken with an earlier version; the layout may differ):</p>
+<p><img alt="Generated model" src="../img/duplex_6.png" /></p>
+<h2 id="results">Results</h2>
+<p>Free-floating zones (the model has no heating) for the first ten days of January.</p>
+<div style="height:330px; width:100%;">                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.7.0.min.js" integrity="sha256-jvTGqxNp8AGWEcvNLVuKr+8j5dGe9Yw51LQkmDH+IYA=" crossorigin="anonymous"></script>                <div id="realistic" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("realistic")) {                    Plotly.newPlot(                        "realistic",                        [{"hoverinfo":"skip","line":{"width":0},"showlegend":false,"x":{"dtype":"f8","bdata":"VVVVVVVVlT8AAAAAAACwP6uqqqqqqro\u002fq6qqqqqqwj8AAAAAAADIP1VVVVVVVc0\u002fVVVVVVVV0T8AAAAAAADUP6uqqqqqqtY\u002fVVVVVVVV2T8AAAAAAADcP6uqqqqqqt4\u002fq6qqqqqq4D8AAAAAAADiP1VVVVVVVeM\u002fq6qqqqqq5D8AAAAAAADmP1VVVVVVVec\u002fq6qqqqqq6D8AAAAAAADqP1VVVVVVVes\u002fq6qqqqqq7D8AAAAAAADuP1VVVVVVVe8\u002fVVVVVVVV8D8AAAAAAADxP6uqqqqqqvE\u002fVVVVVVVV8j8AAAAAAADzP6uqqqqqqvM\u002fVVVVVVVV9D8AAAAAAAD1P6uqqqqqqvU\u002fVVVVVVVV9j8AAAAAAAD3P6uqqqqqqvc\u002fVVVVVVVV+D8AAAAAAAD5P6uqqqqqqvk\u002fVVVVVVVV+j8AAAAAAAD7P6uqqqqqqvs\u002fVVVVVVVV\u002fD8AAAAAAAD9P6uqqqqqqv0\u002fVVVVVVVV\u002fj8AAAAAAAD\u002fP6uqqqqqqv8\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"},"y":{"dtype":"f8","bdata":"9W+gQ7jMNEDy+OzQN480QGDBFnRHXDRAUhg2HmcdNECG66I3DtMzQHCIJASGgDNAm4mb35EoM0ASvr9vO\u002fEzQIDaUCnXoTVAiMuN82rgNkDlbkwI5uI3QDCQcYOwwThAWiRSdTOHOUBYl\u002fO5IDY6QGUoGWrh0TpAezdxJcNdO0Bg7UVktNo7QACzEuypSjxA9RcqQD+uPEAQFEB5IO07QMDUMLsJPzpAG9U80d3tOED+mxTyic03QKhphBV4zTZAUgYb8tjkNUD+Q3vobw41QDbmW3zsRjRABqr0sz2MM0D+uCiH59wyQAooum+6NzJAvm5Od\u002fybMUCA\u002fxqITCoyQFq+xqYKqTNAGkSmZ8HANEDbwxSUG6s1QKjGhpOSoj9AzyrkPzJHREDhVENKXUlHQLF8iRnMfkhAL+ScWPaeRkAmLJ5dV7NBQG53i86NfjtALbnPFyILPEDF0nRwa2A7QKOsFN25uzlArpQCT5JsOEAWcQeAU0o3QEZUXNZ8RjZA3roVZrBZNUBKZeFBQH80QPIu+QMatDNAfZLsXTf2MkAOU2b7HEQyQMKjJP2\u002fnDFARddPi4j\u002fMECwTHnxPYwxQDDA1OHDBzNAVU\u002fFL1UdNECyw5R9\u002fwE1QACK4ct7KTdARgfvFd7zP0C1hx+pPRFCQHdwN4WN40FA89ElbuwVQECKWwm8nKU5QFCY7J7OPTpALT62Mdi7OkA+GaOtHAs6QK1H705mZjhAe+gzkOYZN0Dohyr+tvs1QGNn88h4+zRAzaxCwFARNED16+xhKDkzQOWa0lg+cDJArpAhXYa0MUCadA8upAQxQP0hHdzIXzBAutnzSmuKL0DwSGrYyFMwQO2xLRv70jFAG4B6VYLtMkDDY+HARdYzQH4JDWF8pjRAnRNxjSupOEDOSoXPbLU8QPgK5eYExjpA4jNgyMulN0AzsdLKo0Q4QG7g3v6wzDhAyu1bNos+OUAVVBrIl4Y4QC0H+Mxz3TZADv4Jl1aONUB9ZLDudXE0QGa1O2MDdzNAY6\u002f22OCVMkAjRMqdQMkxQO4JLXrIDTFAyGznTUVhMEBKCtYI14QvQLNWGPQ0YC5APfY+am9SLUBA9m5pR5cuQPXB4k9g4DBAnk+f\u002fKoQMkB7Zlk6Vg8zQCvlxdzi8zNAGy\u002fp7cbINEDFFj1eyZE1QLJHtqJnTzZANoALokj\u002fNkA+fBLxJZ83QEqWRoXWLThAyN9PYpirOEACrhnJsgM4QIqHipxZbDZA0IwiV2YuNUC4YUUpnCE0QHU0SpHHNTNAJmpSKcxhMkDOgd42lp8xQPUq80S96zBAilWdXIZEMED20ZTINVEvQE2d3k3GLS5A1kdmJBMdLUB9Pn1KbVkuQLAJXhREuzBAXm9apJ7kMUB+NI3hKt0yQD28wgRmvzNAUrfBsYnlNUCKgwb5Yaw4QDoPLMxd6jhA0ISI7WznNkCO0uZa4ZE3QPUmrNbhJzhAeId9u2GpOEB9ukUCowM4QFJW50RgbTZAoPBNZkEwNUDzbK64eSM0QIiHwlK1NzNA6LrSostjMkCzLOxkkKIxQArmHb9n8TBAhlYl5tdNMED2+3SNiGsvQO3qyQirTS5AY8xba+M\u002fLUBNiAuRo3suQFPk\u002f\u002fINzDBAYB5\u002fAdn2MUANp2BJ3+4yQCDRu8YexzNAfex1wECONEBW0edSGkk1QLIQjsP19zVAC64MgAqbNkAKd5giNDI3QD0ij0avvTdA5UNjUX8+OEAuXenwZaE3QLUH1MimFjZAflviaCzpNECDCvM08+0zQNrrPjlGFTNA7oYZcr1VMkCjm4DtmqoxQPpdxYdeEDFAKEP2cQKEMEDInOvLwQIwQB1w2AQ+FC9A7f7CC0AyLkAGDlVW2ZMvQPI7NfrhZjFAPfnEXx6dMkATpS9iYBU1QBVFIJq\u002fqjxAJt0Uql5sQUBxE8eaprFDQEKz1KnUXURAz+M3xIdpQkA1JZcS+EA9QCgSyiv60DlABcPbq45mOkD4Bwwv5845QDvbku5pPjhAsrxVTK0BN0Azc3vdL\u002fI1QG1meeCeADVAHRL++OEjNEBtiY9OEFgzQDqFtf5FmjJABmLaZlroMUAljoi0Q0ExQAbVV028pTBAABQxUZgTMEDQk+hxTaIwQMr0WQgEIDJA8yLOrqE5M0AVEBrjLyc0QP5mrnc86TlAupJtqt8fQUBuZj4zah1EQKJORxVbdEVAIxezWDsKREAVZy0aIbE\u002fQABVn8o03TlAXm2sJGBuOkBVRFEJJ9I5QB5ePZD5OzhAU3wFstn3NkCtK4obcN41QEiVUgw94zRA4rsyxnn+M0CKUM1QDCszQA48H4e1ZzJAxWDKeWuzMUA7uCfEAAkxQHDFedtmZzBAXZiOVLObL0D2KHKB2FMwQPPz00JHyDFAGwkHGljXMkDC9pSOJbczQJ259v28fjRAqu739QQ6NUCoa6QBmu01QCgusQOOmjZA2jv2dmQ\u002fN0C+rj4uDtg3QJqWVQwWYDhAivtLn7HVOEBiuF4HQSs4QCsSY717kzZAcyw64HlSNUCr3t9NV0A0QApmBUIXTjNA"},"type":"scatter","xaxis":"x","yaxis":"y"},{"fill":"tonexty","fillcolor":"rgba(42,120,214,0.18)","hoverinfo":"skip","legend":"legend","line":{"width":0},"name":"21 zones, minimum to maximum","x":{"dtype":"f8","bdata":"VVVVVVVVlT8AAAAAAACwP6uqqqqqqro\u002fq6qqqqqqwj8AAAAAAADIP1VVVVVVVc0\u002fVVVVVVVV0T8AAAAAAADUP6uqqqqqqtY\u002fVVVVVVVV2T8AAAAAAADcP6uqqqqqqt4\u002fq6qqqqqq4D8AAAAAAADiP1VVVVVVVeM\u002fq6qqqqqq5D8AAAAAAADmP1VVVVVVVec\u002fq6qqqqqq6D8AAAAAAADqP1VVVVVVVes\u002fq6qqqqqq7D8AAAAAAADuP1VVVVVVVe8\u002fVVVVVVVV8D8AAAAAAADxP6uqqqqqqvE\u002fVVVVVVVV8j8AAAAAAADzP6uqqqqqqvM\u002fVVVVVVVV9D8AAAAAAAD1P6uqqqqqqvU\u002fVVVVVVVV9j8AAAAAAAD3P6uqqqqqqvc\u002fVVVVVVVV+D8AAAAAAAD5P6uqqqqqqvk\u002fVVVVVVVV+j8AAAAAAAD7P6uqqqqqqvs\u002fVVVVVVVV\u002fD8AAAAAAAD9P6uqqqqqqv0\u002fVVVVVVVV\u002fj8AAAAAAAD\u002fP6uqqqqqqv8\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"},"y":{"dtype":"f8","bdata":"Mm8kpFXrMUAmE7DsbvktQJr6RmaylStAcBnonGsYKkBKoU1FvYkoQHqLUjauNydA5rgClJ8rJkCNgOzZevgmQBoukWLh\u002fCdAEPPkubuYKEB61ilgcFQpQKpib\u002fnM3SlAygh6fj0+KkDWztBa8VkqQDAuu2xyUipAhmSGDZkpKkAQ2RxXw9UpQCoeQ0ndVilA4+qEF7zmKEAtzYUweMcmQDNdxoQliCRAkP\u002f7VKYII0BThhMksfchQIMB50BVGyFA7bwlx1BUIEDac9bnQmwfQJP61pfZVx5A4BMBVbJ3HUB6kHOIVbMcQA0Kr0fc8RtAzXEsyN5TG0CtWTbrczoeQMMQg4Z4sSBAYOZwrT7sIUDtEvk+IvYjQF1qAyIXMiZA9tTVay4fKEAzDZkkuGUoQBozGoPnxihAavCNlLQ7KUBA0wv9JBkoQPaBJDcfxSZAZgO1Xs3zJUBW0WNc6cYjQLM\u002f\u002fJOgoCFA9jqeBwmPIEDga3iwbJYfQA2L8v6bXR5ALU5yQyJbHUBNqJljcYIcQPpzNLkMyxtAujuKMsgdG0BtpJlf2nwaQDPIgg2s0BlARhQPSaIkGUCgGaLKj\u002fYbQFqRBi8IHx9A5v0+YAyiIEBAajSyYnYiQPr6ZQBXryRAhpcVqGXRJkD9AhaZ\u002fUInQLo78X05kidA40JS1sOVJ0CKB\u002fiKsrMmQHN1SOmIeiVAQ19VC27NJECzdX2s7dAiQD0I4Xp+tyBAxu6BO3KcHkDzCMjTqDYcQM0Qn900dhpA2vgVxspPGUCNFqGGc1kYQE172W8JjhdABpRr5BPOFkCtw33rLkMWQHM9G6SM4xVAzQYWnGGsFUBamei2OuAYQCDp38X3PBxArWJfbaGGHkCmCoFLOxshQOCPidtKVSNAtq1ioGBCJUAj4ZBlRoIlQHCMSHc9tCVAYLwzHakzJUBg5Du3pbQjQI2N06JIhCJAamr2q3DMIUBz00cd\u002f5MfQLqBOB5EvxtA4Cg6gSgSGkCtcqhIRi8ZQAD9WH8nlBhA4M+K8pBRGECgKeBfuyEYQNNg0yxA8xdAoKDRVR79F0ATI42JIUIYQIB0J4FilxhA06YtiJvoGEBtaebFDIMcQMrCJhIdHiBAFtN0v\u002fptIUB6LTi0tjIjQErD4Euf9iNA3eJZcXdKJEDDBLZW2J0kQAqFqFQW7iRAEM5A1rc5JUAjOE+U538lQFbQZjRb6SRAmskQ8IpgJECNg+yhzmYiQAD3Uaj1XCBATQv5v\u002fSGHkDaKFvSaPwcQI1w59IhzRtArf\u002fgIEe3GkDzb3Htlp4ZQJq6dmairhhAc3UAs4L5F0AaMuWm1mwXQNOjx2nYCBdA02nTxcvOFkAajleTG+kZQHrCeIoQLh1ADV3RD5CKH0DATKqR0oIhQDp1WcbXhSNAhu141ZdJJEBzmQRL04wkQAqbrkb1yiRA3a86PAIIJUBGKJnyCxolQErBpQv4SCRAevicA0LCI0Dj8xaSlN0hQNM3DJ9v+h9AOqhYY4ImHkCa+TUrJfgcQEDtfqdiFhxAAH5nxehsG0CthsVJ3esaQLPH5XtEghpARuW2\u002fqLcGUCNP2YCA7QYQDpTLg+oURdAOq0ZLlzpFkB6wDXje6QaQC2u7bMxix5A+vQrVPeeIEBWP2695lgiQGYvKYHEzSNAEG4i53AUJECKbbraUV4kQLB4mNNjqiRA7ZNI7lP2JEANMe\u002fhkEAlQCZBK70iiSVAYwDCX\u002fvQJUB9QRlI3cskQD2V9DuhISNABhPprQFrIkCT+sox2xYiQNbt4XDS9CFAdsHUw3zyIUDdc\u002fdCGf0hQIPWNeeE9iFA+gIczXy1IUCjkLVLpCQhQIYP8vqkbyBAGsvh4lKFH0Da7juBodIgQG3L5XpZCyJAY+Pu57caI0CqZkbZWz0lQEMpRwZFyCVAkxacNtshJkBjKofXvnYmQENe3WKq1iZAaid9lIs+J0D6p3+4f0UnQBDrccR\u002fOydAWlaPi9X2JkCQ4h8xOdckQIBikO7VmSJAllZep5JnIUAgjZnym38gQCA+NPM2ix9AGvLwjVVOHkBN6BaO4RcdQHMZTkxz0htATSmrb1ehGkDgIiP4Je8ZQGB2hhnTixlARqUBiRUeGUBAY5j5GZsbQKDAZS0wOR5A8FwVF+dbIEDARReCbnEiQGrwlK0dkiRA8B1v0AsJJkCmzy5i4lEmQC0J+M+ciCZApl4Y8srEJkBDmVc9R\u002fImQKYZvWEySyZAjXr8nP1jJUCqGf4tVAsjQHO3WfsBsSBAxrCaRODAHkBtirpFJdQcQJMVzwHDXhtAM4HX7ZMrGkATbv8h\u002fhkZQKCFeVHlThhAOpSaIxqnF0BmxKU8a9QWQCB8GXiu3RVAbYtk6YP9FECAEHz59pUXQFNMzHe5pRpA4F8d+IcSHUDjK3fO\u002fnQgQBpI2YZ6hCJA\u002fXqb24iKJEAd27K42eIkQECZa67yGCVAipYVy8BPJUC22WL8NEklQPphBlez3iNAlqYprJ3eIkBD9gngWa4gQHpIuAE36xxA88zP7c6CGkBmcGRpr8QYQODV8wmBXRdA"},"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"%{y:.1f} \u00b0C","legend":"legend","line":{"color":"#2a78d6","width":2},"name":"21 zones, mean","x":{"dtype":"f8","bdata":"VVVVVVVVlT8AAAAAAACwP6uqqqqqqro\u002fq6qqqqqqwj8AAAAAAADIP1VVVVVVVc0\u002fVVVVVVVV0T8AAAAAAADUP6uqqqqqqtY\u002fVVVVVVVV2T8AAAAAAADcP6uqqqqqqt4\u002fq6qqqqqq4D8AAAAAAADiP1VVVVVVVeM\u002fq6qqqqqq5D8AAAAAAADmP1VVVVVVVec\u002fq6qqqqqq6D8AAAAAAADqP1VVVVVVVes\u002fq6qqqqqq7D8AAAAAAADuP1VVVVVVVe8\u002fVVVVVVVV8D8AAAAAAADxP6uqqqqqqvE\u002fVVVVVVVV8j8AAAAAAADzP6uqqqqqqvM\u002fVVVVVVVV9D8AAAAAAAD1P6uqqqqqqvU\u002fVVVVVVVV9j8AAAAAAAD3P6uqqqqqqvc\u002fVVVVVVVV+D8AAAAAAAD5P6uqqqqqqvk\u002fVVVVVVVV+j8AAAAAAAD7P6uqqqqqqvs\u002fVVVVVVVV\u002fD8AAAAAAAD9P6uqqqqqqv0\u002fVVVVVVVV\u002fj8AAAAAAAD\u002fP6uqqqqqqv8\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"},"y":{"dtype":"f8","bdata":"YAqPa5nHM0DrTL8f\u002f4cyQA1H8Oh0yTFAvpsOnwwxMUDeyivi5bEwQLjKi8xMRDBAQznyfD3EL0CoPWJc3hkwQKXiUPKcXDBA8u312IuEMEABBoeUr74wQOIPZzoG0zBAhfXrVKfUMEDLTfkSOdMwQFuB+A58zTBAq0ZuMa3EMEAifqgAerYwQLYFHhLxoDBA9RR2mSiNMEAxm7zpBcwvQLJiESnsbi5Ai4HouR9\u002fLUApZa03e7YsQBtNPGNe\u002fytA4zFwTuxQK0Bg9AjZt7AqQH2nlBTfGCpAJuPRh6iKKUBvBNm6rgMpQOCg\u002fIQNgChASJAgpFAEKECYjLfjYrooQHhh01fEfClAqdQ+ClGrKkDCweLcG1MtQJunsaJfwi9ARGM5\u002fye8MEDrc54EmE4xQDXJxfNiuTFAm5c1OGKrMUB\u002fLpNbXuYwQLMmNSG1JzBA+FBKfPp\u002fL0BMmeu5heQtQJG13i5NYCxARqWm7KZqK0Cy20Q0RaAqQM9bJQRQ7SlA\u002fW3UjmhKKUCURDHPRrQoQJvYNg67KChAkrEUHMejJ0CeWeop7yUnQOmT04uhqyZAcdnyzewzJkCCJsN74ewmQKFu0euUuSdA5qJScj90KEA0hK2yKBkqQF6zdCpAHCxAruwWV9v8LUDuDKvpfe8uQE6DJd2WQy9Au0C+D+sFL0A+vPrMKfktQGx04Ey7Gy1AADIq\u002flyrLEDP0e9qPUwrQBWzn9Vg7ilAtwnPJzP\u002fKEBV8cWC0ywoQB6FLXzYeidAk8Cy8I\u002fhJkDPZTD8qVEmQEoayHYezyVAcg4QmMZRJUAtjWxaWd8kQEtwI5SxdiRAOGwij8YXJECPbdIg1+gkQJV9lAV3xCVA5+nYRZtnJkAsAds7gZUnQD0iGbE7MSlA\u002fv6h6wLkKkCj\u002fUgVJ9crQDjldO\u002fazStADJBAKV4dK0C0rDXiyV8qQBHuANLB4ClAqySXmjKaKUBo9XGwS1UoQOFhbyIEFSdAZ6g17LtdJkDjwKsX+tElQLrq77EKWSVAZUFmDKnxJEDolw\u002fNj5MkQK3jQNMmPCRAsnOe+brwI0AHS1K2HLEjQKUOnzJOeSNA62DOQgRFI0AyQXiD1j0kQCQCAbAqQCVAEhba4QcZJkBehQbVpzwnQMsWdsgfLihANxo\u002fXkAIKUCxiZK8lrApQFrTHz8DBypAfUAV87XmKUAaNvBzdKgpQFQP4aOtgilAJpchgJ50KUCn9mAD41QoQJVF2tfhKCdAN2f\u002fOaV4JkBJc6lfpeolQCmJbzwwbiVA3ZZkiA\u002f4JEB71qRSxoMkQAV6hA++FyRAoKeDnzC2I0Du58O6oFwjQOXxaQzkCiNA7jtJMFPBIkB13fhUA6QjQHXCIX2OkSRAyJTxs5R6JUBzcAZ2vfQmQMzAHaJcaChAF1ykFZ6GKUCLnWJ5jVMqQAa4Jhr\u002fvSpAzmpnCe2JKkCbOM6b3AEqQONXBgx5qSlALEgHuKqAKUByd5hWFVQoQH43pBjhJidAqceD8r57JkD0MV96gPQlQAKyjYEPfyVA3mo+V6gWJUD+48PyFrgkQPOKaOyTYCRAe1yGNjkDJEDxdscb7ZQjQF7PP2ojHyNAnn6toLPOIkCVUOr7u8YjQMvCocHRySRA8FaeFvV3JUDb+FuEDDcmQJvMb8K74CZA0SYXkpJ4J0ALx+QCFQAoQJh72olrZyhA4OGborSnKEBg75a29dYoQMKtEDYACylAhZpI\u002fkJGKUB70EryL2woQAu1P0cMcydAtZgS+F36JkCeAdz1r6UmQLgZQgGXZCZAGMAufrowJkAvsx4AEQQmQL3BYWEv1SVAUbF9M\u002fWWJUBzWN1DakIlQGCUOMPz4yRAiSn8R7aGJED+ns96XVglQOG4eImVOSZAEv9XnvaoJ0ARV7GNr0sqQK8GhhC0TSxAVH3+XgW5LUB9q5Q0GL8uQIwskwO4cC9AmFGAFEdOL0BpctuRQz4uQOg9Y0kZRC1AqGjPJ1zELECoP8HzQGQrQOMx170KAipA\u002fTJkwmcsKUBe5VmE5nooQJNwa1jn3SdAU86s7jBOJ0D2pFdkKsQmQM5DklS6OyZAEgpARRW5JUAuvQtApkolQKvnj8X86iRABZ6kLOqNJEAzi3sdDEwlQOJ2ZBKLGSZAbmdXO\u002fBmJ0BD1Y4hZ5spQDW1j3JifitAVcC5xRM+LUB78Q+u+YUuQDqHyzsQgi9AaPO9hD+ZL0ApWi2p+2IuQGu+IgKkOC1Aozx\u002fo6eTLEA7har4XBErQBv\u002f0zYvlilAfTEb5QSoKEA+4YCd\u002fOMnQAhvGXKgOidAN9FSkYKhJkDZaN0k+xImQIt34j\u002f4kyVAGMLVbJceJUB\u002f4djP66UkQDgS4Eb\u002fKiRATOfTSXe1I0Db5zHAPW0kQNQIyiy7PyVAqNMl3ZXaJUCfI4Db1LgmQDkUNqmdtydAEVbvoXO\u002fKEBoP9AUJJkpQA9XmjZyJypAO5QxQG4yKkDi8EidhNApQIgmW0IJZilAi84RLt0oKUDT55ncNvMnQMS30zWKrCZAfWAjm0zoJUCwy4HVYEUlQAyTcc+2siRA"},"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"%{y:.1f} \u00b0C","legend":"legend","line":{"color":"#8a8985","dash":"dot","width":1.5},"name":"Outdoor","x":{"dtype":"f8","bdata":"VVVVVVVVlT8AAAAAAACwP6uqqqqqqro\u002fq6qqqqqqwj8AAAAAAADIP1VVVVVVVc0\u002fVVVVVVVV0T8AAAAAAADUP6uqqqqqqtY\u002fVVVVVVVV2T8AAAAAAADcP6uqqqqqqt4\u002fq6qqqqqq4D8AAAAAAADiP1VVVVVVVeM\u002fq6qqqqqq5D8AAAAAAADmP1VVVVVVVec\u002fq6qqqqqq6D8AAAAAAADqP1VVVVVVVes\u002fq6qqqqqq7D8AAAAAAADuP1VVVVVVVe8\u002fVVVVVVVV8D8AAAAAAADxP6uqqqqqqvE\u002fVVVVVVVV8j8AAAAAAADzP6uqqqqqqvM\u002fVVVVVVVV9D8AAAAAAAD1P6uqqqqqqvU\u002fVVVVVVVV9j8AAAAAAAD3P6uqqqqqqvc\u002fVVVVVVVV+D8AAAAAAAD5P6uqqqqqqvk\u002fVVVVVVVV+j8AAAAAAAD7P6uqqqqqqvs\u002fVVVVVVVV\u002fD8AAAAAAAD9P6uqqqqqqv0\u002fVVVVVVVV\u002fj8AAAAAAAD\u002fP6uqqqqqqv8\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"},"y":{"dtype":"f8","bdata":"Zo\u002fC9SiEHEDm6pjgweQbQMAta3VMcBpA4M73U+PlGUCAZmZmZmYaQIBmZmZmZhpAgGZmZmZmGkCAZmZmZmYaQIBmZmZmZhpABoGVQ4uMGkB6FK5H4foaQIbC9ShcjxtArUfhehQuHEATrkfhepQcQG0bonPyRR1A7R0SVYS8HkCmHFpkO30eQOanxks31xxAjU7VpiXpG0DTG+zWo3AaQKD5LhBSKhhAAAAAAAAAFkCmNDt+5noVQOZRuB6FDxRAOiA2lYZUE0CTf+SZVjgTQKYpFWcfzhJAU1VVVVWlEkCtkDSl4gwSQHOx5BdLXhFA7VG4HoXrEUAAgNqSX6ASQPpRuB6FVxJAusqhRbbnEkDatIFOG\u002fQTQC1cj8L1qBVAQMhQ2WGaF0BgmQanekEYQCB2Bci95hdA06NwPQrXFkCtR+F6FK4VQHoUrkfh+hRA7f5KP7epFEAa5z67gJgTQOB6FK5HYRNA7VG4HoVrE0CG61G4HgUTQBqF61G4nhJAwJA0peIMEkDg3whl9JYRQI1QRm\u002fLOhFA09ElCa\u002fKEEBGUPwYc6cQQLMehetRSA9ADQAAAADYDUCaF3l0kzAPQA1WDi2ytQ9ADQrXo3AVD0CTR+F6FHYQQNOK\u002fWX39BFAGvJBz2b1EkDalbIMccwTQMYHPZtVXxRABoGVQ4u0FECa7Xw\u002fNdYTQK0JXcaOiBNA4CXv33vdE0CNY\u002fRLgT8TQOCWtTomqBBAs0rqBDRxCUAmufyH9FsEQE3xY8xdywRAMwrXo3A9BUAaNjy9UtYEQE3b+X5qHARAsxxaZDu\u002fAkDmtIFOG6gCQHOx5BdL3gNAAKjGSzfpBUDzUbgehesHQIDrUbgehQlADSuHFtkOC0AarkfhehQNQGYUrkfheg9A5kEd1EE9EEBmyW6Qd7YNQIBUnH34TAtAWrgehetRCUDmUbgehesGQOaNUEZvywVAWvBgnqj\u002fBUBzkzUfPuMFQKbkF0t+EQdAjQ9gZ9xsCUCNPP0Go+MKQHNgeMNB8wtAgJmZmZmZDUCAmZmZmZkNQI1uEoPAyg5AE4XrUbgeEUAgMQisHJoSQI3C9ShcjxNAYI\u002fC9ShcFEDgy6\u002fa+V4VQK1H4XoULhZAJtv5fmqcFkDAzMzMzMwWQMDMzMzMzBZAwMzMzMzMFkAtsp3vp6YWQLoehetROBZAU7gehevRFUBTqTj78BkVQPoz7AqQCxRAAKwcWmQLE0AN16NwPQoSQEAK16NwPRFAcz0K16NwEECNcD0K16MPQE0MAiuHNg5AWo\u002fC9ShcC0CabOf7qbEIQM3aiv1lVwhAplFuyCxoCEDzwTxR\u002f0YIQDPSlIqzjwlAzfUoXI\u002fCCkCawvUoXI8LQOY3Qhm9rQxA8yhcj8L1DUCaeaL+jVAPQMBB3tnGSRFAhjqogzo4E0AmhetRuOoTQFo5tMh2OhNAehSuR+H6EkCGGARWDtUSQLoehetROBJAU7gehevREUDtUbgehWsRQHNM8GCeKBFA7XoUrkdhEUDtUbgehWsRQO16FK5HYRFABhdte6iaEUAA6Ea628QRQABO9QJ30RFAmnA9CtejDUDao3A9CtcEQIDBbJyxZQNAJlVsMkbuDUCGezoDd5ERQPMHGSo77BJAs9qK\u002fWXXFEBm7lpCPigXQPM4RUdyiRhAmpmZmZkZGkAtMzMzM6MbQO3STWIQ+BtA00s3iUGIHECNwvUoXI8dQE1iEFg5jB5AYLpJDAJLH0ANkjhvEtMeQPomMQisfB5ArQC511xYH0A9Gb0tay0gQEoMAiuHqiBAEC\u002fdJAY1IUBwKmTadVkhQJobwZqMACFAQPFjzF1LH0Cgrdhfdk8bQGBkO99PbRhABgIrhxaZFkCgcD0K16MVQNOjcD0K1xRAJhdTrNkIFkDGuc8uIHYaQGATDXXBFBxApotU4r7HG0A6vPaeIj0cQLOifIJGvR1Ac5HtfD\u002fVHEATL90kBjEaQNOjcD0K1xhADdejcD0KGED6IST6oOcWQEa4HoXr0RVA03oUrkfhFEAzr+LS9JgTQJPq2\u002fFQQhNAwDevJp5VEkAmqFk+VnkQQNrYbY7dNgxAWjFpFZMiC0CACXsrzGQOQDPu2LfZ6g5Azbv6tTaPDUAAeto6Ko8JQNq7u7u7OwlA5lG4HoXrC0CA61G4HoUNQGY730+Nlw9AYA4tsp1fEkAGgZVDi6QVQNP5fmq8DBdAQDMzMzMzF0BAMzMzMzMXQBMZKjtMfRZAM18GFIjiE0D6sdOL3tYRQA102kCnbRBAgBSuR+F6DkDmehSuR+EMQI28dJMY9AtAZmiR7XwPCkBaj8L1KFwIQCZcj8L1KAlAwB6F61F4CEDzKFyPwvUEQJpoke18vwFAgOtRuB6FAUAAhetRuB4DQFq8dJMYZARATXW2VGcrBkAAm+T124IHQDNdKrRvrQlAQHHRtoeqDkBafrHkFwsRQDq7Jw8LdRFAxpi7lpBvEUBAYOXQIrsQQBqF61G4Hg5Aph6F61G4C0DzDcGcmZkIQA3Xo3A9CgZAmutRuB6FBEAahetRuB4CQED67evAuQBA"},"type":"scatter","xaxis":"x","yaxis":"y"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Day of the year"},"showgrid":false,"linecolor":"#b8b7b1","ticks":"outside","tickcolor":"#b8b7b1"},"yaxis":{"anchor":"x","domain":[0.0,1.0],"gridcolor":"rgba(138,137,133,0.25)","zeroline":false,"linecolor":"#b8b7b1"},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Air temperature [\u00b0C]","x":0.5,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"font":{"size":15},"text":"Duplex apartment without heating, Buildings","x":0.0,"xanchor":"left"},"margin":{"l":60,"r":200,"t":80,"b":40},"font":{"family":"Roboto, Helvetica, Arial, sans-serif","size":12,"color":"#8a8985"},"height":330,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","hovermode":"x unified","legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11},"tracegroupgap":2,"x":1.02,"xanchor":"left","y":1.0,"yanchor":"top"}},                        {"displaylogo": false, "responsive": true}                    )                };            </script>        </div>
+
+<p>Days 3 to 10 of the year (the first 2 simulated days are a warm-up and are left out).</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Zone</th>
+<th>Mean [°C]</th>
+<th>Minimum [°C]</th>
+<th>Maximum [°C]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Duplex</td>
+<td>A101</td>
+<td>12.2</td>
+<td>9.9</td>
+<td>15.3</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A102</td>
+<td>13.4</td>
+<td>6.0</td>
+<td>42.9</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A103</td>
+<td>11.5</td>
+<td>9.3</td>
+<td>14.6</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A104</td>
+<td>10.7</td>
+<td>9.5</td>
+<td>12.0</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A105</td>
+<td>11.0</td>
+<td>9.4</td>
+<td>13.2</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A201</td>
+<td>12.8</td>
+<td>10.6</td>
+<td>15.7</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A202</td>
+<td>11.1</td>
+<td>7.4</td>
+<td>19.9</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A203</td>
+<td>12.2</td>
+<td>8.4</td>
+<td>26.9</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A204</td>
+<td>12.5</td>
+<td>10.5</td>
+<td>15.2</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>A205</td>
+<td>12.3</td>
+<td>10.2</td>
+<td>14.8</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B101 3q</td>
+<td>11.0</td>
+<td>9.3</td>
+<td>12.8</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B102 cz</td>
+<td>8.6</td>
+<td>5.2</td>
+<td>13.2</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B103 3s</td>
+<td>11.8</td>
+<td>9.4</td>
+<td>14.7</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B104 3p</td>
+<td>10.5</td>
+<td>9.4</td>
+<td>11.8</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B105</td>
+<td>10.6</td>
+<td>9.0</td>
+<td>12.5</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B201 3g</td>
+<td>13.0</td>
+<td>11.2</td>
+<td>15.3</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B202 3a</td>
+<td>10.6</td>
+<td>8.5</td>
+<td>15.8</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B203 39</td>
+<td>9.9</td>
+<td>7.1</td>
+<td>14.1</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B204 3c</td>
+<td>12.4</td>
+<td>10.5</td>
+<td>14.7</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>B205</td>
+<td>12.1</td>
+<td>10.4</td>
+<td>14.3</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>R301</td>
+<td>20.4</td>
+<td>14.6</td>
+<td>26.7</td>
+</tr>
+<tr>
+<td>Duplex</td>
+<td>Mean of the zones</td>
+<td>11.9</td>
+<td>9.4</td>
+<td>15.8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What to expect.</strong> Most rooms stay between the outdoor temperature and 15 °C without heating; rooms with large
+windows and little floor area heat up in the sun.</p>
+<p><strong>What the simulation shows.</strong> The mean of the 21 zones is 12 °C over days 3 to 10, most rooms averaging between 10
+and 13.5 °C. Two rooms stand out:</p>
+<ul>
+<li>A102 averages 13 °C but peaks at about 43 °C on sunny afternoons. It has 11.7 m² of windows for 27.7 m² of floor,
+  and, like every room, constructions made of ifctrano's default material, an insulation-like material of 80 kg/m³
+  (see <a href="../../explanation/#assumptions-and-known-limitations">the limitations</a>): almost no thermal mass absorbs
+  the solar gains. Such peaks in January are an artefact of the default material properties.</li>
+<li>The roof space R301 averages 20 °C: no roof surface was found for it (only 31.6 m² of external wall for 135 m² of
+  floor), so the internal gains of its large floor area have little surface to escape through.</li>
+</ul>
+<p>Edit the <code>material</code> section of the configuration with the real properties of the materials, and check the space
+boundaries (<code>--show-space-boundaries</code>), before drawing conclusions on overheating.</p>
 
 
 
