@@ -485,7 +485,14 @@ def table(rows: Sequence[dict[str, str]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def outputs(example: Example) -> tuple[Path, Path]:
+    """The figure and the table of an example, included in the tutorial pages."""
+    return FIGURES / f"{example.name}.html", FIGURES / f"{example.name}.md"
+
+
 def write(example: Example, results: Mapping[str, Result]) -> None:
+    """Write the figure and the table of key numbers of a simulated example."""
+    figure_path, table_path = outputs(example)
     FIGURES.mkdir(parents=True, exist_ok=True)
     html = figure(example, results).to_html(
         include_plotlyjs="cdn",
@@ -493,15 +500,23 @@ def write(example: Example, results: Mapping[str, Result]) -> None:
         config={"displaylogo": False, "responsive": True},
         div_id=example.name,
     )
-    (FIGURES / f"{example.name}.html").write_text(html)
+    figure_path.write_text(html)
     period = example.period
     caption = (
         f"Days {period.start + period.warm_up + 1} to {period.start + period.days} of the year "
         f"(the first {period.warm_up} simulated days are a warm-up and are left out).\n\n"
     )
-    (FIGURES / f"{example.name}.md").write_text(
-        caption + table(key_numbers(example, results))
-    )
+    table_path.write_text(caption + table(key_numbers(example, results)))
+
+
+def missing_outputs() -> list[str]:
+    """Outputs of the examples that are not generated: the pages would build without them."""
+    return [
+        str(path.relative_to(ROOT))
+        for example in EXAMPLES
+        for path in outputs(example)
+        if not path.exists()
+    ]
 
 
 def constant_set_point(configuration: dict[str, Any]) -> None:
@@ -621,6 +636,11 @@ def main(arguments: Sequence[str] | None = None) -> None:
         help=f"examples to run, all by default: {names}",
     )
     parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail when a figure or table of the examples is missing, then exit",
+    )
+    parser.add_argument(
         "--list",
         action="store_true",
         help="print the names of the examples as JSON and exit",
@@ -628,6 +648,10 @@ def main(arguments: Sequence[str] | None = None) -> None:
     parsed = parser.parse_args(arguments)
     if parsed.list:
         print(json.dumps(names))
+        return
+    if parsed.check:
+        if missing := missing_outputs():
+            parser.exit(1, f"Missing outputs of the examples: {missing}\n")
         return
     selected = parsed.examples or names
     if unknown := set(selected) - set(names):

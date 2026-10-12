@@ -141,6 +141,16 @@ systems:
     - boiler_1
 ```
 
+## Results
+
+The model simulated for the first ten days of January in Uccle (trano's default weather), with trano's default
+controls: the rooms are heated to 21 °C from 7:00 to 19:00 and to 15.85 °C at night (see
+[Control](../explanation/index.md#control)). The second panel shows the heat delivered by all the radiators.
+
+{!tutorials/figures/heating.html!}
+
+{!tutorials/figures/heating.md!}
+
 ## Incomplete models
 
 Real models often lack part of this information. ifctrano keeps going and records every assumption, which is logged

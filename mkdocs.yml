@@ -54,6 +54,9 @@ theme:
   language: en
 plugins:
   - search
+exclude_docs: |
+  tutorials/figures/
+
 nav:
   - ifctrano: index.md
   - Getting-started:
@@ -64,14 +67,16 @@ nav:
     - Many zones model: tutorials/many_zones_model.md
     - Realistic model: tutorials/realistic_model.md
     - Heating model: tutorials/heating_model.md
-  - How-to Guides: how-to guides/index.md
+    - Orientation of the facades: tutorials/orientation.md
+    - Heat generators: tutorials/heat_generators.md
+    - Control strategies: tutorials/control.md
   - Explanation: explanation/index.md
 
 
 markdown_extensions:
     - admonition
+    - attr_list
     - pymdownx.details
-    - pymdownx.superfences
     - markdown_include.include:
         base_path: docs
     - pymdownx.highlight:
@@ -80,4 +85,9 @@ markdown_extensions:
         pygments_lang_class: true
     - pymdownx.inlinehilite
     - pymdownx.snippets
-    - pymdownx.superfences
+    - pymdownx.superfences:
+        custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
+    - tables

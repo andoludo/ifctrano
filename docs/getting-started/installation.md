@@ -1,99 +1,67 @@
+# Installation
 
-# 🚀 Installation
+## Install ifctrano
 
-## 📦 Install `ifctrano`
-
-!!! warning
-    Trano requires python 3.9 or higher and docker to be installed on the system.
-            
-
-ifctrano is a Python package that can be installed via pip.
+ifctrano requires Python 3.11 or 3.12.
 
 ```bash
 pip install ifctrano
 ```
 
-## ✅ Verify Installation
-
-Run the following commands to ensure everything is working:
+Check the installation:
 
 ```bash
 ifctrano --help
 ifctrano verify
 ```
 
----
+## Optional dependencies
 
-# 🔧 Optional Dependencies
+### Docker (simulation)
 
-## 🐳 Docker (for simulation)
+ifctrano simulates the generated models with OpenModelica in the official OpenModelica Docker image. Install
+[Docker](https://docs.docker.com/get-started/get-docker/) and keep it running to use `--simulate-model`. The Modelica
+libraries are installed in the container at its first start, which needs network access.
 
-To enable model simulation using the official OpenModelica Docker image, install Docker Desktop:
+### Graphviz (layout)
 
-👉 [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)
+trano uses Graphviz to place the components of the generated Modelica models. It is optional, but the diagrams are
+easier to read with it.
 
-Required for using the `--simulate-model` flag.
-
----
-
-## 🧠 Graphviz (for layout visualization)
-
-`ifctrano` leverages Graphviz to optimize component layout in generated Modelica models. It is optional, but **recommended**.
-
-### 📥 Install on Windows
-
-- Download and install from: [https://graphviz.org/download/](https://graphviz.org/download/)
-- Add the Graphviz `bin` folder to your **system `PATH`**.
-
-### 🐧 Install on Linux
+- Windows: install it from [graphviz.org](https://graphviz.org/download/) and add its `bin` folder to the `PATH`.
+- Linux:
 
 ```bash
 sudo apt update
 sudo apt install graphviz
 ```
 
----
+## Usage
 
-# ⚙️ Usage
+ifctrano has four commands:
 
-## 📁 Generate Modelica models from IFC
+| Command | Does |
+|---|---|
+| `ifctrano create MODEL [LIBRARY]` | Builds the Modelica model of an IFC file, next to it. |
+| `ifctrano config MODEL` | Writes the trano configuration (YAML) of an IFC file, to review or edit. |
+| `ifctrano from-config CONFIG [LIBRARY]` | Builds the Modelica model of a configuration. |
+| `ifctrano verify` | Checks the installation. |
 
-### 🏢 Using the **Buildings** library
+`LIBRARY` is `Buildings` (default), `IDEAS`, `reduced_order` or `iso_13790`:
 
 ```bash
 ifctrano create /path/to/your.ifc
-```
-
-### 🏫 Using the **IDEAS** library
-
-```bash
 ifctrano create /path/to/your.ifc IDEAS
 ```
 
-### 🧮 Using the **Reduced Order** library
+Options of `create`:
 
-```bash
-ifctrano create /path/to/your.ifc reduced_order
-```
+| Option | Does |
+|---|---|
+| `--simulate-model` | Simulates the model in OpenModelica (Docker) and opens an HTML report of the results. |
+| `--show-space-boundaries` | Shows the space boundaries computed from the geometry. |
+| `--hvac PATH` | Adds a federated heating model (IFC4 MEP); can be given several times. |
+| `--heat-generator KIND` | Kind of heat generator: `boiler`, `air_water_heat_pump`, `water_water_heat_pump` or `generic`. |
 
----
-
-## 🧱 Show Space Boundaries
-
-To visualize the computed space boundaries:
-
-```bash
-ifctrano create /path/to/your.ifc --show-space-boundaries
-```
-
----
-
-## 🔁 Simulate the Model
-
-Run a full simulation after model generation:
-
-```bash
-ifctrano create /path/to/your.ifc --simulate-model
-```
-
-Make sure Docker is installed and running before simulating.
+`config` takes the same `--hvac`, `--heat-generator` and `--show-space-boundaries` options, and `from-config` takes
+`--simulate-model`.

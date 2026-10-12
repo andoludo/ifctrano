@@ -1,39 +1,39 @@
 # Realistic model
-This tutorial demonstrates how Ifctrano manages realistic BIM models. This example is based on the duplex apartment model available online. The model realistically represents a two-floor duplex apartment with multiple rooms, as shown in the figures below.
 
-![Generated model](./img/duplex_1.png)
+This tutorial uses a realistic BIM model: the duplex apartment sample model, a two-storey dwelling with many rooms
+(`Duplex_A.ifc` in `tests/models/space_boundary`).
 
-![Generated model](./img/duplex_2.png)
+![Duplex apartment](./img/duplex_1.png)
 
-The file is located in the tests folder of the repository. You can use the command line interface to generate the model, as demonstrated below (similar to the previous tutorials).
-
+![Duplex apartment](./img/duplex_2.png)
 
 ```python
+from pathlib import Path
 
 from ifctrano.building import Building
-building = Building.from_ifc(path_to_ifc_file)
+
+building = Building.from_ifc(Path("Duplex_A.ifc"))
 building.save_model()
-                
 ```
-            
 
-The code snippet above generates a Modelica model of the IFC file in the same directory as the IFC file. This model can subsequently be opened in OpenModelica.
-
-![Generated model](./img/duplex_6.png)
-
-To display the generated space boundaries alongside the Modelica model and run the simulation simultaneously via the command line, use the following command:
-
+or
 
 ```bash
-ifctrano create path_to_ifc_file.ifc --show-space-boundaries --simulate-model
+ifctrano create Duplex_A.ifc --show-space-boundaries --simulate-model
 ```
-            
 
-The generated space boundaries will be displayed as illustrated in the figure below.
+The space boundaries derived from the geometry:
 
 ![Space boundaries](./img/duplex_3.png)
 
-The simulation output will automatically open in your local browser.
+The generated model in OpenModelica (taken with an earlier version; the layout may differ):
 
-![Space boundaries](./img/duplex_4.png)
+![Generated model](./img/duplex_6.png)
 
+## Results
+
+Free-floating zones (the model has no heating) for the first ten days of January.
+
+{!tutorials/figures/realistic.html!}
+
+{!tutorials/figures/realistic.md!}

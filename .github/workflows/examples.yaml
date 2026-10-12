@@ -78,13 +78,15 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: poetry install --only docs --no-root
+        run: poetry install --with docs
       - name: Download the figures
         uses: actions/download-artifact@v4
         with:
           pattern: figures-*
           merge-multiple: true
           path: docs/tutorials/figures
+      - name: Check that every example produced its figure and table
+        run: poetry run python -m docs_src.examples --check
       - name: Build the documentation (warnings are errors)
         run: poetry run mkdocs build --strict
       - name: Upload the site

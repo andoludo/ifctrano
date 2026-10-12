@@ -20,6 +20,7 @@ from docs_src.examples import (
     figure,
     key_numbers,
     main,
+    outputs,
     table,
     zone_label,
 )
@@ -146,3 +147,17 @@ def test_unknown_example_is_rejected() -> None:
 def test_list_prints_the_example_names(capsys: pytest.CaptureFixture[str]) -> None:
     main(["--list"])
     assert json.loads(capsys.readouterr().out) == [example.name for example in EXAMPLES]
+
+
+def test_check_fails_on_missing_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("docs_src.examples.FIGURES", tmp_path)
+    monkeypatch.setattr("docs_src.examples.ROOT", tmp_path)
+    with pytest.raises(SystemExit) as error:
+        main(["--check"])
+    assert error.value.code == 1
+    for example in EXAMPLES:
+        for path in outputs(example):
+            path.write_text("")
+    main(["--check"])

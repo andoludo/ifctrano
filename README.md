@@ -39,7 +39,7 @@ ifctrano has been tested using open-source IFC files from various repositories:
 ### 📦 Install `ifctrano`
 
 !!! warning
-    Trano requires python 3.9 or higher and docker to be installed on the system.
+    ifctrano requires Python 3.11 or 3.12; simulating the models requires Docker.
             
 
 ifctrano is a Python package that can be installed via pip.

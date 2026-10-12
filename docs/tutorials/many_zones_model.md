@@ -1,39 +1,40 @@
 # Many zones model
-This tutorial demonstrates how to generate a Modelica model and open it with OpenModelica for the multizone BIM model displayed below.
 
-![Generated model](./img/multizone_1.png)
+ifctrano makes one thermal zone per `IfcSpace`, and couples the zones through the walls and slabs they share. This
+tutorial uses `MultiZoneBuilding.ifc` from `tests/models/space_boundary`.
 
-![Generated model](./img/multizone_2.png)
+![Multizone model](./img/multizone_1.png)
 
-The file can be found in the repository's `tests` folder.
-
+![Multizone model](./img/multizone_2.png)
 
 ```python
+from pathlib import Path
 
 from ifctrano.building import Building
-building = Building.from_ifc(path_to_ifc_file)
+
+building = Building.from_ifc(Path("MultiZoneBuilding.ifc"))
 building.save_model()
-                
 ```
-            
 
-The code snippet above creates a Modelica model from the IFC file in the same folder. You can then open this model in OpenModelica.
-
-![Generated model](./img/multizone_5.png)
-
-To display the generated space boundaries alongside the Modelica model and simulate simultaneously from the command line, use the following command:
-
+or, showing the space boundaries and simulating the model:
 
 ```bash
-ifctrano create path_to_ifc_file.ifc --show-space-boundaries --simulate-model
+ifctrano create MultiZoneBuilding.ifc --show-space-boundaries --simulate-model
 ```
-            
 
-The generated space boundaries will be displayed as illustrated in the figure below.
+The space boundaries derived from the geometry: external surfaces in red, surfaces shared between spaces in blue.
 
 ![Space boundaries](./img/multizone_3.png)
 
-The simulation output will open automatically.
+The generated model in OpenModelica (taken with an earlier version; the layout may differ):
 
-![Space boundaries](./img/multizone_4.png)
+![Generated model](./img/multizone_5.png)
 
+## Results
+
+The building has no heating model: the zones are free-floating. With more zones than lines can show clearly, the
+figure draws the range of the zone temperatures (minimum to maximum) and their mean.
+
+{!tutorials/figures/many_zones.html!}
+
+{!tutorials/figures/many_zones.md!}
