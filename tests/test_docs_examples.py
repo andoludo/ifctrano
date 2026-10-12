@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 import pytest
 
 from docs_src.examples import (
@@ -161,3 +162,20 @@ def test_check_fails_on_missing_outputs(
         for path in outputs(example):
             path.write_text("")
     main(["--check"])
+
+
+class CounterReader:
+    """Reader of a result where the data bus counter of a boiler appears under two components."""
+
+    def values(self, name: str) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        return np.array([0.0, DAY, 2 * DAY]), np.array([0.0, 10.0, 30.0])
+
+
+def test_energy_counts_each_counter_of_the_data_bus_once() -> None:
+    result = Result.__new__(Result)
+    result.reader = CounterReader()
+    result.names = [
+        "building.bus1.dataBus.heat_energyBoiler_1",
+        "building.production1.dataBus.heat_energyBoiler_1",
+    ]
+    assert result.energy(r"\.dataBus\.heat_energy\w+$", since=DAY) == 20.0

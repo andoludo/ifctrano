@@ -33,7 +33,13 @@ from buildingspy.io.outputfile import Reader  # type: ignore[import-untyped]
 from plotly.subplots import make_subplots  # type: ignore[import-untyped]
 from trano.data_models.conversion import convert_network  # type: ignore[import-untyped]
 from trano.elements.library.library import Library  # type: ignore[import-untyped]
-from trano.simulate.simulate import SimulationOptions, simulate  # type: ignore[import-untyped]
+from trano.simulate.simulate import (  # type: ignore[import-untyped]
+    MODELICA_ENVIRONMENT,
+    SimulationOptions,
+    client,
+    container,
+    simulate,
+)
 from trano.utils.utils import is_success  # type: ignore[import-untyped]
 
 from ifctrano.base import Libraries, Vector
@@ -197,12 +203,17 @@ class Result:
         )
 
     def energy(self, pattern: str, since: float) -> float | None:
-        """Increase of the energy counters matching ``pattern`` after ``since`` [kWh]."""
-        names = self.find(pattern)
-        if not names:
+        """Increase of the energy counters matching ``pattern`` after ``since`` [kWh].
+
+        The data bus appears under every component wired to it: each counter is counted once.
+        """
+        counters = {
+            name.rsplit(".", 1)[-1]: name for name in reversed(self.find(pattern))
+        }
+        if not counters:
             return None
         total = 0.0
-        for name in names:
+        for name in counters.values():
             time, values = self.reader.values(name)
             total += float(values[-1] - np.interp(since, time, values))
         return total
@@ -247,16 +258,39 @@ def run(case: Case, period: Period, directory: Path) -> Result:
     )
     project = directory / name
     project.mkdir()
+    # A network renders its model once: render it here to check it again on failure.
+    network.set_weather_path_to_container_path(project)
+    model = network.model()
+    container_name = f"ifctrano_{name}"
     logger.info("Simulating %s with %s", case.label, case.library)
     output = simulate(
-        project, network, options=options, container_name=f"ifctrano_{name}"
+        project, network, options=options, container_name=container_name, model=model
     )
     if not is_success(output, options=options):
-        raise SimulationError(f"{case.label}: {output.output.decode()[-4000:]}")
+        raise SimulationError(
+            f"{case.label}: {output.output.decode()[-3000:]}\n--- OpenModelica errors ---\n"
+            f"{diagnose(project, network.name, model, container_name)[-6000:]}"
+        )
     result_files = sorted(project.rglob("*building_res.mat"))
     if not result_files:
         raise SimulationError(f"{case.label}: no result file in {project}")
     return Result(result_files[0])
+
+
+def diagnose(project: Path, name: str, model: str, container_name: str) -> str:
+    """OpenModelica messages when loading and checking a model that failed to build."""
+    (project / "diagnostic.mo").write_text(model)
+    (project / "diagnostic.mos").write_text(
+        f'loadModel(Modelica, {{"{MODELICA_ENVIRONMENT.modelica_version}"}});\n'
+        "getErrorString();\n"
+        'loadFile("/simulation/diagnostic.mo");\n'
+        "getErrorString();\n"
+        f"checkModel({name}.building);\n"
+        "getErrorString();\n"
+    )
+    with container(client(), project, container_name=container_name) as container_:
+        output = container_.exec_run(cmd="omc /simulation/diagnostic.mos").output
+    return str(output.decode())
 
 
 def _temperature_traces(
