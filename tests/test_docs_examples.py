@@ -24,6 +24,7 @@ from docs_src.examples import (
     outputs,
     table,
     zone_label,
+    zone_labels,
 )
 
 PERIOD = Period(start=0, days=4, warm_up=1)
@@ -70,6 +71,14 @@ def _example(cases: int, zone: str | None = None) -> Example:
 def test_zone_label() -> None:
     assert zone_label("space_kitchen5_dsw") == "Kitchen5"
     assert zone_label("space_01_uj9") == "01"
+
+
+def test_zones_sharing_a_name_keep_their_suffix() -> None:
+    assert zone_labels(["space_01_uj9", "space_01_dup", "space_kitchen5_dsw"]) == {
+        "space_01_uj9": "01 (uj9)",
+        "space_01_dup": "01 (dup)",
+        "space_kitchen5_dsw": "Kitchen5",
+    }
 
 
 def test_key_numbers_of_one_case() -> None:

@@ -19,7 +19,7 @@ import argparse
 import json
 import logging
 import re
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -226,6 +226,19 @@ def zone_label(zone: str) -> str:
     return name.replace("_", " ").strip().capitalize() or zone
 
 
+def zone_labels(zones: Iterable[str]) -> dict[str, str]:
+    """Readable names of zones; zones sharing a name keep the suffix of their identifier."""
+    zones = list(zones)
+    labels = {zone: zone_label(zone) for zone in zones}
+    shared = {
+        label for label in labels.values() if list(labels.values()).count(label) > 1
+    }
+    return {
+        zone: f"{label} ({zone.rsplit('_', 1)[-1]})" if label in shared else label
+        for zone, label in labels.items()
+    }
+
+
 def _evaluated(series: Series, since: float) -> NDArray[np.float64]:
     return series.data[series.time >= since]
 
@@ -300,8 +313,9 @@ def _temperature_traces(
         result = next(iter(results.values()))
         zones = result.zones()
         if len(zones) <= MAX_ZONE_LINES:
+            labels = zone_labels(zones)
             for index, (zone, series) in enumerate(zones.items()):
-                _line(plot, series, zone_label(zone), SERIES[index], row=1)
+                _line(plot, series, labels[zone], SERIES[index], row=1)
         else:
             _band(plot, list(zones.values()), f"{len(zones)} zones", SERIES[0])
     else:
@@ -460,9 +474,11 @@ def key_numbers(
     since = example.period.evaluated_from
     if len(results) == 1:
         label, result = next(iter(results.items()))
+        zones = result.zones()
+        labels = zone_labels(zones)
         rows = [
-            _temperature_row(label, zone_label(zone), series, since)
-            for zone, series in result.zones().items()
+            _temperature_row(label, labels[zone], series, since)
+            for zone, series in zones.items()
         ]
         if len(rows) > 1:
             rows.append(
