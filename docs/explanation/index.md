@@ -126,7 +126,9 @@ Each space is a zone of the chosen library; the envelope, internal walls and win
 | `iso_13790` | AixLib `ThermalZones.ISO13790.Zone5R1C` | Five resistances and one capacitance (ISO 13790 simple hourly method). |
 
 The detailed libraries model each surface; the reduced-order ones are faster and coarser. The
-[library comparison](../tutorials/use_different_libraries.md) shows how they differ on the same building.
+[library comparison](../tutorials/use_different_libraries.md) shows how Buildings and IDEAS differ on the same
+building. With trano 0.42.0 the AixLib models (`reduced_order`, `iso_13790`) can be generated but not simulated by
+`--simulate-model`, see [trano#44](https://github.com/andoludo/trano/pull/44).
 
 ### Thermal network and boundary conditions
 

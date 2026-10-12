@@ -32,8 +32,15 @@ The IDEAS model of the two zones, as opened in OpenModelica (taken with an earli
 
 ## Results
 
-The same configuration of the [two zones model](two_zones_model.md) simulated with the four libraries, for the first
+The same configuration of the [two zones model](two_zones_model.md) simulated with Buildings and IDEAS, for the first
 ten days of January, without heating. The figure shows the mean air temperature of the two zones.
+
+!!! note "AixLib models"
+    ifctrano generates the `reduced_order` and `iso_13790` models, but trano 0.42.0 cannot simulate them: its
+    OpenModelica script does not load AixLib ("Base class AixLib.Media.Air not found"). The fix is
+    [trano#44](https://github.com/andoludo/trano/pull/44); both libraries will be added to this comparison with the
+    trano release that includes it. Until then, `--simulate-model` fails for these two libraries, while the generated
+    models can be simulated in OpenModelica or Dymola after loading AixLib.
 
 {!tutorials/figures/libraries.html!}
 

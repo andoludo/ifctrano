@@ -589,16 +589,10 @@ EXAMPLES = (
     ),
     Example(
         name="libraries",
-        title="Two zones simulated with four libraries, mean air temperature of the zones",
+        title="Two zones simulated with Buildings and IDEAS, mean air temperature of the zones",
         cases=(
             Case(label="Buildings", ifc="TwoZones.ifc", library="Buildings"),
             Case(label="IDEAS", ifc="TwoZones.ifc", library="IDEAS"),
-            Case(
-                label="AixLib reduced order",
-                ifc="TwoZones.ifc",
-                library="reduced_order",
-            ),
-            Case(label="ISO 13790", ifc="TwoZones.ifc", library="iso_13790"),
         ),
     ),
     Example(
