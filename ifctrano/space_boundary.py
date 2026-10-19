@@ -1,7 +1,7 @@
 import logging
 import math
 import multiprocessing
-from typing import Optional, List, Tuple, Any, Annotated, Dict
+from typing import Optional, Any, Annotated
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -53,7 +53,7 @@ def initialize_tree(ifc_file: file) -> ifcopenshell.geom.tree:
 
 
 class Space(GlobalId):
-    name: Optional[str] = None
+    name: str | None = None
     bounding_box: OrientedBoundingBox
     entity: entity_instance
     average_room_height: Annotated[float, BeforeValidator(_round)]
@@ -106,7 +106,7 @@ MAX_WINDOW_TO_WALL_RATIO = 0.9
 
 
 class ExternalSpaceBoundaryGroup(BaseModelConfig):
-    constructions: List[BaseWall]
+    constructions: list[BaseWall]
     azimuth: float
     tilt: Tilt
 
@@ -126,9 +126,9 @@ class ExternalSpaceBoundaryGroup(BaseModelConfig):
 
     def _merge(
         self,
-        constructions: List[Window | ExternalWall],
+        constructions: list[Window | ExternalWall],
         construction_type: type[Window | ExternalWall],
-    ) -> List[Window | ExternalWall]:
+    ) -> list[Window | ExternalWall]:
         construction_types = [
             c for c in self.constructions if isinstance(c, construction_type)
         ]
@@ -206,14 +206,14 @@ class ExternalSpaceBoundaryGroup(BaseModelConfig):
 
 
 class ExternalSpaceBoundaryGroups(BaseModelConfig):
-    space_boundary_groups: List[ExternalSpaceBoundaryGroup] = Field(
+    space_boundary_groups: list[ExternalSpaceBoundaryGroup] = Field(
         default_factory=list
     )
-    remaining_constructions: List[BaseWall]
+    remaining_constructions: list[BaseWall]
 
     @classmethod
     def from_external_boundaries(
-        cls, external_boundaries: List[BaseWall]
+        cls, external_boundaries: list[BaseWall]
     ) -> "ExternalSpaceBoundaryGroups":
         boundary_walls = [
             ex
@@ -256,7 +256,7 @@ class ExternalSpaceBoundaryGroups(BaseModelConfig):
         for group in self.space_boundary_groups:
             group.add_external_wall()
 
-    def get_constructions(self) -> List[ExternalWall | Window]:
+    def get_constructions(self) -> list[ExternalWall | Window]:
         return [
             *[c for group in self.space_boundary_groups for c in group.constructions],
             *self.remaining_constructions,
@@ -288,14 +288,14 @@ def bearing_to_azimuth(bearing: float) -> float:
 
 
 class Azimuths(BaseModel):
-    north: List[float] = [0.0, 360]
-    east: List[float] = [90.0]
-    south: List[float] = [180.0]
-    west: List[float] = [270.0]
-    northeast: List[float] = [45.0]
-    southeast: List[float] = [135.0]
-    southwest: List[float] = [225.0]
-    northwest: List[float] = [315.0]
+    north: list[float] = [0.0, 360]
+    east: list[float] = [90.0]
+    south: list[float] = [180.0]
+    west: list[float] = [270.0]
+    northeast: list[float] = [45.0]
+    southeast: list[float] = [135.0]
+    southwest: list[float] = [225.0]
+    northwest: list[float] = [315.0]
     tolerance: float = 22.5
 
     def get_azimuth(self, value: float) -> float:
@@ -315,7 +315,7 @@ class SpaceBoundary(BaseModelConfig):
     bounding_box: OrientedBoundingBox
     entity: entity_instance
     common_surface: CommonSurface
-    adjacent_spaces: List[Space] = Field(default_factory=list)
+    adjacent_spaces: list[Space] = Field(default_factory=list)
 
     def __hash__(self) -> int:
         return hash(self.common_surface)
@@ -328,10 +328,10 @@ class SpaceBoundary(BaseModelConfig):
 
     def model_element(  # noqa: PLR0911
         self,
-        exclude_entities: List[str],
+        exclude_entities: list[str],
         north_axis: Vector,
         constructions: Constructions,
-    ) -> Optional[BaseWall]:
+    ) -> BaseWall | None:
         if self.entity.GlobalId in exclude_entities:
             return None
         azimuth = bearing_to_azimuth(
@@ -393,7 +393,7 @@ class SpaceBoundary(BaseModelConfig):
             )
         return None
 
-    def description(self) -> Tuple[float, Tuple[float, ...], Any, str]:
+    def description(self) -> tuple[float, tuple[float, ...], Any, str]:
         return (
             self.common_surface.area,
             self.common_surface.orientation.to_tuple(),
@@ -404,28 +404,28 @@ class SpaceBoundary(BaseModelConfig):
 
 class SpaceBoundaries(BaseShow):
     space: Space
-    boundaries: List[SpaceBoundary] = Field(default_factory=list)
+    boundaries: list[SpaceBoundary] = Field(default_factory=list)
 
     def description(self) -> set[tuple[float, tuple[float, ...], Any, str]]:
         return {b.description() for b in self.boundaries}
 
-    def lines(self) -> List[Line]:
+    def lines(self) -> list[Line]:
         lines = []
         for boundary in self.boundaries:
             lines += boundary.common_surface.lines()
         return lines
 
-    def remove(self, space_boundaries: List[SpaceBoundary]) -> None:
+    def remove(self, space_boundaries: list[SpaceBoundary]) -> None:
         for space_boundary in space_boundaries:
             if space_boundary in self.boundaries:
                 self.boundaries.remove(space_boundary)
 
     def envelope(
         self,
-        exclude_entities: List[str],
+        exclude_entities: list[str],
         north_axis: Vector,
         constructions: Constructions,
-    ) -> Optional[List[BaseWall]]:
+    ) -> list[BaseWall] | None:
         """External envelope of the space, merged per orientation.
 
         Walls and windows of one orientation are merged, and a wall is added
@@ -452,11 +452,11 @@ class SpaceBoundaries(BaseShow):
 
     def to_config(
         self,
-        exclude_entities: List[str],
+        exclude_entities: list[str],
         north_axis: Vector,
         constructions: Constructions,
-    ) -> Optional[Dict[str, Any]]:
-        external_boundaries: Dict[str, Any] = {
+    ) -> dict[str, Any] | None:
+        external_boundaries: dict[str, Any] = {
             "external_walls": [],
             "floor_on_grounds": [],
             "windows": [],
@@ -506,10 +506,10 @@ class SpaceBoundaries(BaseShow):
 
     def model(
         self,
-        exclude_entities: List[str],
+        exclude_entities: list[str],
         north_axis: Vector,
         constructions: Constructions,
-    ) -> Optional[TranoSpace]:
+    ) -> TranoSpace | None:
         envelope = self.envelope(exclude_entities, north_axis, constructions)
         if envelope is None:
             return None
@@ -562,8 +562,8 @@ class SpaceBoundaries(BaseShow):
 
 
 def remove_duplicate_boundaries(
-    boundaries: List[SpaceBoundary],
-) -> List[SpaceBoundary]:
+    boundaries: list[SpaceBoundary],
+) -> list[SpaceBoundary]:
     types = ["IfcRoof", "IfcSlab"]
     boundaries = sorted(boundaries, key=lambda b: b.entity.GlobalId)
     boundaries_without_types = [
@@ -605,9 +605,9 @@ def remove_duplicate_boundaries(
 class MergedSpaceBoundary(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     parent: entity_instance
-    related_boundaries: List[SpaceBoundary]
+    related_boundaries: list[SpaceBoundary]
 
-    def get_new_boundary(self) -> Optional[SpaceBoundary]:
+    def get_new_boundary(self) -> SpaceBoundary | None:
         related_boundaries = sorted(
             self.related_boundaries, key=lambda b: b.entity.GlobalId
         )
@@ -620,12 +620,12 @@ class MergedSpaceBoundary(BaseModel):
 
 
 class MergedSpaceBoundaries(BaseModel):
-    part_boundaries: List[MergedSpaceBoundary]
-    original_boundaries: List[SpaceBoundary]
+    part_boundaries: list[MergedSpaceBoundary]
+    original_boundaries: list[SpaceBoundary]
 
     @classmethod
     def from_boundaries(
-        cls, space_boundaries: List[SpaceBoundary]
+        cls, space_boundaries: list[SpaceBoundary]
     ) -> "MergedSpaceBoundaries":
         building_element_part_boundaries = [
             boundary
@@ -653,7 +653,7 @@ class MergedSpaceBoundaries(BaseModel):
             part_boundaries=part_boundaries, original_boundaries=space_boundaries
         )
 
-    def merge_boundaries_from_part(self) -> List[SpaceBoundary]:
+    def merge_boundaries_from_part(self) -> list[SpaceBoundary]:
         new_boundaries = [b.get_new_boundary() for b in self.part_boundaries]
         new_boundaries_ = [nb for nb in new_boundaries if nb is not None]
         return [

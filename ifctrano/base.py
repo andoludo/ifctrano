@@ -4,7 +4,7 @@ import sys
 from itertools import combinations
 from multiprocessing import Process
 from pathlib import Path
-from typing import Tuple, Literal, List, Annotated, Any, Dict, cast
+from typing import Literal, Annotated, Any, cast
 
 import ifcopenshell.geom
 import numpy as np
@@ -37,7 +37,7 @@ def round_two_decimals(value: float) -> float:
     return round(value, 10)
 
 
-def _show(lines: List[Line], interactive: bool = True) -> None:
+def _show(lines: list[Line], interactive: bool = True) -> None:
     show(
         *lines,
         axes=1,
@@ -50,7 +50,7 @@ def _show(lines: List[Line], interactive: bool = True) -> None:
 class BaseShow(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def lines(self) -> List[Line]: ...  # type: ignore
+    def lines(self) -> list[Line]: ...  # type: ignore
 
     def description(self) -> Any: ...  # noqa: ANN401
 
@@ -72,14 +72,14 @@ class BaseShow(BaseModel):
         )
 
     @classmethod
-    def load_description(cls, file_path: Path) -> Dict[str, Any]:
-        return cast(Dict[str, Any], json.loads(file_path.read_text()))
+    def load_description(cls, file_path: Path) -> dict[str, Any]:
+        return cast(dict[str, Any], json.loads(file_path.read_text()))
 
     def save_description(self, file_path: Path) -> None:
         file_path.write_text(json.dumps(sorted(self.description()), indent=4))
 
-    def description_loaded(self) -> Dict[str, Any]:
-        return cast(Dict[str, Any], json.loads(json.dumps(sorted(self.description()))))
+    def description_loaded(self) -> dict[str, Any]:
+        return cast(dict[str, Any], json.loads(json.dumps(sorted(self.description()))))
 
 
 class BasePoint(BaseModel):
@@ -88,16 +88,16 @@ class BasePoint(BaseModel):
     z: Annotated[float, BeforeValidator(round_two_decimals)]
 
     @classmethod
-    def from_coordinate(cls, point: Tuple[float, float, float]) -> "BasePoint":
+    def from_coordinate(cls, point: tuple[float, float, float]) -> "BasePoint":
         return cls(x=point[0], y=point[1], z=point[2])
 
     def to_array(self) -> np.ndarray:  # type: ignore
         return np.array([self.x, self.y, self.z])
 
-    def to_list(self) -> List[float]:
+    def to_list(self) -> list[float]:
         return [self.x, self.y, self.z]
 
-    def to_tuple(self) -> Tuple[float, float, float]:
+    def to_tuple(self) -> tuple[float, float, float]:
         return (self.x, self.y, self.z)
 
     @classmethod
@@ -232,7 +232,7 @@ class CoordinateSystem(BaseModel):
 
 
 class Vertices(BaseModel):
-    points: List[Point]
+    points: list[Point]
 
     @classmethod
     def from_arrays(
@@ -245,10 +245,10 @@ class Vertices(BaseModel):
     def to_array(self) -> ndarray:  # type: ignore
         return np.array([point.to_array() for point in self.points])
 
-    def to_list(self) -> List[List[float]]:
+    def to_list(self) -> list[list[float]]:
         return self.to_array().tolist()  # type: ignore
 
-    def to_tuple(self) -> List[List[float]]:
+    def to_tuple(self) -> list[list[float]]:
         return tuple(tuple(t) for t in self.to_array().tolist())  # type: ignore
 
     def to_face_vertices(self) -> "FaceVertices":
@@ -418,7 +418,7 @@ class CommonSurface(BaseShow):
     def description(self) -> tuple[list[float], list[float]]:
         return ([self.area], self.orientation.to_list())
 
-    def lines(self) -> List[Line]:
+    def lines(self) -> list[Line]:
         lines = []
         lst = self.common_vertices.to_list()[:4]
 

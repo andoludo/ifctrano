@@ -12,7 +12,8 @@ import math
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any
+from collections.abc import Iterator
 
 ZONE = re.compile(r"Buildings\.ThermalZones\.Detailed\.MixedAir\s+(\w+)\s*\(")
 CONSTRUCTION = re.compile(
@@ -117,11 +118,13 @@ def _surfaces(kind: str, record: str) -> list[dict[str, Any]]:
     areas = [float(area) for area in _array(arguments["A"])]
     tilts = [TILTS[tilt.rsplit(".", 1)[-1]] for tilt in _array(arguments["til"])]
     # Adiabatic surfaces (surBou) have no layers.
-    layers: list[Optional[str]] = list(_array(arguments.get("layers", "")))
+    layers: list[str | None] = list(_array(arguments.get("layers", "")))
     layers += [None] * (len(areas) - len(layers))
     azimuths = [float(azimuth) for azimuth in _array(arguments.get("azi", ""))]
     surfaces = []
-    for index, (area, tilt, layer) in enumerate(zip(areas, tilts, layers)):
+    for index, (area, tilt, layer) in enumerate(
+        zip(areas, tilts, layers, strict=False)
+    ):
         surface: dict[str, Any] = {"kind": kind, "tilt": tilt, "layers": layer}
         # The orientation of horizontal surfaces does not change their physics.
         if tilt == "wall" and azimuths:

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 import ifcopenshell
 import pytest
@@ -24,7 +24,7 @@ TEST_PATH = Path(__file__).parent.joinpath("data")
 TEST_PATH.mkdir(parents=True, exist_ok=True)
 
 
-def diff(output_1: Dict[str, Any], output_2: Dict[str, Any]) -> str:
+def diff(output_1: dict[str, Any], output_2: dict[str, Any]) -> str:
     diff_ = difflib.ndiff(
         json.dumps(output_1, indent=2, sort_keys=True).splitlines(),
         json.dumps(output_2, indent=2, sort_keys=True).splitlines(),
