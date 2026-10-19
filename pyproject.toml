@@ -1,54 +1,79 @@
-[tool.poetry]
+[project]
 name = "ifctrano"
 version = "0.17.0"
 description = "Package for generating building energy simulation model from IFC"
-authors = ["Ando Andriamamonjy <andoludovic.andriamamonjy@gmail.com>"]
-license = "GPL V3"
+authors = [{ name = "Ando Andriamamonjy", email = "andoludovic.andriamamonjy@gmail.com" }]
+requires-python = ">=3.11,<3.13"
 readme = "README.md"
-repository = "https://github.com/andoludo/ifctrano"
-keywords = ["BIM","IFC","energy simulation", "modelica", "building energy simulation", "buildings", "ideas"]
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+keywords = [
+    "BIM",
+    "IFC",
+    "energy simulation",
+    "modelica",
+    "building energy simulation",
+    "buildings",
+    "ideas",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "ifcopenshell>=0.8.1.post1,<0.9",
+    "trano>=0.44.0,<0.45",
+    "shapely>=2.0.7,<3",
+    "typer>=0.19.2,<0.20",
+    "vedo>=2025.5.3,<2026",
+    "open3d>=0.19.0,<0.20",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.11,<3.13"
-ifcopenshell = "^0.8.1.post1"
-trano = "^0.44.0"
-shapely = "^2.0.7"
-typer = "^0.19.2"
-vedo = "^2025.5.3"
-open3d = "^0.19.0"
+[project.urls]
+Repository = "https://github.com/andoludo/ifctrano"
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.8.0"
-nox = "^2023.4.22"
-ruff = "^0.3.0"
-pre-commit = "^3.6.2"
-pandas-stubs = "^2.2.0.240218"
-types-simplejson = "^3.19.0.20240218"
-types-beautifulsoup4 = "^4.12.0.20240229"
-pytest-mongo = "^3.1.0"
-networkx-stubs = "^0.0.1"
-pytest-ordering = "^0.6"
-types-pyyaml = "^6.0.12.20240808"
-isort = "^5.13.2"
-jsf = "^0.11.2"
-black = "^24.10.0"
-pytest = "^7.4.3"
-deepdiff = "^8.6.1"
-
-[tool.poetry.scripts]
+[project.scripts]
 ifctrano = "ifctrano.main:app"
 
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.1"
-mkdocs-material = "^9.5.42"
-markdown-include = "^0.8.1"
-plotly = "^6.0.0"
-buildingspy = "^5.2.0"
+[dependency-groups]
+dev = [
+    "mypy>=1.8.0,<2",
+    "nox>=2023.4.22,<2024",
+    "ruff>=0.3.0,<0.4",
+    "pre-commit>=3.6.2,<4",
+    "pandas-stubs>=2.2.0.240218,<3",
+    "types-simplejson>=3.19.0.20240218,<4",
+    "types-beautifulsoup4>=4.12.0.20240229,<5",
+    "pytest-mongo>=3.1.0,<4",
+    "networkx-stubs>=0.0.1,<0.0.2",
+    "pytest-ordering>=0.6,<0.7",
+    "types-pyyaml>=6.0.12.20240808,<7",
+    "isort>=5.13.2,<6",
+    "jsf>=0.11.2,<0.12",
+    "black>=24.10.0,<25",
+    "pytest>=7.4.3,<8",
+    "deepdiff>=8.6.1,<9",
+]
+docs = [
+    "mkdocs>=1.6.1,<2",
+    "mkdocs-material>=9.5.42,<10",
+    "markdown-include>=0.8.1,<0.9",
+    "plotly>=6.0.0,<7",
+    "buildingspy>=5.2.0,<6",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11.32,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+# Poetry installed every group by default; keep that behaviour for `uv sync` / `uv run`.
+default-groups = "all"
+
+[tool.uv.build-backend]
+# Flat layout: the package lives at the repository root, not under src/.
+module-root = ""
 
 
 [tool.mypy]
@@ -114,7 +139,9 @@ skip = ["models"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "B006","RUF","UP","SIM","FURB","PIE","PERF","C4","B","PL","S","C901","N","ANN", "ERA001", "PD"]
 ignore = []
-extend-ignore = ["ANN101","ANN102","S101","PLR2004","W291"]
+# UP038 (`X | Y` in isinstance) is deprecated upstream: it is slower than the tuple form.
+# RUF200 only checks pyproject.toml, and ruff < 0.9 cannot parse its PEP 639 license string.
+extend-ignore = ["ANN101","ANN102","S101","PLR2004","W291","UP038","RUF200"]
 
 fixable = ["ALL"]
 unfixable = []

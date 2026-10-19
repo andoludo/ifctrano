@@ -1,47 +1,50 @@
 import nox
 from nox import Session
 
-nox.options.reuse_existing_virtualenvs = True
+# Every session delegates to uv, which manages the project environment from uv.lock.
+nox.options.default_venv_backend = "none"
 
 
-@nox.session(python=["3.12"])
+@nox.session
 def install(session: Session) -> None:
-    groups = ["main", "dev", "docs"]
-    session.run(
-        "poetry",
-        "install",
-        "--no-root",
-        "--sync",
-        f"--only={','.join(groups)}",
-        external=True,
-    )
+    session.run("uv", "sync", "--locked", "--all-groups", external=True)
 
 
-@nox.session(python=["3.12"])
+@nox.session
 def linting(session: Session) -> None:
-    session.run("poetry", "run", "black", ".")
-    session.run("poetry", "run", "mypy")
+    session.run("uv", "run", "--locked", "black", ".", external=True)
+    session.run("uv", "run", "--locked", "mypy", external=True)
     session.run(
-        "poetry",
+        "uv",
         "run",
+        "--locked",
         "ruff",
         "check",
         "--fix",
         "--show-fixes",
         "--exit-non-zero-on-fix",
+        external=True,
     )
 
 
-@nox.session(python=["3.12"])
+@nox.session
 def tests(session: Session) -> None:
-    session.run("poetry", "run", "pytest", "-m", "not large and not simulate")
+    session.run(
+        "uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-m",
+        "not large and not simulate",
+        external=True,
+    )
 
 
-@nox.session(python=["3.12"])
+@nox.session
 def simulation(session: Session) -> None:
-    session.run("poetry", "run", "pytest", "-m", "simulate")
+    session.run("uv", "run", "--locked", "pytest", "-m", "simulate", external=True)
 
 
-@nox.session(python=["3.12"])
+@nox.session
 def integration(session: Session) -> None:
-    session.run("poetry", "run", "pytest", "-m", "integration")
+    session.run("uv", "run", "--locked", "pytest", "-m", "integration", external=True)

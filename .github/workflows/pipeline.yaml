@@ -13,20 +13,15 @@ jobs:
         with:
           lfs: true
           ref: ${{ github.ref_name }}
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
+          enable-cache: true
       - name: Install dependencies
-        run: poetry install
-
-      - name: Install nox dependencies
-        run: poetry run nox -s install
+        run: uv sync --locked
 
       - name: Run linting
-        run: poetry run nox -s linting
+        run: uv run --locked nox -s linting
 
   tests:
     needs: [linting]
@@ -37,23 +32,18 @@ jobs:
         with:
           lfs: true
           ref: ${{ github.ref_name }}
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - name: Install graphviz
         run: |
             sudo apt update
             sudo apt install graphviz
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - name: Install dependencies
-        run: poetry install
-
-      - name: Install nox dependencies
-        run: poetry run nox -s install
+        run: uv sync --locked
       - name: Run tests
-        run: poetry run nox -s tests
+        run: uv run --locked nox -s tests
 
   simulation:
     needs: [linting]
@@ -77,23 +67,18 @@ jobs:
         with:
           lfs: true
           ref: ${{ github.ref_name }}
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - name: Install graphviz
         run: |
             sudo apt update
             sudo apt install graphviz
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - name: Install dependencies
-        run: poetry install
-
-      - name: Install nox dependencies
-        run: poetry run nox -s install
+        run: uv sync --locked
       - name: Simulate models (OpenModelica in Docker)
-        run: poetry run pytest -m simulate -k "${{ matrix.tests }}"
+        run: uv run --locked pytest -m simulate -k "${{ matrix.tests }}"
 
   docs:
     needs: [linting]
@@ -110,14 +95,16 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           ref: ${{ github.ref_name }}
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Determine Versioning Strategy
         run: |
           echo "Bumping minor version"
-          poetry version minor
-          echo "NEW_VERSION=$(poetry version -s)" >> $GITHUB_ENV
+          uv version --bump minor --no-sync
+          echo "NEW_VERSION=$(uv version --short)" >> $GITHUB_ENV
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -140,8 +127,10 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           ref: ${{ github.ref_name }}
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Determine Current Version
         run: |
@@ -149,7 +138,7 @@ jobs:
 
       - name: Build source and wheel archives
         id: build
-        run: poetry build
+        run: uv build
       - name: Get Commit Messages Since Last Tag
         id: commit_messages
         run: |

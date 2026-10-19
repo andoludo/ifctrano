@@ -17,17 +17,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
+          enable-cache: true
       - name: Install dependencies
-        run: poetry install --with docs
+        run: uv sync --locked
       - name: List the examples
         id: list
-        run: echo "examples=$(poetry run python -m docs_src.examples --list)" >> "$GITHUB_OUTPUT"
+        run: echo "examples=$(uv run --locked python -m docs_src.examples --list)" >> "$GITHUB_OUTPUT"
 
   example:
     needs: [list]
@@ -41,20 +39,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - name: Install graphviz
         run: |
           sudo apt update
           sudo apt install graphviz
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - name: Install dependencies
-        run: poetry install --with docs
+        run: uv sync --locked
       - name: Simulate the example (OpenModelica in Docker)
-        run: poetry run python -m docs_src.examples ${{ matrix.example }}
+        run: uv run --locked python -m docs_src.examples ${{ matrix.example }}
       - name: Show the key numbers
         run: cat docs/tutorials/figures/${{ matrix.example }}.md
       - name: Upload the figures
@@ -71,14 +67,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
+          enable-cache: true
       - name: Install dependencies
-        run: poetry install --with docs
+        run: uv sync --locked
       - name: Download the figures
         uses: actions/download-artifact@v4
         with:
@@ -86,9 +80,9 @@ jobs:
           merge-multiple: true
           path: docs/tutorials/figures
       - name: Check that every example produced its figure and table
-        run: poetry run python -m docs_src.examples --check
+        run: uv run --locked python -m docs_src.examples --check
       - name: Build the documentation (warnings are errors)
-        run: poetry run mkdocs build --strict
+        run: uv run --locked mkdocs build --strict
       - name: Upload the site
         uses: actions/upload-artifact@v4
         with:
