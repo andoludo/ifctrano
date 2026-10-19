@@ -181,5 +181,12 @@ uv run pytest -m simulate  # simulation tests, needs Docker
 ```
 
 ---
+
+## 📄 License
+
+ifctrano is licensed under the [GNU Lesser General Public License v3.0](COPYING.LESSER), which supplements the
+[GNU General Public License v3.0](COPYING).
+
+---
 💡 **ifctrano** aims to make energy simulation model generation from IFC files **simpler, more accessible, and less reliant on incomplete IFC attributes**. 🚀
 
