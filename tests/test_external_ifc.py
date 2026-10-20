@@ -158,9 +158,7 @@ def test_external_ifc_to_modelica(sample: IfcSample) -> None:
     building = Building.from_ifc(ifc_path)
     model = building.get_model()
     assert model, f"Empty Modelica model for {sample.name}"
-    assert building.space_boundaries, (
-        f"No space boundaries detected in {sample.name}"
-    )
+    assert building.space_boundaries, f"No space boundaries detected in {sample.name}"
 
 
 @pytest.mark.parametrize("sample", NO_SPACE_SAMPLES, ids=lambda s: s.name)
