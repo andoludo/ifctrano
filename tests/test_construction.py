@@ -149,3 +149,25 @@ def test_constructions_have_thick_layers_only(sample_house: file) -> None:
         for construction in constructions.constructions
         for layer in construction.layers
     )
+
+
+def test_layers_from_ifc_handles_optional_material() -> None:
+    """``IfcMaterialLayer.Material`` is OPTIONAL per the IFC schema. The
+    parser must fall back to a default material instead of crashing."""
+    ifc_file = ifcopenshell.file(schema="IFC4")
+    real_material = ifc_file.create_entity("IfcMaterial", Name="Concrete")
+    layer_with_material = ifc_file.create_entity(
+        "IfcMaterialLayer", Material=real_material, LayerThickness=0.2
+    )
+    layer_without_material = ifc_file.create_entity(
+        "IfcMaterialLayer", Material=None, LayerThickness=0.1
+    )
+
+    materials = Materials.from_ifc_materials([real_material])
+    layers = Layers.from_ifc_material_layers(
+        [layer_with_material, layer_without_material], materials
+    )
+
+    assert len(layers.layers) == 2
+    assert layers.layers[0].material.name.lower() == "concrete"
+    assert layers.layers[1].material.name.startswith("default_material_")
