@@ -1,6 +1,6 @@
 [project]
 name = "ifctrano"
-version = "0.18.0"
+version = "0.19.0"
 description = "Package for generating building energy simulation model from IFC"
 authors = [{ name = "Ando Andriamamonjy", email = "andoludovic.andriamamonjy@gmail.com" }]
 requires-python = ">=3.11,<3.13"
