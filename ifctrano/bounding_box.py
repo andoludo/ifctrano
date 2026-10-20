@@ -1,6 +1,6 @@
 from itertools import combinations
 from logging import getLogger
-from typing import List, Optional, Any, Tuple
+from typing import Any
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -45,9 +45,9 @@ class BoundingBoxFace(BaseModelConfig):
 
 
 class BoundingBoxFaces(BaseModel):
-    faces: List[BoundingBoxFace]
+    faces: list[BoundingBoxFace]
 
-    def description(self) -> List[tuple[Any, Tuple[float, float, float]]]:
+    def description(self) -> list[tuple[Any, tuple[float, float, float]]]:
         return sorted([(f.vertices.to_list(), f.normal.to_tuple()) for f in self.faces])
 
     @classmethod
@@ -89,9 +89,9 @@ class OrientedBoundingBox(BaseShow):
     area_tolerance: float = Field(default=AREA_TOLERANCE)
     volume: float
     height: float
-    entity: Optional[entity_instance] = None
+    entity: entity_instance | None = None
 
-    def lines(self) -> List[Line]:
+    def lines(self) -> list[Line]:
         lines = []
         for f in self.faces.faces:
             face = f.vertices.to_list()
@@ -99,7 +99,7 @@ class OrientedBoundingBox(BaseShow):
                 lines.append(Line(a, b))
         return lines
 
-    def intersect_faces(self, other: "OrientedBoundingBox") -> Optional[CommonSurface]:
+    def intersect_faces(self, other: "OrientedBoundingBox") -> CommonSurface | None:
         extend_surfaces = []
         for face in self.faces.faces:
 
@@ -166,7 +166,7 @@ class OrientedBoundingBox(BaseShow):
     def from_vertices(
         cls,
         vertices: np.ndarray[tuple[int, ...], np.dtype[np.float64]],
-        entity: Optional[entity_instance] = None,
+        entity: entity_instance | None = None,
     ) -> "OrientedBoundingBox":
         points_ = open3d.utility.Vector3dVector(vertices)
         mobb = open3d.geometry.OrientedBoundingBox.create_from_points_minimal(

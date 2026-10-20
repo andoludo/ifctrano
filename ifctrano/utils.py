@@ -1,7 +1,7 @@
 import random
 import re
 import string
-from typing import Optional, get_args
+from typing import get_args
 
 from ifcopenshell import file, entity_instance
 
@@ -20,7 +20,7 @@ def short_uuid() -> str:
     )
 
 
-def modelica_identifier(text: Optional[str], fallback: str) -> str:
+def modelica_identifier(text: str | None, fallback: str) -> str:
     """Lower-case Modelica identifier made from ``text``.
 
     Modelica identifiers start with a letter: names starting with a digit are

@@ -7,7 +7,7 @@ generated from them.
 Run from the repository root (the 3D renders need a display; on a headless
 machine use xvfb):
 
-    xvfb-run -a poetry run python docs_src/heating_figures.py
+    xvfb-run -a uv run python docs_src/heating_figures.py
 """
 
 import logging

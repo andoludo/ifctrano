@@ -168,5 +168,24 @@ ifctrano create /path/to/your.ifc --simulate-model
 Make sure Docker is installed and running before simulating.
 
 ---
+
+## 🛠️ Development
+
+The project is managed with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync                  # create .venv with the package and the dev and docs groups
+uv run nox -s linting    # black, mypy and ruff
+uv run nox -s tests      # fast tests (no large models, no simulation)
+uv run pytest -m simulate  # simulation tests, needs Docker
+```
+
+---
+
+## 📄 License
+
+ifctrano is licensed under the [Apache License 2.0](LICENSE).
+
+---
 💡 **ifctrano** aims to make energy simulation model generation from IFC files **simpler, more accessible, and less reliant on incomplete IFC attributes**. 🚀
 

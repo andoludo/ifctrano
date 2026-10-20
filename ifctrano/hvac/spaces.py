@@ -82,7 +82,7 @@ class SpaceLocator:
             for space in self.spaces.values():
                 try:
                     self._footprints.append(SpaceFootprint(space))
-                except Exception as e:  # noqa: PERF203
+                except Exception as e:
                     logger.warning(f"No footprint for space {space.global_id}: {e}")
         return self._footprints
 

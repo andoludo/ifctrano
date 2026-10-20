@@ -16,7 +16,7 @@ explicit discretisation of the layers), so that no other physics changed.
 
 import math
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import pytest
 from deepdiff import DeepDiff
@@ -159,7 +159,7 @@ def test_azimuth_of_outward_normal(degrees: int) -> None:
     )
 
 
-def _facade_azimuth(x: float, y: float) -> Optional[float]:
+def _facade_azimuth(x: float, y: float) -> float | None:
     """Azimuth of the ExampleHOM facade a point lies on (footprint 8.58 m x 11.34 m)."""
     facades = {
         SOUTH: abs(y),
@@ -173,7 +173,7 @@ def _facade_azimuth(x: float, y: float) -> Optional[float]:
 
 def test_window_azimuths_follow_the_facades(example_hom_building: Building) -> None:
     """Each window faces the facade it is in, for the configuration and the model."""
-    expected: dict[str, set[Optional[float]]] = {}
+    expected: dict[str, set[float | None]] = {}
     for space_boundaries in example_hom_building.space_boundaries:
         space = space_boundaries.space
         for boundary in space_boundaries.boundaries:
