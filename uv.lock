@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.11, <3.13"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -637,8 +637,9 @@ wheels = [
 
 [[package]]
 name = "ifctrano"
-version = "0.17.0"
+version = "0.18.0"
 source = { editable = "." }
+default-groups = "all"
 dependencies = [
     { name = "ifcopenshell" },
     { name = "open3d" },
